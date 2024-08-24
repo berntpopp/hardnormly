@@ -243,6 +243,7 @@ done
 # Apply filters from file, if provided
 if [[ -n "$filters_file" ]]; then
     while IFS=" " read -r filter_name filter_action filter_expr; do
+        filter_expr=$(echo "$filter_expr" | tr -d '\r\n')
         filter_cmd="bcftools filter -m+ -s$filter_name -$filter_action '$filter_expr'"
         pipeline_cmd="$pipeline_cmd | $filter_cmd"
     done < "$filters_file"
