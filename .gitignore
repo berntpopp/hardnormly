@@ -1,0 +1,17 @@
+# Ignore temporary files
+*.tmp
+*.log
+
+# Ignore compiled binaries
+*.o
+*.out
+
+# Ignore bedtools and bcftools temporary files
+*.bed
+*.vcf
+
+# Ignore tes, output, ref, and tmp directories
+test/
+output/
+ref/
+tmp/
