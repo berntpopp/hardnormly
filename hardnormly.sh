@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.2.3"
+version="0.2.4"
 
 # Default values for parameters
 include_bed_files=()
@@ -114,7 +114,8 @@ normalize_bed() {
     local annotation="$2"
     local output_file="$3"
     debug_msg "Normalizing BED file: $bed_file with annotation: $annotation"
-    awk -v annot="$annotation" '{OFS="\t"; print $1, $2, $3, annot}' "$bed_file" | sort -k1,1 -k2,2n > "$output_file"
+
+    awk -v annot="$annotation" '{OFS="\t"; print $1, $2, $3, annot}' "$bed_file" | bedtools sort -i - > "$output_file"
 }
 
 # Step 1: Create the genome file (if not provided)
@@ -151,6 +152,7 @@ done
 if [[ "${#normalized_exclude_bed_files[@]}" -gt 1 ]]; then
     log_msg "Combining normalized exclusion BED files..."
     bedtools multiinter -i "${normalized_exclude_bed_files[@]}" | \
+    bedtools sort -i - | \
     awk '{OFS="\t"; print $1, $2, $3, "1"}' > "$tmp_dir/merged_exclude_regions.bed"
 elif [[ "${#normalized_exclude_bed_files[@]}" -eq 1 ]]; then
     cp "${normalized_exclude_bed_files[0]}" "$tmp_dir/merged_exclude_regions.bed"
@@ -160,6 +162,7 @@ fi
 if [[ "${#normalized_include_bed_files[@]}" -gt 1 ]]; then
     log_msg "Intersecting and padding normalized inclusion BED files..."
     bedtools intersect -a "${normalized_include_bed_files[0]}" -b "${normalized_include_bed_files[@]:1}" | \
+    bedtools sort -i - | \
     bedtools slop -b "$slop" -g "$genome_file" > "$tmp_dir/merged_include_regions.bed"
 elif [[ "${#normalized_include_bed_files[@]}" -eq 1 ]]; then
     log_msg "Padding single normalized inclusion BED file..."
