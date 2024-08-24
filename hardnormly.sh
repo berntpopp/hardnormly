@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Script version
+version="0.1.0"
+
 # Default values for parameters
 include_bed_files=()
 exclude_bed_files=()
@@ -37,6 +40,7 @@ show_help() {
     echo "  --tmp-dir            Temporary directory to use (default: tmp)"
     echo "  --no-cleanup         Do not clean up the temporary directory after execution"
     echo "  --debug              Enable debug mode (prints all executed commands and detailed messages)"
+    echo "  --version            Display script version"
     echo "  -h, --help           Display this help message"
     exit 1
 }
@@ -66,6 +70,7 @@ while [[ "$#" -gt 0 ]]; do
         --tmp-dir) tmp_dir="$2"; shift ;;
         --no-cleanup) cleanup=false ;;
         --debug) debug=true ;;
+        --version) echo "Version: $version"; exit 0 ;;  # Added version flag
         -h|--help) show_help ;;
         *) echo "Unknown parameter: $1"; show_help ;;
     esac
