@@ -140,13 +140,14 @@ elif [[ "${#normalized_exclude_bed_files[@]}" -eq 1 ]]; then
     cp "${normalized_exclude_bed_files[0]}" "$tmp_dir/merged_exclude_regions.bed"
 fi
 
-# Combine normalized include BED files using bedtools multiinter
+# Combine normalized include BED files using bedtools intersect and apply slop
 if [[ "${#normalized_include_bed_files[@]}" -gt 1 ]]; then
-    echo "Combining normalized inclusion BED files..."
-    bedtools multiinter -i "${normalized_include_bed_files[@]}" | \
-    awk '{OFS="\t"; print $1, $2, $3, "1"}' > "$tmp_dir/merged_include_regions.bed"
+    echo "Intersecting and padding normalized inclusion BED files..."
+    bedtools intersect -a "${normalized_include_bed_files[0]}" -b "${normalized_include_bed_files[@]:1}" | \
+    bedtools slop -b "$slop" -g "$genome_file" > "$tmp_dir/merged_include_regions.bed"
 elif [[ "${#normalized_include_bed_files[@]}" -eq 1 ]]; then
-    cp "${normalized_include_bed_files[0]}" "$tmp_dir/merged_include_regions.bed"
+    echo "Padding single normalized inclusion BED file..."
+    bedtools slop -b "$slop" -g "$genome_file" -i "${normalized_include_bed_files[0]}" > "$tmp_dir/merged_include_regions.bed"
 fi
 
 # Compress and index the merged BED files for inclusion
