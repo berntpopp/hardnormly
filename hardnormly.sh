@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.1.4"
+version="0.2.0"
 
 # Default values for parameters
 include_bed_files=()
@@ -14,7 +14,8 @@ output_vcf=""
 genome_file=""
 genome_build="hg19"  # Default genome build
 debug=false  # Debug mode disabled by default
-tmp_dir="tmp"  # Default temporary directory
+log_file=""  # Default to no log file
+tmp_dir=$(mktemp -d -t hardnormly-XXXXXXXXXX)  # Use mktemp for a unique tmp directory
 cleanup=true  # Default to cleaning up the temporary directory
 slop=20  # Default slop value (in base pairs)
 only_pass=false  # Option to filter only PASS variants
@@ -37,18 +38,28 @@ show_help() {
     echo "  --filters-file       File containing bcftools filter expressions (format: filter_name action expression)"
     echo "  --only-pass          Filter to retain only PASS variants"
     echo "  --generate-stats     Generate stats file from the output VCF"
-    echo "  --tmp-dir            Temporary directory to use (default: tmp)"
+    echo "  --tmp-dir            Temporary directory to use (default: mktemp-based)"
     echo "  --no-cleanup         Do not clean up the temporary directory after execution"
+    echo "  --log-file           File to write logs to (default: none, log to stdout)"
     echo "  --debug              Enable debug mode (prints all executed commands and detailed messages)"
     echo "  --version            Display script version"
     echo "  -h, --help           Display this help message"
     exit 1
 }
 
+# Function to log messages
+log_msg() {
+    if [[ -n "$log_file" ]]; then
+        echo "$1" >> "$log_file"
+    else
+        echo "$1"
+    fi
+}
+
 # Function to print debug messages
 debug_msg() {
     if $debug; then
-        echo "[DEBUG] $1"
+        log_msg "[DEBUG] $1"
     fi
 }
 
@@ -69,8 +80,9 @@ while [[ "$#" -gt 0 ]]; do
         --generate-stats) generate_stats=true ;;
         --tmp-dir) tmp_dir="$2"; shift ;;
         --no-cleanup) cleanup=false ;;
+        --log-file) log_file="$2"; shift ;;
         --debug) debug=true ;;
-        --version) echo "Version: $version"; exit 0 ;;  # Added version flag
+        --version) echo "Version: $version"; exit 0 ;;
         -h|--help) show_help ;;
         *) echo "Unknown parameter: $1"; show_help ;;
     esac
@@ -84,7 +96,7 @@ fi
 
 # Check required parameters
 if [[ -z "$vcf_file" || -z "$fasta_file" ]]; then
-    echo "Error: Missing required parameters."
+    log_msg "Error: Missing required parameters."
     show_help
 fi
 
@@ -104,10 +116,10 @@ normalize_bed() {
 # Step 1: Create the genome file (if not provided)
 if [[ -z "$genome_file" ]]; then
     genome_file="$tmp_dir/${genome_build}.genome"
-    echo "Creating genome file: $genome_file for genome build: $genome_build"
+    log_msg "Creating genome file: $genome_file for genome build: $genome_build"
     mysql --user=genome --host=genome-mysql.cse.ucsc.edu -A -e "select chrom, size from ${genome_build}.chromInfo" | grep -v "^chrom" | sed 's/chr//g' > "$genome_file"
     if [[ $? -ne 0 ]]; then
-        echo "Error: Failed to create genome file from UCSC MySQL database."
+        log_msg "Error: Failed to create genome file from UCSC MySQL database."
         exit 1
     fi
     debug_msg "Genome file created: $genome_file"
@@ -133,7 +145,7 @@ done
 
 # Combine normalized exclude BED files using bedtools multiinter
 if [[ "${#normalized_exclude_bed_files[@]}" -gt 1 ]]; then
-    echo "Combining normalized exclusion BED files..."
+    log_msg "Combining normalized exclusion BED files..."
     bedtools multiinter -i "${normalized_exclude_bed_files[@]}" | \
     awk '{OFS="\t"; print $1, $2, $3, "1"}' > "$tmp_dir/merged_exclude_regions.bed"
 elif [[ "${#normalized_exclude_bed_files[@]}" -eq 1 ]]; then
@@ -142,11 +154,11 @@ fi
 
 # Combine normalized include BED files using bedtools intersect and apply slop
 if [[ "${#normalized_include_bed_files[@]}" -gt 1 ]]; then
-    echo "Intersecting and padding normalized inclusion BED files..."
+    log_msg "Intersecting and padding normalized inclusion BED files..."
     bedtools intersect -a "${normalized_include_bed_files[0]}" -b "${normalized_include_bed_files[@]:1}" | \
     bedtools slop -b "$slop" -g "$genome_file" > "$tmp_dir/merged_include_regions.bed"
 elif [[ "${#normalized_include_bed_files[@]}" -eq 1 ]]; then
-    echo "Padding single normalized inclusion BED file..."
+    log_msg "Padding single normalized inclusion BED file..."
     bedtools slop -b "$slop" -g "$genome_file" -i "${normalized_include_bed_files[0]}" > "$tmp_dir/merged_include_regions.bed"
 fi
 
@@ -154,9 +166,9 @@ fi
 if [[ -f "$tmp_dir/merged_include_regions.bed" ]]; then
     bgzip -f "$tmp_dir/merged_include_regions.bed"  # Force overwrite
     tabix -p bed "$tmp_dir/merged_include_regions.bed.gz"
-    debug_msg "Inclusion BED files normalized, merged, and indexed: $tmp_dir/merged_include_regions.bed.gz"
+    log_msg "Inclusion BED files normalized, merged, and indexed: $tmp_dir/merged_include_regions.bed.gz"
 else
-    debug_msg "No inclusion BED files provided; skipping inclusion annotation."
+    log_msg "No inclusion BED files provided; skipping inclusion annotation."
 fi
 
 # Compress and index the merged BED files for exclusion
