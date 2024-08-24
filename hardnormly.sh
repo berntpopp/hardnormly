@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.2.0"
+version="0.2.1"
 
 # Default values for parameters
 include_bed_files=()
@@ -49,10 +49,11 @@ show_help() {
 
 # Function to log messages
 log_msg() {
+    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
     if [[ -n "$log_file" ]]; then
-        echo "$1" >> "$log_file"
+        echo "[$timestamp] $1" >> "$log_file"
     else
-        echo "$1"
+        echo "[$timestamp] $1"
     fi
 }
 
