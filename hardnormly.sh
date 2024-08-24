@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.2.5"
+version="0.2.6"
 
 # Default values for parameters
 include_bed_files=()
@@ -228,11 +228,34 @@ fi
 
 # Step 5: Normalize the VCF file and write to an intermediate file
 normalized_vcf="$tmp_dir/normalized.vcf.gz"
-bcftools norm -m-any --force -a --atom-overlaps . -W -f "$fasta_file" "$vcf_file" -Oz -o "$normalized_vcf"
-if [[ $? -ne 0 ]]; then
+norm_output=$(mktemp)
+norm_stdout=$(mktemp)
+
+# Run the command and capture both stdout and stderr
+bcftools norm -m-any --force -a --atom-overlaps . -W -f "$fasta_file" "$vcf_file" -Oz -o "$normalized_vcf" 2> "$norm_output" 1> "$norm_stdout"
+norm_exit_code=$?
+
+# Check if there are any warnings or errors in the stderr output
+if [[ $norm_exit_code -ne 0 ]]; then
     log_msg "Error: Failed to normalize the VCF."
+    log_msg "bcftools norm error details: $(cat "$norm_output")"
+    rm -f "$norm_output" "$norm_stdout"
     exit 1
 fi
+
+# Log any warnings (even if the command succeeded)
+if grep -q "Warning" "$norm_output"; then
+    log_msg "bcftools norm warnings: $(cat "$norm_output")"
+fi
+
+# Log the summary line from stdout (e.g., Lines total/split/joined/realigned/skipped)
+if grep -q "Lines" "$norm_stdout"; then
+    log_msg "bcftools norm summary: $(grep 'Lines' "$norm_stdout")"
+fi
+
+# Clean up the temporary files
+rm -f "$norm_output" "$norm_stdout"
+
 debug_msg "Normalized VCF written to: $normalized_vcf"
 
 # Step 6: Apply filters to the normalized VCF
