@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.2.4"
+version="0.2.5"
 
 # Default values for parameters
 include_bed_files=()
@@ -198,13 +198,13 @@ if [[ -f "$tmp_dir/merged_exclude_regions.bed.gz" ]]; then
 fi
 
 # Step 4: Annotate the VCF file with the BED regions
-echo "Annotating VCF with BED regions..."
+log_msg "Annotating VCF with BED regions..."
 
 # Annotate with inclusion regions if the file exists
 if [[ -f "$tmp_dir/merged_include_regions.bed.gz" ]]; then
     bcftools annotate -a "$tmp_dir/merged_include_regions.bed.gz" -h "$tmp_dir/include_regions.hdr" -c CHROM,FROM,TO,INCLUDE_REGION "$vcf_file" -Oz -o "$tmp_dir/temp_include_annotated.vcf.gz"
     if [[ $? -ne 0 ]]; then
-        echo "Error: Failed to annotate VCF with inclusion regions."
+        log_msg "Error: Failed to annotate VCF with inclusion regions."
         exit 1
     fi
     vcf_file="$tmp_dir/temp_include_annotated.vcf.gz"
@@ -217,7 +217,7 @@ fi
 if [[ -f "$tmp_dir/merged_exclude_regions.bed.gz" ]]; then
     bcftools annotate -a "$tmp_dir/merged_exclude_regions.bed.gz" -h "$tmp_dir/exclude_regions.hdr" -c CHROM,FROM,TO,EXCLUDE_REGION "$vcf_file" -Oz -o "$tmp_dir/temp_exclude_annotated.vcf.gz"
     if [[ $? -ne 0 ]]; then
-        echo "Error: Failed to annotate VCF with exclusion regions."
+        log_msg "Error: Failed to annotate VCF with exclusion regions."
         exit 1
     fi
     vcf_file="$tmp_dir/temp_exclude_annotated.vcf.gz"
@@ -230,13 +230,13 @@ fi
 normalized_vcf="$tmp_dir/normalized.vcf.gz"
 bcftools norm -m-any --force -a --atom-overlaps . -W -f "$fasta_file" "$vcf_file" -Oz -o "$normalized_vcf"
 if [[ $? -ne 0 ]]; then
-    echo "Error: Failed to normalize the VCF."
+    log_msg "Error: Failed to normalize the VCF."
     exit 1
 fi
 debug_msg "Normalized VCF written to: $normalized_vcf"
 
 # Step 6: Apply filters to the normalized VCF
-echo "Filtering the normalized VCF file..."
+log_msg "Filtering the normalized VCF file..."
 
 # Start building the pipeline command
 pipeline_cmd="bcftools view $normalized_vcf | bcftools +fill-tags"
@@ -281,7 +281,7 @@ if [[ -n "$output_vcf" ]]; then
     elif [[ "$output_vcf" == *.vcf ]]; then
         output_type="v"  # Uncompressed VCF
     else
-        echo "Error: Unrecognized output file format for $output_vcf."
+        log_msg "Error: Unrecognized output file format for $output_vcf."
         exit 1
     fi
     pipeline_cmd="$pipeline_cmd | bcftools view -O$output_type -o $output_vcf"
@@ -297,7 +297,7 @@ eval "$pipeline_cmd"
 
 # Check for errors
 if [[ $? -ne 0 ]]; then
-    echo "Error: Failed to filter the VCF."
+    log_msg "Error: Failed to filter the VCF."
     exit 1
 fi
 
@@ -307,10 +307,10 @@ if $generate_stats && [[ -n "$output_vcf" ]]; then
     debug_msg "Generating stats file: $stats_output"
     bcftools stats "$output_vcf" > "$stats_output"
     if [[ $? -ne 0 ]]; then
-        echo "Error: Failed to generate stats file."
+        log_msg "Error: Failed to generate stats file."
         exit 1
     fi
-    echo "Stats file saved to $stats_output"
+    log_msg "Stats file saved to $stats_output"
 else
     debug_msg "Stats generation skipped (either --generate-stats was not set or no output file provided)."
 fi
@@ -324,7 +324,7 @@ else
 fi
 
 if [[ -n "$output_vcf" ]]; then
-    echo "Filtered VCF saved to $output_vcf"
+    log_msg "Filtered VCF saved to $output_vcf"
 fi
 
 # Disable debugging if it was enabled
