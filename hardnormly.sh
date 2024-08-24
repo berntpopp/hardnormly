@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.1.2"
+version="0.1.3"
 
 # Default values for parameters
 include_bed_files=()
