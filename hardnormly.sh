@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.2.6"
+version="0.3.0"
 
 # Default values for parameters
 include_bed_files=()
@@ -20,6 +20,8 @@ cleanup=true  # Default to cleaning up the temporary directory
 slop=20  # Default slop value (in base pairs)
 only_pass=false  # Option to filter only PASS variants
 generate_stats=false  # Option to generate stats file
+plot_stats=false  # Option to plot the stats
+plot_output_dir=""
 
 # Ensure the temporary directory is cleaned up on exit or error
 trap '[[ $cleanup == true ]] && rm -rf "$tmp_dir"' EXIT
@@ -41,6 +43,8 @@ show_help() {
     echo "  --filters-file       File containing bcftools filter expressions (format: filter_name action expression)"
     echo "  --only-pass          Filter to retain only PASS variants"
     echo "  --generate-stats     Generate stats file from the output VCF"
+    echo "  --plot-stats         Plot the stats file using plot-vcfstats (requires --generate-stats)"
+    echo "  --plot-output-dir    Directory to save the plots (required with --plot-stats)"
     echo "  --tmp-dir            Temporary directory to use (default: mktemp-based)"
     echo "  --no-cleanup         Do not clean up the temporary directory after execution"
     echo "  --log-file           File to write logs to (default: none, log to stdout)"
@@ -82,6 +86,8 @@ while [[ "$#" -gt 0 ]]; do
         --filters-file) filters_file="$2"; shift ;;
         --only-pass) only_pass=true ;;
         --generate-stats) generate_stats=true ;;
+        --plot-stats) plot_stats=true ;;
+        --plot-output-dir) plot_output_dir="$2"; shift ;;
         --tmp-dir) tmp_dir="$2"; shift ;;
         --no-cleanup) cleanup=false ;;
         --log-file) log_file="$2"; shift ;;
@@ -92,6 +98,12 @@ while [[ "$#" -gt 0 ]]; do
     esac
     shift
 done
+
+# Validate --plot-stats requires both --generate-stats and --plot-output-dir
+if $plot_stats && { [[ -z "$plot_output_dir" ]] || ! $generate_stats; }; then
+    log_msg "Error: --plot-stats requires both --generate-stats and --plot-output-dir."
+    exit 1
+fi
 
 # Enable debugging if --debug flag is set
 if $debug; then
@@ -114,7 +126,6 @@ normalize_bed() {
     local annotation="$2"
     local output_file="$3"
     debug_msg "Normalizing BED file: $bed_file with annotation: $annotation"
-
     awk -v annot="$annotation" '{OFS="\t"; print $1, $2, $3, annot}' "$bed_file" | bedtools sort -i - > "$output_file"
 }
 
@@ -334,6 +345,30 @@ if $generate_stats && [[ -n "$output_vcf" ]]; then
         exit 1
     fi
     log_msg "Stats file saved to $stats_output"
+
+    # If plotting is requested
+    if $plot_stats; then
+        log_msg "Plotting stats to $plot_output_dir"
+        plot_output=$(mktemp)
+        
+        # Run the plot-vcfstats command and capture its output
+        plot-vcfstats "$stats_output" -p "$plot_output_dir" > "$plot_output" 2>&1
+        plot_exit_code=$?
+
+        # Process and log the output from the plot-vcfstats command
+        while IFS= read -r line; do
+            log_msg "Plot-vcfstats output: $line"
+        done < "$plot_output"
+        
+        if [[ $plot_exit_code -ne 0 ]]; then
+            log_msg "Error: Failed to plot stats."
+            rm -f "$plot_output"
+            exit 1
+        fi
+
+        log_msg "Plots saved to $plot_output_dir"
+        rm -f "$plot_output"
+    fi
 else
     debug_msg "Stats generation skipped (either --generate-stats was not set or no output file provided)."
 fi

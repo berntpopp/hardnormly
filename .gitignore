@@ -11,10 +11,11 @@
 *.vcf
 
 # Ignore tes, output, ref, and tmp directories
-test/
-output/
-ref/
-tmp/
+/test/
+/output/
+/ref/
+/tmp/
+/stats/
 
 # files with test in the name
 *test*
