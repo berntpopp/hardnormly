@@ -1,0 +1,6 @@
+DPu20 e FORMAT/DP<20
+VAFu02het e FORMAT/VAF<0.2 && GT!="hom"
+VAFo08het e FORMAT/VAF>0.8 && GT!="hom"
+VAFu095hom e FORMAT/VAF<0.95 && GT="hom"
+QUALu300 e QUAL<300
+ILENou20 e ILEN>20 | ILEN<-20

@@ -14,6 +14,8 @@ debug=false  # Debug mode disabled by default
 tmp_dir="tmp"  # Default temporary directory
 cleanup=true  # Default to cleaning up the temporary directory
 slop=20  # Default slop value (in base pairs)
+only_pass=false  # Option to filter only PASS variants
+generate_stats=false  # Option to generate stats file
 
 # Function to display help message
 show_help() {
@@ -30,6 +32,8 @@ show_help() {
     echo "  -o, --output         Output VCF file (if not specified, output will be sent to stdout)"
     echo "  --filters            Inline bcftools filter expression (can specify multiple; format: filter_name action expression)"
     echo "  --filters-file       File containing bcftools filter expressions (format: filter_name action expression)"
+    echo "  --only-pass          Filter to retain only PASS variants"
+    echo "  --generate-stats     Generate stats file from the output VCF"
     echo "  --tmp-dir            Temporary directory to use (default: tmp)"
     echo "  --no-cleanup         Do not clean up the temporary directory after execution"
     echo "  --debug              Enable debug mode (prints all executed commands and detailed messages)"
@@ -57,6 +61,8 @@ while [[ "$#" -gt 0 ]]; do
         -o|--output) output_vcf="$2"; shift ;;
         --filters) filters+=("$2"); shift ;;
         --filters-file) filters_file="$2"; shift ;;
+        --only-pass) only_pass=true ;;
+        --generate-stats) generate_stats=true ;;
         --tmp-dir) tmp_dir="$2"; shift ;;
         --no-cleanup) cleanup=false ;;
         --debug) debug=true ;;
@@ -227,6 +233,12 @@ if [[ -n "$filters_file" ]]; then
     done < "$filters_file"
 fi
 
+# Apply PASS filter if the --only-pass option is set
+if $only_pass; then
+    pass_filter_cmd="bcftools view -f PASS"
+    pipeline_cmd="$pipeline_cmd | $pass_filter_cmd"
+fi
+
 # Determine the output type based on the output file extension
 if [[ -n "$output_vcf" ]]; then
     if [[ "$output_vcf" == *.vcf.gz ]]; then
@@ -252,6 +264,18 @@ eval "$pipeline_cmd"
 if [[ $? -ne 0 ]]; then
     echo "Error: Failed to filter the VCF."
     exit 1
+fi
+
+# Step 7: Generate stats file if the --generate-stats option is set
+if $generate_stats; then
+    stats_output="${output_vcf%.vcf.gz}.stats.txt"
+    debug_msg "Generating stats file: $stats_output"
+    bcftools stats "$output_vcf" > "$stats_output"
+    if [[ $? -ne 0 ]]; then
+        echo "Error: Failed to generate stats file."
+        exit 1
+    fi
+    echo "Stats file saved to $stats_output"
 fi
 
 # Cleanup temporary files
