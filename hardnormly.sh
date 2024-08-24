@@ -121,7 +121,7 @@ normalize_bed() {
 if [[ -z "$genome_file" ]]; then
     genome_file="$tmp_dir/${genome_build}.genome"
     log_msg "Creating genome file: $genome_file for genome build: $genome_build"
-    mysql --user=genome --host=genome-mysql.cse.ucsc.edu -A -e "select chrom, size from ${genome_build}.chromInfo" | grep -v "^chrom" | sed 's/chr//g' > "$genome_file"
+    mysql --user=genome --host=genome-mysql.cse.ucsc.edu -A -e "select chrom, size from ${genome_build}.chromInfo" | grep -v "^chrom" | sed 's/chr//g' > "$genome_file" || { log_msg "Error: Failed to create genome file"; exit 1; }
     if [[ $? -ne 0 ]]; then
         log_msg "Error: Failed to create genome file from UCSC MySQL database."
         exit 1
