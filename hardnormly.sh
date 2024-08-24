@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.2.1"
+version="0.2.2"
 
 # Default values for parameters
 include_bed_files=()
@@ -20,6 +20,9 @@ cleanup=true  # Default to cleaning up the temporary directory
 slop=20  # Default slop value (in base pairs)
 only_pass=false  # Option to filter only PASS variants
 generate_stats=false  # Option to generate stats file
+
+# Ensure the temporary directory is cleaned up on exit or error
+trap '[[ $cleanup == true ]] && rm -rf "$tmp_dir"' EXIT
 
 # Function to display help message
 show_help() {
