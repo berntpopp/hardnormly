@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.1.0"
+version="0.1.1"
 
 # Default values for parameters
 include_bed_files=()
@@ -280,8 +280,8 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-# Step 7: Generate stats file if the --generate-stats option is set
-if $generate_stats; then
+# Step 7: Generate stats file if the --generate-stats option is set and output_vcf is provided
+if $generate_stats && [[ -n "$output_vcf" ]]; then
     stats_output="${output_vcf%.vcf.gz}.stats.txt"
     debug_msg "Generating stats file: $stats_output"
     bcftools stats "$output_vcf" > "$stats_output"
@@ -290,6 +290,8 @@ if $generate_stats; then
         exit 1
     fi
     echo "Stats file saved to $stats_output"
+else
+    debug_msg "Stats generation skipped (either --generate-stats was not set or no output file provided)."
 fi
 
 # Cleanup temporary files
