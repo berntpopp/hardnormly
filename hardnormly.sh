@@ -93,7 +93,7 @@ normalize_bed() {
     local annotation="$2"
     local output_file="$3"
     debug_msg "Normalizing BED file: $bed_file with annotation: $annotation"
-    awk -v annot="$annotation" '{OFS="\t"; print $1, $2, $3, annot}' "$bed_file" > "$output_file"
+    awk -v annot="$annotation" '{OFS="\t"; print $1, $2, $3, annot}' "$bed_file" | sort -k1,1 -k2,2n > "$output_file"
 }
 
 # Step 1: Create the genome file (if not provided)
@@ -108,7 +108,7 @@ if [[ -z "$genome_file" ]]; then
     debug_msg "Genome file created: $genome_file"
 fi
 
-# Step 2: Normalize and intersect BED files for inclusion and exclusion
+# Step 2: Normalize and process BED files for inclusion and exclusion
 normalized_include_bed_files=()
 normalized_exclude_bed_files=()
 
@@ -126,42 +126,48 @@ for bed_file in "${exclude_bed_files[@]}"; do
     normalized_exclude_bed_files+=("$normalized_file")
 done
 
-# Intersect normalized BED files and apply slop
-if [[ "${#normalized_include_bed_files[@]}" -gt 1 ]]; then
-    echo "Intersecting normalized inclusion BED files and applying slop..."
-    bedtools intersect -a "${normalized_include_bed_files[0]}" -b "${normalized_include_bed_files[@]:1}" | bedtools slop -b "$slop" -g "$genome_file" > "$tmp_dir/merged_include_regions.bed"
-elif [[ "${#normalized_include_bed_files[@]}" -eq 1 ]]; then
-    echo "Padding single normalized inclusion BED file..."
-    bedtools slop -b "$slop" -g "$genome_file" -i "${normalized_include_bed_files[0]}" > "$tmp_dir/merged_include_regions.bed"
-fi
-
+# Combine normalized exclude BED files using bedtools multiinter
 if [[ "${#normalized_exclude_bed_files[@]}" -gt 1 ]]; then
-    echo "Intersecting normalized exclusion BED files and applying slop..."
-    bedtools intersect -a "${normalized_exclude_bed_files[0]}" -b "${normalized_exclude_bed_files[@]:1}" | bedtools slop -b "$slop" -g "$genome_file" > "$tmp_dir/merged_exclude_regions.bed"
+    echo "Combining normalized exclusion BED files..."
+    bedtools multiinter -i "${normalized_exclude_bed_files[@]}" | \
+    awk '{OFS="\t"; print $1, $2, $3, "1"}' > "$tmp_dir/merged_exclude_regions.bed"
 elif [[ "${#normalized_exclude_bed_files[@]}" -eq 1 ]]; then
-    echo "Padding single normalized exclusion BED file..."
-    bedtools slop -b "$slop" -g "$genome_file" -i "${normalized_exclude_bed_files[0]}" > "$tmp_dir/merged_exclude_regions.bed"
+    cp "${normalized_exclude_bed_files[0]}" "$tmp_dir/merged_exclude_regions.bed"
 fi
 
-# Compress and index the merged BED files
+# Combine normalized include BED files using bedtools multiinter
+if [[ "${#normalized_include_bed_files[@]}" -gt 1 ]]; then
+    echo "Combining normalized inclusion BED files..."
+    bedtools multiinter -i "${normalized_include_bed_files[@]}" | \
+    awk '{OFS="\t"; print $1, $2, $3, "1"}' > "$tmp_dir/merged_include_regions.bed"
+elif [[ "${#normalized_include_bed_files[@]}" -eq 1 ]]; then
+    cp "${normalized_include_bed_files[0]}" "$tmp_dir/merged_include_regions.bed"
+fi
+
+# Compress and index the merged BED files for inclusion
 if [[ -f "$tmp_dir/merged_include_regions.bed" ]]; then
     bgzip -f "$tmp_dir/merged_include_regions.bed"  # Force overwrite
     tabix -p bed "$tmp_dir/merged_include_regions.bed.gz"
-    debug_msg "Inclusion BED files normalized, intersected, and indexed: $tmp_dir/merged_include_regions.bed.gz"
+    debug_msg "Inclusion BED files normalized, merged, and indexed: $tmp_dir/merged_include_regions.bed.gz"
+else
+    debug_msg "No inclusion BED files provided; skipping inclusion annotation."
 fi
 
+# Compress and index the merged BED files for exclusion
 if [[ -f "$tmp_dir/merged_exclude_regions.bed" ]]; then
     bgzip -f "$tmp_dir/merged_exclude_regions.bed"  # Force overwrite
     tabix -p bed "$tmp_dir/merged_exclude_regions.bed.gz"
-    debug_msg "Exclusion BED files normalized, intersected, and indexed: $tmp_dir/merged_exclude_regions.bed.gz"
+    debug_msg "Exclusion BED files normalized, merged, and indexed: $tmp_dir/merged_exclude_regions.bed.gz"
+else
+    debug_msg "No exclusion BED files provided; skipping exclusion annotation."
 fi
 
 # Step 3: Create header files for INFO fields with the correct format
-if [[ "${#normalized_include_bed_files[@]}" -gt 0 ]]; then
+if [[ -f "$tmp_dir/merged_include_regions.bed.gz" ]]; then
     echo '##INFO=<ID=INCLUDE_REGION,Number=1,Type=Integer,Description="Included region">' > "$tmp_dir/include_regions.hdr"
     debug_msg "Created include_regions.hdr file"
 fi
-if [[ "${#normalized_exclude_bed_files[@]}" -gt 0 ]]; then
+if [[ -f "$tmp_dir/merged_exclude_regions.bed.gz" ]]; then
     echo '##INFO=<ID=EXCLUDE_REGION,Number=1,Type=Integer,Description="Excluded region">' > "$tmp_dir/exclude_regions.hdr"
     debug_msg "Created exclude_regions.hdr file"
 fi
@@ -169,8 +175,8 @@ fi
 # Step 4: Annotate the VCF file with the BED regions
 echo "Annotating VCF with BED regions..."
 
-# Annotate with inclusion regions if provided
-if [[ "${#normalized_include_bed_files[@]}" -gt 0 ]]; then
+# Annotate with inclusion regions if the file exists
+if [[ -f "$tmp_dir/merged_include_regions.bed.gz" ]]; then
     bcftools annotate -a "$tmp_dir/merged_include_regions.bed.gz" -h "$tmp_dir/include_regions.hdr" -c CHROM,FROM,TO,INCLUDE_REGION "$vcf_file" -Oz -o "$tmp_dir/temp_include_annotated.vcf.gz"
     if [[ $? -ne 0 ]]; then
         echo "Error: Failed to annotate VCF with inclusion regions."
@@ -178,10 +184,12 @@ if [[ "${#normalized_include_bed_files[@]}" -gt 0 ]]; then
     fi
     vcf_file="$tmp_dir/temp_include_annotated.vcf.gz"
     debug_msg "Annotated VCF with inclusion regions: $vcf_file"
+else
+    debug_msg "Skipping annotation with inclusion regions because the file does not exist."
 fi
 
-# Annotate with exclusion regions if provided
-if [[ "${#normalized_exclude_bed_files[@]}" -gt 0 ]]; then
+# Annotate with exclusion regions if the file exists
+if [[ -f "$tmp_dir/merged_exclude_regions.bed.gz" ]]; then
     bcftools annotate -a "$tmp_dir/merged_exclude_regions.bed.gz" -h "$tmp_dir/exclude_regions.hdr" -c CHROM,FROM,TO,EXCLUDE_REGION "$vcf_file" -Oz -o "$tmp_dir/temp_exclude_annotated.vcf.gz"
     if [[ $? -ne 0 ]]; then
         echo "Error: Failed to annotate VCF with exclusion regions."
@@ -189,6 +197,8 @@ if [[ "${#normalized_exclude_bed_files[@]}" -gt 0 ]]; then
     fi
     vcf_file="$tmp_dir/temp_exclude_annotated.vcf.gz"
     debug_msg "Annotated VCF with exclusion regions: $vcf_file"
+else
+    debug_msg "Skipping annotation with exclusion regions because the file does not exist."
 fi
 
 # Step 5: Normalize the VCF file and write to an intermediate file
@@ -207,19 +217,18 @@ echo "Filtering the normalized VCF file..."
 pipeline_cmd="bcftools view $normalized_vcf | bcftools +fill-tags"
 
 # Apply filters based on the inclusion and exclusion annotations
-if [[ "${#normalized_include_bed_files[@]}" -gt 0 ]]; then
+if [[ -f "$tmp_dir/merged_include_regions.bed.gz" ]]; then
     filter_cmd="bcftools filter -s NOT_IN_INCLUDE_REGION -m+ -e 'INFO/INCLUDE_REGION!=1'"
     pipeline_cmd="$pipeline_cmd | $filter_cmd"
 fi
 
-if [[ "${#normalized_exclude_bed_files[@]}" -gt 0 ]]; then
+if [[ -f "$tmp_dir/merged_exclude_regions.bed.gz" ]]; then
     filter_cmd="bcftools filter -s IN_EXCLUDE_REGION -m+ -e 'INFO/EXCLUDE_REGION=1'"
     pipeline_cmd="$pipeline_cmd | $filter_cmd"
 fi
 
 # Apply inline filters
 for filter in "${filters[@]}"; do
-    # Split the filter string into name, action, and expression
     IFS=" " read -r filter_name filter_action filter_expr <<< "$filter"
     filter_cmd="bcftools filter -m+ -s$filter_name -$filter_action '$filter_expr'"
     pipeline_cmd="$pipeline_cmd | $filter_cmd"

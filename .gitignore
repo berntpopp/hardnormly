@@ -15,3 +15,6 @@ test/
 output/
 ref/
 tmp/
+
+# files with test in the name
+*test*
