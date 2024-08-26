@@ -14,6 +14,20 @@
 - `bcftools`
 - `bedtools`
 - `mysql` (for genome file creation if not provided)
+- `tectonic` (for generating PDF summary)
+- `matplotlib` (for generating plots)
+
+These can be installed via package conda for example:
+
+```bash
+conda create --name hardnormly bcftools bedtools mysql tectonic matplotlib
+```
+
+Or using the conda environment yml file:
+
+```bash
+conda env create -f conda/hardnormly_environment.yml
+``` 
 
 ## Usage
 
