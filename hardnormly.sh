@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.4.0"
+version="0.5.0"
 
 # Default values for parameters
 include_bed_files=()
@@ -24,7 +24,20 @@ plot_stats=false  # Option to plot the stats
 plot_output_dir=""
 
 # Ensure the temporary directory is cleaned up on exit or error
-trap '[[ $cleanup == true ]] && rm -rf "$tmp_dir"' EXIT
+trap '[[ $cleanup == true ]] && cleanup_tmp_dir' EXIT
+
+# Function to clean up the temporary directory
+cleanup_tmp_dir() {
+    if $cleanup; then
+        debug_msg "Starting cleanup of temporary directory: $tmp_dir"
+        if $debug; then
+            find "$tmp_dir" -type f -print -delete
+        else
+            rm -rf "$tmp_dir"
+        fi
+        debug_msg "Cleanup of temporary directory completed."
+    fi
+}
 
 # Function to display help message
 show_help() {
@@ -153,6 +166,7 @@ normalize_bed() {
     local output_file="$3"
     debug_msg "Normalizing BED file: $bed_file with annotation: $annotation"
     awk -v annot="$annotation" '{OFS="\t"; print $1, $2, $3, annot}' "$bed_file" | bedtools sort -i - > "$output_file"
+    debug_msg "Normalized BED file written to: $output_file"
 }
 
 # Step 1: Create the genome file (if not provided)
@@ -160,10 +174,6 @@ if [[ -z "$genome_file" ]]; then
     genome_file="$tmp_dir/${genome_build}.genome"
     log_msg "No genome file provided. Creating genome file: $genome_file for genome build: $genome_build"
     mysql --user=genome --host=genome-mysql.cse.ucsc.edu -A -e "select chrom, size from ${genome_build}.chromInfo" | grep -v "^chrom" | sed 's/chr//g' > "$genome_file" || { log_msg "Error: Failed to create genome file"; exit 1; }
-    if [[ $? -ne 0 ]]; then
-        log_msg "Error: Failed to create genome file from UCSC MySQL database."
-        exit 1
-    fi
     debug_msg "Genome file created: $genome_file"
 else
     log_msg "Using provided genome file: $genome_file"
@@ -193,8 +203,10 @@ if [[ "${#normalized_exclude_bed_files[@]}" -gt 1 ]]; then
     bedtools multiinter -i "${normalized_exclude_bed_files[@]}" | \
     bedtools sort -i - | \
     awk '{OFS="\t"; print $1, $2, $3, "1"}' > "$tmp_dir/merged_exclude_regions.bed"
+    debug_msg "Combined exclusion regions written to: $tmp_dir/merged_exclude_regions.bed"
 elif [[ "${#normalized_exclude_bed_files[@]}" -eq 1 ]]; then
     cp "${normalized_exclude_bed_files[0]}" "$tmp_dir/merged_exclude_regions.bed"
+    debug_msg "Single exclusion BED file copied to: $tmp_dir/merged_exclude_regions.bed"
 fi
 
 # Combine normalized include BED files using bedtools intersect and apply slop
@@ -203,9 +215,11 @@ if [[ "${#normalized_include_bed_files[@]}" -gt 1 ]]; then
     bedtools intersect -a "${normalized_include_bed_files[0]}" -b "${normalized_include_bed_files[@]:1}" | \
     bedtools sort -i - | \
     bedtools slop -b "$slop" -g "$genome_file" > "$tmp_dir/merged_include_regions.bed"
+    debug_msg "Combined inclusion regions written to: $tmp_dir/merged_include_regions.bed"
 elif [[ "${#normalized_include_bed_files[@]}" -eq 1 ]]; then
     log_msg "Padding single normalized inclusion BED file..."
     bedtools slop -b "$slop" -g "$genome_file" -i "${normalized_include_bed_files[0]}" > "$tmp_dir/merged_include_regions.bed"
+    debug_msg "Single inclusion BED file padded and written to: $tmp_dir/merged_include_regions.bed"
 fi
 
 # Compress and index the merged BED files for inclusion
@@ -213,6 +227,7 @@ if [[ -f "$tmp_dir/merged_include_regions.bed" ]]; then
     bgzip -f "$tmp_dir/merged_include_regions.bed"  # Force overwrite
     tabix -p bed "$tmp_dir/merged_include_regions.bed.gz"
     log_msg "Inclusion BED files normalized, merged, and indexed: $tmp_dir/merged_include_regions.bed.gz"
+    debug_msg "Inclusion BED files compressed and indexed."
 else
     log_msg "No inclusion BED files provided; skipping inclusion annotation."
 fi
@@ -221,19 +236,20 @@ fi
 if [[ -f "$tmp_dir/merged_exclude_regions.bed" ]]; then
     bgzip -f "$tmp_dir/merged_exclude_regions.bed"  # Force overwrite
     tabix -p bed "$tmp_dir/merged_exclude_regions.bed.gz"
-    debug_msg "Exclusion BED files normalized, merged, and indexed: $tmp_dir/merged_exclude_regions.bed.gz"
+    log_msg "Exclusion BED files normalized, merged, and indexed: $tmp_dir/merged_exclude_regions.bed.gz"
+    debug_msg "Exclusion BED files compressed and indexed."
 else
-    debug_msg "No exclusion BED files provided; skipping exclusion annotation."
+    log_msg "No exclusion BED files provided; skipping exclusion annotation."
 fi
 
 # Step 3: Create header files for INFO fields with the correct format
 if [[ -f "$tmp_dir/merged_include_regions.bed.gz" ]]; then
     echo '##INFO=<ID=INCLUDE_REGION,Number=1,Type=Integer,Description="Included region">' > "$tmp_dir/include_regions.hdr"
-    debug_msg "Created include_regions.hdr file"
+    debug_msg "Created include_regions.hdr file: $tmp_dir/include_regions.hdr"
 fi
 if [[ -f "$tmp_dir/merged_exclude_regions.bed.gz" ]]; then
     echo '##INFO=<ID=EXCLUDE_REGION,Number=1,Type=Integer,Description="Excluded region">' > "$tmp_dir/exclude_regions.hdr"
-    debug_msg "Created exclude_regions.hdr file"
+    debug_msg "Created exclude_regions.hdr file: $tmp_dir/exclude_regions.hdr"
 fi
 
 # Step 4: Annotate the VCF file with the BED regions
@@ -307,11 +323,13 @@ pipeline_cmd="bcftools view $normalized_vcf | bcftools +fill-tags"
 if [[ -f "$tmp_dir/merged_include_regions.bed.gz" ]]; then
     filter_cmd="bcftools filter -s NOT_IN_INCLUDE_REGION -m+ -e 'INFO/INCLUDE_REGION!=1'"
     pipeline_cmd="$pipeline_cmd | $filter_cmd"
+    debug_msg "Applied filter for inclusion regions: $filter_cmd"
 fi
 
 if [[ -f "$tmp_dir/merged_exclude_regions.bed.gz" ]]; then
     filter_cmd="bcftools filter -s IN_EXCLUDE_REGION -m+ -e 'INFO/EXCLUDE_REGION=1'"
     pipeline_cmd="$pipeline_cmd | $filter_cmd"
+    debug_msg "Applied filter for exclusion regions: $filter_cmd"
 fi
 
 # Apply inline filters
@@ -319,6 +337,7 @@ for filter in "${filters[@]}"; do
     IFS=" " read -r filter_name filter_action filter_expr <<< "$filter"
     filter_cmd="bcftools filter -m+ -s$filter_name -$filter_action '$filter_expr'"
     pipeline_cmd="$pipeline_cmd | $filter_cmd"
+    debug_msg "Applied inline filter: $filter_cmd"
 done
 
 # Apply filters from file, if provided
@@ -327,6 +346,7 @@ if [[ -n "$filters_file" ]]; then
         filter_expr=$(echo "$filter_expr" | tr -d '\r\n')
         filter_cmd="bcftools filter -m+ -s$filter_name -$filter_action '$filter_expr'"
         pipeline_cmd="$pipeline_cmd | $filter_cmd"
+        debug_msg "Applied filter from file: $filter_cmd"
     done < "$filters_file"
 fi
 
@@ -334,6 +354,7 @@ fi
 if $only_pass; then
     pass_filter_cmd="bcftools view -f PASS"
     pipeline_cmd="$pipeline_cmd | $pass_filter_cmd"
+    debug_msg "Applied PASS filter: $pass_filter_cmd"
 fi
 
 # Determine the output type based on the output file extension
@@ -378,7 +399,7 @@ if $generate_stats && [[ -n "$output_vcf" ]]; then
     if $plot_stats; then
         log_msg "Plotting stats to $plot_output_dir"
         plot_output=$(mktemp)
-        
+
         # Run the plot-vcfstats command and capture its output
         plot-vcfstats "$stats_output" -p "$plot_output_dir" > "$plot_output" 2>&1
         plot_exit_code=$?
@@ -387,7 +408,7 @@ if $generate_stats && [[ -n "$output_vcf" ]]; then
         while IFS= read -r line; do
             log_msg "Plot-vcfstats output: $line"
         done < "$plot_output"
-        
+
         if [[ $plot_exit_code -ne 0 ]]; then
             log_msg "Error: Failed to plot stats."
             rm -f "$plot_output"
