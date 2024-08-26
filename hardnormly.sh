@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.3.0"
+version="0.4.0"
 
 # Default values for parameters
 include_bed_files=()
@@ -35,7 +35,7 @@ show_help() {
     echo "  -f, --fasta          Reference FASTA file for normalization (required). The reference genome sequence in FASTA format."
     echo "  -b, --include-bed    BED file(s) for inclusion. Specifies regions to include. Can specify multiple BED files."
     echo "  -e, --exclude-bed    BED file(s) for exclusion. Specifies regions to exclude. Can specify multiple BED files."
-    echo "  -g, --genome         Genome file for slop operation. A file defining chromosome sizes for applying padding."
+    echo "  -g, --genome         Genome file for slop operation. A file defining chromosome sizes for applying padding. If provided, it skips genome file generation."
     echo "  --genome-build       Genome build to use for UCSC MySQL query (default: hg19). If no genome file is provided, this will fetch chromosome sizes."
     echo "  --slop               Slop size for region padding (default: 20bp). Adds padding to the BED regions during processing."
     echo "  -o, --output         Output VCF file. If not specified, the result will be sent to stdout."
@@ -74,23 +74,49 @@ debug_msg() {
 # Parsing command-line arguments
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
-        -v|--vcf) vcf_file="$2"; shift ;;
-        -f|--fasta) fasta_file="$2"; shift ;;
-        -b|--include-bed) include_bed_files+=("$2"); shift ;;
-        -e|--exclude-bed) exclude_bed_files+=("$2"); shift ;;
-        -g|--genome) genome_file="$2"; shift ;;
-        --genome-build) genome_build="$2"; shift ;;
-        --slop) slop="$2"; shift ;;
-        -o|--output) output_vcf="$2"; shift ;;
-        --filters) filters+=("$2"); shift ;;
-        --filters-file) filters_file="$2"; shift ;;
+        -v|--vcf)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            vcf_file="$2"; shift ;;
+        -f|--fasta)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            fasta_file="$2"; shift ;;
+        -b|--include-bed)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            include_bed_files+=("$2"); shift ;;
+        -e|--exclude-bed)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            exclude_bed_files+=("$2"); shift ;;
+        -g|--genome)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            genome_file="$2"; shift ;;
+        --genome-build)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            genome_build="$2"; shift ;;
+        --slop)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            slop="$2"; shift ;;
+        -o|--output)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            output_vcf="$2"; shift ;;
+        --filters)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            filters+=("$2"); shift ;;
+        --filters-file)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            filters_file="$2"; shift ;;
+        --plot-output-dir)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            plot_output_dir="$2"; shift ;;
         --only-pass) only_pass=true ;;
         --generate-stats) generate_stats=true ;;
         --plot-stats) plot_stats=true ;;
-        --plot-output-dir) plot_output_dir="$2"; shift ;;
-        --tmp-dir) tmp_dir="$2"; shift ;;
+        --tmp-dir)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            tmp_dir="$2"; shift ;;
         --no-cleanup) cleanup=false ;;
-        --log-file) log_file="$2"; shift ;;
+        --log-file)
+            [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
+            log_file="$2"; shift ;;
         --debug) debug=true ;;
         --version) echo "Version: $version"; exit 0 ;;
         -h|--help) show_help ;;
@@ -132,13 +158,15 @@ normalize_bed() {
 # Step 1: Create the genome file (if not provided)
 if [[ -z "$genome_file" ]]; then
     genome_file="$tmp_dir/${genome_build}.genome"
-    log_msg "Creating genome file: $genome_file for genome build: $genome_build"
+    log_msg "No genome file provided. Creating genome file: $genome_file for genome build: $genome_build"
     mysql --user=genome --host=genome-mysql.cse.ucsc.edu -A -e "select chrom, size from ${genome_build}.chromInfo" | grep -v "^chrom" | sed 's/chr//g' > "$genome_file" || { log_msg "Error: Failed to create genome file"; exit 1; }
     if [[ $? -ne 0 ]]; then
         log_msg "Error: Failed to create genome file from UCSC MySQL database."
         exit 1
     fi
     debug_msg "Genome file created: $genome_file"
+else
+    log_msg "Using provided genome file: $genome_file"
 fi
 
 # Step 2: Normalize and process BED files for inclusion and exclusion
