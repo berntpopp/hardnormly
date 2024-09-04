@@ -1,0 +1,9 @@
+reference_fasta: "ref/hs37d5.fa"
+include_beds:
+  - "ref/target_files/agilent/S07604514/hg19/S07604514_Regions_hg19_valid_nochr.bed"
+  - "ref/target_files/idt/hg19/IDT_xGen_Research_Targets_V1_hg19_nochr.bed"
+exclude_beds:
+  - "ref/exclude_files/dukeExcludeRegions.bed"
+  - "ref/exclude_files/consensusBlacklist.bed"
+filters_file: "defaults/filters.txt"
+genome_file: "defaults/hg19.genome"
