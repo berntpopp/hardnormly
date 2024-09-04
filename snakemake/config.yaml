@@ -7,3 +7,4 @@ exclude_beds:
   - "ref/exclude_files/consensusBlacklist.bed"
 filters_file: "defaults/filters.txt"
 genome_file: "defaults/hg19.genome"
+output_dir: "/data/cephfs-1/work/projects/nephrology-exomes/2024-01-19_stoneformer-exomes/Exomiser/exomiser-cli-14.0.0/vcf/hardnormly/"
