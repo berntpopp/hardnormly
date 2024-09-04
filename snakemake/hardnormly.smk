@@ -1,7 +1,8 @@
 import os
 import yaml
 
-# ----------------------------------------------------------------------------------- ## Load VCF file paths from input file (vcfs.txt)
+# ----------------------------------------------------------------------------------- #
+# Load VCF file paths from input file (vcfs.txt)
 vcf_files = [line.strip() for line in open('vcfs.txt')]
 
 # Load config for other files like reference, filters, bed files, etc.
@@ -32,6 +33,7 @@ rule run_hardnormly_pipeline:
     output:
         log="logs/{vcf_basename}.log",
     params:
+        hardnormly_script=config['hardnormly_script'],  # Path to the hardnormly script
         fasta=config['reference_fasta'],
         include_beds=" ".join(f"-b {bed}" for bed in config['include_beds']),
         exclude_beds=" ".join(f"-e {bed}" for bed in config['exclude_beds']),
@@ -43,10 +45,11 @@ rule run_hardnormly_pipeline:
     resources:
         mem_mb=8000,
         time="72:00:00"
+    conda:
+        "hardnormly"
     shell:
         """
-        ./hardnormly.sh -v {input.vcf} -f {params.fasta} {params.include_beds} \
+        {params.hardnormly_script} -v {input.vcf} -f {params.fasta} {params.include_beds} \
         {params.exclude_beds} --filters-file {params.filters_file} \
-        --generate-stats -g {params.genome_file} -o {params.output_vcf} \
-        --plot-stats --plot-output-dir {params.stats_dir} &> {output.log}
+        --generate-stats -g {params.genome_file} -o {params.output_vcf} &> {output.log}
         """

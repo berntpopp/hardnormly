@@ -1,3 +1,4 @@
+hardnormly_script: "./hardnormly.sh"
 reference_fasta: "ref/hs37d5.fa"
 include_beds:
   - "ref/target_files/agilent/S07604514/hg19/S07604514_Regions_hg19_valid_nochr.bed"
