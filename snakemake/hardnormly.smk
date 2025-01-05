@@ -51,7 +51,7 @@ rule run_hardnormly_pipeline:
         slop=config['slop'],
         stats_dir=lambda wildcards: jobs[wildcards.vcf_basename]['stats_dir'],
         output_vcf=lambda wildcards: jobs[wildcards.vcf_basename]['output_vcf']
-    threads: 8
+    threads: 2
     resources:
         mem_mb=8000,
         time="8:00:00"
