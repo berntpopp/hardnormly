@@ -1,6 +1,7 @@
-DPu20 e FORMAT/DP<20
+DPu10het e FORMAT/DP<10 && GT!="hom"
+DPu5hom e FORMAT/DP<5 && GT=="hom"
 VAFu02het e FORMAT/VAF<0.2 && GT!="hom"
 VAFo08het e FORMAT/VAF>0.8 && GT!="hom"
-VAFu095hom e FORMAT/VAF<0.95 && GT="hom"
-QUALu300 e QUAL<300
-ILENou20 e ILEN>20 | ILEN<-20
+VAFu095hom e FORMAT/VAF<0.95 && GT=="hom"
+gatkSNPhard e TYPE=="SNP" && (AS_FS > 60 || AS_ReadPosRankSum < -8.0 || QUAL < 30.0 || AS_SOR > 3.0 || AS_MQ < 40.0 || AS_MQRankSum < -12.5)
+gatkINDELhard e TYPE=="INDEL" && (AS_FS > 200 || AS_ReadPosRankSum < -20.0 || QUAL < 30.0)
