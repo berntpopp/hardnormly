@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.5.0"
+version="0.6.0"
 
 # Default values for parameters
 include_bed_files=()
@@ -22,6 +22,7 @@ only_pass=false  # Option to filter only PASS variants
 generate_stats=false  # Option to generate stats file
 plot_stats=false  # Option to plot the stats
 plot_output_dir=""
+auto_index=false  # New option: auto-index output if compressed
 
 # Ensure the temporary directory is cleaned up on exit or error
 trap '[[ $cleanup == true ]] && cleanup_tmp_dir' EXIT
@@ -61,6 +62,7 @@ show_help() {
     echo "  --tmp-dir            Temporary directory to use. By default, a unique directory is created using mktemp."
     echo "  --no-cleanup         Do not clean up the temporary directory after execution. Useful for debugging."
     echo "  --log-file           File to write logs to. If not provided, logs will be written to stdout."
+    echo "  --auto-index         Automatically index the output VCF (if compressed). Adds '-W' to bcftools view."
     echo "  --debug              Enable debug mode. Prints all executed commands and detailed messages for troubleshooting."
     echo "  --version            Display the script version."
     echo "  -h, --help           Display this help message."
@@ -120,20 +122,32 @@ while [[ "$#" -gt 0 ]]; do
         --plot-output-dir)
             [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
             plot_output_dir="$2"; shift ;;
-        --only-pass) only_pass=true ;;
-        --generate-stats) generate_stats=true ;;
-        --plot-stats) plot_stats=true ;;
+        --only-pass)
+            only_pass=true ;;
+        --generate-stats)
+            generate_stats=true ;;
+        --plot-stats)
+            plot_stats=true ;;
         --tmp-dir)
             [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
             tmp_dir="$2"; shift ;;
-        --no-cleanup) cleanup=false ;;
+        --no-cleanup)
+            cleanup=false ;;
         --log-file)
             [[ -z "$2" || "$2" == -* ]] && { echo "Error: Argument for $1 is missing"; show_help; }
             log_file="$2"; shift ;;
-        --debug) debug=true ;;
-        --version) echo "Version: $version"; exit 0 ;;
-        -h|--help) show_help ;;
-        *) echo "Unknown parameter: $1"; show_help ;;
+        --auto-index)  # <--- New option
+            auto_index=true ;;
+        --debug)
+            debug=true ;;
+        --version)
+            echo "Version: $version"
+            exit 0 ;;
+        -h|--help)
+            show_help ;;
+        *)
+            echo "Unknown parameter: $1"
+            show_help ;;
     esac
     shift
 done
@@ -367,7 +381,15 @@ if [[ -n "$output_vcf" ]]; then
         log_msg "Error: Unrecognized output file format for $output_vcf."
         exit 1
     fi
-    pipeline_cmd="$pipeline_cmd | bcftools view -O$output_type -o $output_vcf"
+
+    # Build the bcftools view command with optional auto-index (-W)
+    if $auto_index && [[ "$output_type" == "z" ]]; then
+        # If --auto-index is set AND output is compressed, add "-W"
+        pipeline_cmd="$pipeline_cmd | bcftools view -O$output_type -W -o $output_vcf"
+        debug_msg "Auto-index enabled for compressed output."
+    else
+        pipeline_cmd="$pipeline_cmd | bcftools view -O$output_type -o $output_vcf"
+    fi
 else
     pipeline_cmd="$pipeline_cmd | bcftools view"
 fi
