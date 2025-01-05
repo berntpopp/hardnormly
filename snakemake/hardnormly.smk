@@ -6,6 +6,14 @@ import yaml
 config = yaml.safe_load(open('config.yaml'))
 
 # ----------------------------------------------------------------------------------- #
+# Ensure the main output directory exists
+os.makedirs(config['output_dir'], exist_ok=True)
+
+# Create a logs subfolder inside the output directory
+log_dir = os.path.join(config['output_dir'], "logs")
+os.makedirs(log_dir, exist_ok=True)
+
+# ----------------------------------------------------------------------------------- #
 # Load VCF file paths from the file specified in config['vcf_files']
 vcf_files = [line.strip() for line in open(config['vcf_files'])]
 
@@ -26,13 +34,13 @@ for vcf in vcf_files:
 # Define the rules
 rule all:
     input:
-        expand("logs/{vcf_basename}.log", vcf_basename=[jobs[key]['vcf_basename'] for key in jobs.keys()])
+        expand(f"{log_dir}/{{vcf_basename}}.log", vcf_basename=[jobs[key]['vcf_basename'] for key in jobs.keys()])
 
 rule run_hardnormly_pipeline:
     input:
         vcf=lambda wildcards: jobs[wildcards.vcf_basename]['vcf'],
     output:
-        log="logs/{vcf_basename}.log",
+        log = f"{log_dir}/{{vcf_basename}}.log",
     params:
         hardnormly_script=config['hardnormly_script'],  # Path to the hardnormly script
         fasta=config['reference_fasta'],
