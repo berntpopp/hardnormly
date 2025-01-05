@@ -61,6 +61,6 @@ rule run_hardnormly_pipeline:
         """
         {params.hardnormly_script} -v {input.vcf} -f {params.fasta} {params.include_beds} \
         {params.exclude_beds} --filters-file {params.filters_file} \
-        --generate-stats -g {params.genome_file} --slop {params.slop} \
+        --generate-stats -g {params.genome_file} --slop {params.slop} --auto-index \
         -o {params.output_vcf} &> {output.log}
         """

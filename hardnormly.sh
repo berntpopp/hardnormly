@@ -301,7 +301,7 @@ norm_output=$(mktemp)
 norm_stdout=$(mktemp)
 
 # Run the command and capture both stdout and stderr
-bcftools norm -m-any --force -a --atom-overlaps . -W -f "$fasta_file" "$vcf_file" -Oz -o "$normalized_vcf" 2> "$norm_output" 1> "$norm_stdout"
+bcftools norm -m-any --force -a --atom-overlaps . -W tbi -f "$fasta_file" "$vcf_file" -Oz -o "$normalized_vcf" 2> "$norm_output" 1> "$norm_stdout"
 norm_exit_code=$?
 
 # Check if there are any warnings or errors in the stderr output
@@ -385,7 +385,7 @@ if [[ -n "$output_vcf" ]]; then
     # Build the bcftools view command with optional auto-index (-W)
     if $auto_index && [[ "$output_type" == "z" ]]; then
         # If --auto-index is set AND output is compressed, add "-W"
-        pipeline_cmd="$pipeline_cmd | bcftools view -O$output_type -W -o $output_vcf"
+        pipeline_cmd="$pipeline_cmd | bcftools view -O$output_type -W tbi -o $output_vcf"
         debug_msg "Auto-index enabled for compressed output."
     else
         pipeline_cmd="$pipeline_cmd | bcftools view -O$output_type -o $output_vcf"
