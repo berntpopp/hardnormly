@@ -2,11 +2,12 @@ import os
 import yaml
 
 # ----------------------------------------------------------------------------------- #
-# Load VCF file paths from input file (vcfs.txt)
-vcf_files = [line.strip() for line in open('vcfs.txt')]
-
 # Load config for other files like reference, filters, bed files, etc.
 config = yaml.safe_load(open('config.yaml'))
+
+# ----------------------------------------------------------------------------------- #
+# Load VCF file paths from the file specified in config['vcf_files']
+vcf_files = [line.strip() for line in open(config['vcf_files'])]
 
 # Create a dictionary to store the jobs
 jobs = {}
@@ -44,7 +45,7 @@ rule run_hardnormly_pipeline:
     threads: 8
     resources:
         mem_mb=8000,
-        time="72:00:00"
+        time="8:00:00"
     conda:
         "hardnormly"
     shell:

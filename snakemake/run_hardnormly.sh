@@ -24,7 +24,7 @@ export SBATCH_DEFAULTS=" --output=slurm_logs/%x-%j.log"
 date
 
 # Run the Snakemake workflow with the specified Snakefile
-srun snakemake -s hardnormly.smk --use-conda --profile=cubi-v1 -j150
+srun snakemake -s hardnormly.smk --use-conda --profile=cubi-v1 -j500
 
 # End date and time logging
 date
