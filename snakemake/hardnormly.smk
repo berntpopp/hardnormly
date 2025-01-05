@@ -40,6 +40,7 @@ rule run_hardnormly_pipeline:
         exclude_beds=" ".join(f"-e {bed}" for bed in config['exclude_beds']),
         filters_file=config['filters_file'],
         genome_file=config['genome_file'],
+        slop=config['slop'],
         stats_dir=lambda wildcards: jobs[wildcards.vcf_basename]['stats_dir'],
         output_vcf=lambda wildcards: jobs[wildcards.vcf_basename]['output_vcf']
     threads: 8
@@ -52,5 +53,6 @@ rule run_hardnormly_pipeline:
         """
         {params.hardnormly_script} -v {input.vcf} -f {params.fasta} {params.include_beds} \
         {params.exclude_beds} --filters-file {params.filters_file} \
-        --generate-stats -g {params.genome_file} -o {params.output_vcf} &> {output.log}
+        --generate-stats -g {params.genome_file} --slop {params.slop} \
+        -o {params.output_vcf} &> {output.log}
         """
