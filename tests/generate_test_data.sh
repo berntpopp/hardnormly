@@ -110,7 +110,7 @@ echo "[2/4] 1000 Genomes Phase 3 samples..." >&2
 
 KG_URL="https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz"
 
-for SAMPLE in NA12878 NA19240 HG00096; do
+for SAMPLE in NA12878 NA19247 HG00096; do
     OUTFILE="${REAL_DIR}/1kg_${SAMPLE}_chr22_16M.vcf.gz"
     if [[ "$FORCE" == true ]] || [[ ! -f "$OUTFILE" ]]; then
         echo "  Streaming ${SAMPLE} from 1000G (remote tabix)..." >&2
