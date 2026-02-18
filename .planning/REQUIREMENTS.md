@@ -39,19 +39,19 @@ Requirements for milestone v0.7.0. Each maps to roadmap phases.
 
 ### Refactoring
 
-- [ ] **REFR-01**: Logging module (`lib/logging.sh`) provides log_msg, debug_msg, error handling functions
-- [ ] **REFR-02**: CLI module (`lib/cli.sh`) handles argument parsing, validation, show_help
-- [ ] **REFR-03**: Genome module (`lib/genome.sh`) handles genome file creation and validation
-- [ ] **REFR-04**: BED module (`lib/bed.sh`) handles normalize_bed, merge, intersect, compress, index
-- [ ] **REFR-05**: Annotate module (`lib/annotate.sh`) handles VCF annotation with BED regions
-- [ ] **REFR-06**: Normalize module (`lib/normalize.sh`) wraps bcftools norm operations
-- [ ] **REFR-07**: Filter module (`lib/filter.sh`) handles filter pipeline construction and execution
-- [ ] **REFR-08**: Stats module (`lib/stats.sh`) handles stats generation and plotting
-- [ ] **REFR-09**: Main script (`hardnormly.sh`) sources lib/ modules and orchestrates pipeline steps
-- [ ] **REFR-10**: Filter pipeline uses safer construction (no `eval` on dynamically built strings)
-- [ ] **REFR-11**: All external commands use consistent error handling pattern (`run_cmd` or equivalent)
-- [ ] **REFR-12**: Duplicate cleanup logic eliminated (single trap-based pattern)
-- [ ] **REFR-13**: Unit tests exist for each lib/ module's key functions
+- [x] **REFR-01**: Logging module (`lib/logging.sh`) provides log_msg, debug_msg, error handling functions
+- [x] **REFR-02**: CLI module (`lib/cli.sh`) handles argument parsing, validation, show_help
+- [x] **REFR-03**: Genome module (`lib/genome.sh`) handles genome file creation and validation
+- [x] **REFR-04**: BED module (`lib/bed.sh`) handles normalize_bed, merge, intersect, compress, index
+- [x] **REFR-05**: Annotate module (`lib/annotate.sh`) handles VCF annotation with BED regions
+- [x] **REFR-06**: Normalize module (`lib/normalize.sh`) wraps bcftools norm operations
+- [x] **REFR-07**: Filter module (`lib/filter.sh`) handles filter pipeline construction and execution
+- [x] **REFR-08**: Stats module (`lib/stats.sh`) handles stats generation and plotting
+- [x] **REFR-09**: Main script (`hardnormly.sh`) sources lib/ modules and orchestrates pipeline steps
+- [x] **REFR-10**: Filter pipeline uses safer construction (no `eval` on dynamically built strings)
+- [x] **REFR-11**: All external commands use consistent error handling pattern (`run_cmd` or equivalent)
+- [x] **REFR-12**: Duplicate cleanup logic eliminated (single trap-based pattern)
+- [x] **REFR-13**: Unit tests exist for each lib/ module's key functions
 
 ### Features
 
@@ -62,6 +62,7 @@ Requirements for milestone v0.7.0. Each maps to roadmap phases.
 - [ ] **FEAT-05**: Helper script generates combined exclusion BED files for hg19 and hg38 from public sources
 - [ ] **FEAT-06**: `--caller` flag auto-selects the matching filter file (gatk → gatk_filters.txt, freebayes → freebayes_filters.txt)
 - [ ] **FEAT-07**: Running without a subcommand defaults to `run-pipeline` (backward compatible)
+- [ ] **FEAT-08**: `--strip-annotations` flag removes specified INFO fields (e.g., INFO/CSQ) via `bcftools annotate -x` before filtering
 
 ### Documentation
 
@@ -81,8 +82,8 @@ Deferred to future milestones. Tracked but not in current roadmap.
 
 ### Features
 
-- **FEAT-08**: `--plot-backend` option to choose between tectonic and pdflatex
-- **FEAT-09**: `--help-filters` subcommand prints filter file format in detail
+- **FEAT-10**: `--plot-backend` option to choose between tectonic and pdflatex
+- **FEAT-11**: `--help-filters` subcommand prints filter file format in detail
 
 ## Out of Scope
 
@@ -120,19 +121,19 @@ Deferred to future milestones. Tracked but not in current roadmap.
 | TFWK-05 | Phase 3 | Complete |
 | TFWK-06 | Phase 3 | Complete |
 | TFWK-07 | Phase 3 | Complete |
-| REFR-01 | Phase 4 | Pending |
-| REFR-02 | Phase 4 | Pending |
-| REFR-03 | Phase 4 | Pending |
-| REFR-04 | Phase 4 | Pending |
-| REFR-05 | Phase 4 | Pending |
-| REFR-06 | Phase 4 | Pending |
-| REFR-07 | Phase 4 | Pending |
-| REFR-08 | Phase 4 | Pending |
-| REFR-09 | Phase 4 | Pending |
-| REFR-10 | Phase 4 | Pending |
-| REFR-11 | Phase 4 | Pending |
-| REFR-12 | Phase 4 | Pending |
-| REFR-13 | Phase 4 | Pending |
+| REFR-01 | Phase 4 | Complete |
+| REFR-02 | Phase 4 | Complete |
+| REFR-03 | Phase 4 | Complete |
+| REFR-04 | Phase 4 | Complete |
+| REFR-05 | Phase 4 | Complete |
+| REFR-06 | Phase 4 | Complete |
+| REFR-07 | Phase 4 | Complete |
+| REFR-08 | Phase 4 | Complete |
+| REFR-09 | Phase 4 | Complete |
+| REFR-10 | Phase 4 | Complete |
+| REFR-11 | Phase 4 | Complete |
+| REFR-12 | Phase 4 | Complete |
+| REFR-13 | Phase 4 | Complete |
 | FEAT-01 | Phase 5 | Pending |
 | FEAT-02 | Phase 5 | Pending |
 | FEAT-03 | Phase 5 | Pending |
@@ -140,6 +141,7 @@ Deferred to future milestones. Tracked but not in current roadmap.
 | FEAT-05 | Phase 5 | Pending |
 | FEAT-06 | Phase 5 | Pending |
 | FEAT-07 | Phase 5 | Pending |
+| FEAT-08 | Phase 5 | Pending |
 | DOCS-01 | Phase 5 | Pending |
 | DOCS-02 | Phase 5 | Pending |
 | DOCS-03 | Phase 5 | Pending |

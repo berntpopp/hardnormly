@@ -57,8 +57,49 @@ cleanup_handler() {
 
 trap cleanup_handler EXIT
 
-# Parse command-line arguments (delegates to lib/cli.sh)
-parse_args "$@"
+# Subcommand stubs (implemented in 05-04)
+cmd_generate_inclusion_bed() {
+	echo "Error: generate-inclusion-bed not yet implemented" >&2
+	exit 1
+}
+cmd_generate_exclusion_bed() {
+	echo "Error: generate-exclusion-bed not yet implemented" >&2
+	exit 1
+}
+
+# Subcommand dispatcher — routes to subcommand handler or falls through to run-pipeline
+_subcommand="${1:-}"
+case "$_subcommand" in
+	run-pipeline)
+		shift
+		parse_args "$@"
+		;;
+	generate-inclusion-bed)
+		shift
+		cmd_generate_inclusion_bed "$@"
+		exit 0
+		;;
+	generate-exclusion-bed)
+		shift
+		cmd_generate_exclusion_bed "$@"
+		exit 0
+		;;
+	"" | -h | --help)
+		show_help
+		;;
+	--version)
+		show_version "$version"
+		;;
+	-*)
+		# Legacy mode: first arg is a flag, route to run-pipeline implicitly
+		parse_args "$@"
+		;;
+	*)
+		echo "Error: Unknown subcommand '${_subcommand}'" >&2
+		echo "Run 'hardnormly.sh --help' for usage information." >&2
+		exit 1
+		;;
+esac
 
 # Configure logging module with parsed values
 set_log_file "$log_file"

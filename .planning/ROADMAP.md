@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Infrastructure** - Linting, CI, strict mode — quality foundation that unblocks everything
 - [x] **Phase 2: Test Data** - Synthetic and real data subsets that make automated tests possible
 - [x] **Phase 3: Test Framework** - BATS smoke, filter, integration, and regression tests
-- [ ] **Phase 4: Refactoring** - Modularize into lib/, replace eval, unify error handling
+- [x] **Phase 4: Refactoring** - Modularize into lib/, replace eval, unify error handling
 - [ ] **Phase 5: Features & Docs** - Subcommands, --caller flag, exclusion BED generation, help text
 
 ## Phase Details
@@ -96,11 +96,11 @@ Plans:
   5. Unit tests exist for key functions in each lib/ module and pass
 
 Plans:
-- [ ] 04-01-PLAN.md — Extract lib/logging.sh and lib/cli.sh, update hardnormly.sh to source them (REFR-01, REFR-02)
-- [ ] 04-02-PLAN.md — Extract lib/genome.sh, lib/bed.sh, lib/annotate.sh (REFR-03, REFR-04, REFR-05)
-- [ ] 04-03-PLAN.md — Extract lib/normalize.sh, lib/filter.sh, lib/stats.sh (REFR-06, REFR-07, REFR-08)
-- [ ] 04-04-PLAN.md — Finalize orchestrator, remove ERR trap, update Makefile/CI (REFR-09, REFR-10, REFR-11, REFR-12)
-- [ ] 04-05-PLAN.md — Unit tests for each lib/ module (REFR-13)
+- [x] 04-01-PLAN.md — Extract lib/logging.sh and lib/cli.sh, update hardnormly.sh to source them (REFR-01, REFR-02)
+- [x] 04-02-PLAN.md — Extract lib/genome.sh, lib/bed.sh, lib/annotate.sh (REFR-03, REFR-04, REFR-05)
+- [x] 04-03-PLAN.md — Extract lib/normalize.sh, lib/filter.sh, lib/stats.sh (REFR-06, REFR-07, REFR-08)
+- [x] 04-04-PLAN.md — Finalize orchestrator, remove ERR trap, update Makefile/CI (REFR-09, REFR-10, REFR-11, REFR-12)
+- [x] 04-05-PLAN.md — Unit tests for each lib/ module (REFR-13)
 
 ### Phase 5: Features & Docs
 
@@ -132,5 +132,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Infrastructure | 3/3 | Complete | 2026-02-18 |
 | 2. Test Data | 4/4 | Complete | 2026-02-18 |
 | 3. Test Framework | 3/3 | Complete | 2026-02-18 |
-| 4. Refactoring | 0/5 | Not started | - |
+| 4. Refactoring | 5/5 | Complete | 2026-02-18 |
 | 5. Features & Docs | 0/4 | Not started | - |

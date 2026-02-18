@@ -96,6 +96,7 @@ Progress: [█████████████░] 89% (17/19 plans complete
 - --separate-stderr flag (BATS 1.5.0+) used for error_msg stderr assertions in unit tests
 - create_genome_file tested as function existence only — no network call in unit tests
 - bats_require_minimum_version 1.5.0 added to suppress BW02 warnings for run flags
+- REFR-11 gap closed: bed.sh pipelines use || { error_msg; return 1 } guards; bgzip/tabix use run_cmd; genome.sh captures mysql stderr to temp file (not /dev/null), fixed misleading Requires comment
 - generate_exclusion_bed.sh uses bedtools sort+merge (not multiinter) for union of all exclusion regions
 - hg38 centromere fallback: try gap.txt.gz first, use cytoBandIdeo.txt.gz if <10 rows
 - scripts/ additions: always add to both Makefile SH_FILES explicitly and CI lint steps
