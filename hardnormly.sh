@@ -57,14 +57,160 @@ cleanup_handler() {
 
 trap cleanup_handler EXIT
 
-# Subcommand stubs (implemented in 05-04)
+# cmd_generate_inclusion_bed — merge BED files into a combined inclusion region file
 cmd_generate_inclusion_bed() {
-	echo "Error: generate-inclusion-bed not yet implemented" >&2
-	exit 1
+	local bed_files=()
+	local genome_file=""
+	local output_file=""
+	local slop=20
+	local verbose=false
+
+	while [[ "$#" -gt 0 ]]; do
+		case "$1" in
+			-b | --include-bed)
+				bed_files+=("$2")
+				shift
+				;;
+			-g | --genome)
+				genome_file="$2"
+				shift
+				;;
+			-o | --output)
+				output_file="$2"
+				shift
+				;;
+			--slop)
+				slop="$2"
+				shift
+				;;
+			-v | --verbose)
+				verbose=true
+				;;
+			-h | --help)
+				show_help_generate_inclusion_bed
+				;;
+			*)
+				echo "Error: Unknown option '$1'" >&2
+				show_help_generate_inclusion_bed
+				;;
+		esac
+		shift
+	done
+
+	# Validate required args
+	if [[ "${#bed_files[@]}" -eq 0 ]]; then
+		echo "Error: At least one -b/--include-bed file is required" >&2
+		exit 1
+	fi
+	if [[ -z "$genome_file" ]]; then
+		echo "Error: -g/--genome file is required for slop operation" >&2
+		exit 1
+	fi
+	if [[ -z "$output_file" ]]; then
+		echo "Error: -o/--output is required" >&2
+		exit 1
+	fi
+
+	# Configure logging for verbose mode
+	if [[ "$verbose" == true ]]; then
+		set_log_file ""
+		set_debug false
+	fi
+
+	# Create temp dir for intermediate files
+	local tmp_dir
+	tmp_dir=$(mktemp -d -t hardnormly-gen-inc-XXXXXXXXXX)
+	# shellcheck disable=SC2064
+	trap "rm -rf '$tmp_dir'" EXIT
+
+	# Normalize each BED file
+	local normalized_files=()
+	local bed_file normalized_file
+	for bed_file in "${bed_files[@]}"; do
+		normalized_file="$tmp_dir/$(basename "$bed_file").normalized.bed"
+		normalize_bed "$bed_file" "1" "$normalized_file"
+		normalized_files+=("$normalized_file")
+		[[ "$verbose" == true ]] && log_msg "Normalized: $bed_file"
+	done
+
+	# Merge with slop
+	merge_include_beds "$tmp_dir/merged.bed" "$slop" "$genome_file" "${normalized_files[@]}"
+	[[ "$verbose" == true ]] && log_msg "Merged ${#bed_files[@]} BED file(s) with slop=${slop}bp"
+
+	# Copy to output
+	cp "$tmp_dir/merged.bed" "$output_file"
+	[[ "$verbose" == true ]] && log_msg "Output written to: $output_file"
 }
+
+# cmd_generate_exclusion_bed — merge BED files into a combined exclusion region file
 cmd_generate_exclusion_bed() {
-	echo "Error: generate-exclusion-bed not yet implemented" >&2
-	exit 1
+	local bed_files=()
+	local output_file=""
+	local verbose=false
+
+	while [[ "$#" -gt 0 ]]; do
+		case "$1" in
+			-e | --exclude-bed)
+				bed_files+=("$2")
+				shift
+				;;
+			-o | --output)
+				output_file="$2"
+				shift
+				;;
+			-v | --verbose)
+				verbose=true
+				;;
+			-h | --help)
+				show_help_generate_exclusion_bed
+				;;
+			*)
+				echo "Error: Unknown option '$1'" >&2
+				show_help_generate_exclusion_bed
+				;;
+		esac
+		shift
+	done
+
+	# Validate required args
+	if [[ "${#bed_files[@]}" -eq 0 ]]; then
+		echo "Error: At least one -e/--exclude-bed file is required" >&2
+		exit 1
+	fi
+	if [[ -z "$output_file" ]]; then
+		echo "Error: -o/--output is required" >&2
+		exit 1
+	fi
+
+	# Configure logging for verbose mode
+	if [[ "$verbose" == true ]]; then
+		set_log_file ""
+		set_debug false
+	fi
+
+	# Create temp dir for intermediate files
+	local tmp_dir
+	tmp_dir=$(mktemp -d -t hardnormly-gen-exc-XXXXXXXXXX)
+	# shellcheck disable=SC2064
+	trap "rm -rf '$tmp_dir'" EXIT
+
+	# Normalize each BED file
+	local normalized_files=()
+	local bed_file normalized_file
+	for bed_file in "${bed_files[@]}"; do
+		normalized_file="$tmp_dir/$(basename "$bed_file").normalized.bed"
+		normalize_bed "$bed_file" "1" "$normalized_file"
+		normalized_files+=("$normalized_file")
+		[[ "$verbose" == true ]] && log_msg "Normalized: $bed_file"
+	done
+
+	# Merge exclusion regions
+	merge_exclude_beds "$tmp_dir/merged.bed" "${normalized_files[@]}"
+	[[ "$verbose" == true ]] && log_msg "Merged ${#bed_files[@]} BED file(s)"
+
+	# Copy to output
+	cp "$tmp_dir/merged.bed" "$output_file"
+	[[ "$verbose" == true ]] && log_msg "Output written to: $output_file"
 }
 
 # Subcommand dispatcher — routes to subcommand handler or falls through to run-pipeline
