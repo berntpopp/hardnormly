@@ -17,17 +17,19 @@
 - `tectonic` (for generating PDF summary)
 - `matplotlib` (for generating plots)
 
-These can be installed via package conda for example:
+These can be installed via conda:
 
 ```bash
 conda create --name hardnormly bcftools bedtools mysql tectonic matplotlib
 ```
 
-Or using the conda environment yml file:
+Or using the full conda environment file (includes plotting dependencies):
 
 ```bash
 conda env create -f conda/hardnormly_environment.yml
-``` 
+```
+
+For Snakemake batch processing, only a `snakemake` (8+) environment is needed — the workflow manages its own per-rule conda environments automatically. 
 
 ## Usage
 
@@ -79,6 +81,53 @@ Then use the \`--filters-file\` option:
 ```bash
 --filters-file filters.txt
 ```
+
+## Batch Processing with Snakemake
+
+For processing multiple VCF files in parallel (e.g., on a SLURM cluster), hardnormly includes a Snakemake 8+ workflow.
+
+### Setup
+
+1. Edit `config/config.yaml` with your reference paths, BED files, and filter settings.
+2. Create a text file listing input VCF paths (one per line) and set `paths.vcf_list` in the config.
+
+### Running
+
+```bash
+# Dry run (preview what will be executed)
+snakemake --snakefile workflow/Snakefile --configfile config/config.yaml \
+  --workflow-profile profiles/default -n
+
+# Local execution
+snakemake --snakefile workflow/Snakefile --configfile config/config.yaml \
+  --workflow-profile profiles/default
+
+# SLURM submission (auto-detects cluster environment)
+sbatch scripts/run_snakemake.sh
+```
+
+### Workflow Structure
+
+```
+workflow/
+├── Snakefile                # Entry point (config validation, rule imports)
+├── rules/
+│   ├── common.smk           # Config shortcuts and helper functions
+│   └── hardnormly.smk       # Pipeline rule (calls hardnormly.sh per sample)
+├── envs/
+│   └── hardnormly.yaml      # Lightweight conda env for the pipeline rule
+└── schemas/
+    └── config.schema.yaml   # JSON Schema for config validation
+config/
+└── config.yaml              # Workflow configuration
+profiles/
+├── default/
+│   └── config.yaml          # Default resources and execution settings
+└── charite/
+    └── config.yaml          # Charite SLURM cluster settings
+```
+
+Resources (threads, memory, runtime) are managed via profiles in `profiles/`, not hardcoded in rules. The workflow tracks actual output VCFs and indexes as Snakemake outputs for proper dependency tracking and rerun-on-failure.
 
 ## Genome File Creation
 

@@ -12,7 +12,7 @@ The project has two execution modes:
 
 1. **Standalone script** (`hardnormly.sh`) — the core bash tool that performs the full pipeline: BED normalization → genome file creation → region annotation → VCF normalization → hard filtering → optional stats/plots.
 
-2. **Snakemake workflow** (`snakemake/hardnormly.smk`) — batch-processes multiple VCF files in parallel via SLURM, calling `hardnormly.sh` for each sample. Configured via `snakemake/config.yaml`.
+2. **Snakemake workflow** (`workflow/Snakefile`) — batch-processes multiple VCF files in parallel via SLURM, calling `hardnormly.sh` for each sample. Uses Snakemake 8+ conventions with config validation, profile-based resources, and per-rule conda environments.
 
 ### Pipeline Steps (hardnormly.sh)
 
@@ -34,20 +34,56 @@ Example: `DPu10het e FORMAT/DP<10 && GT!="hom"`
 
 Two default filter sets are provided: `defaults/gatk_filters.txt` (GATK HaplotypeCaller) and `defaults/freebayes_filters.txt`.
 
+## Directory Structure
+
+```
+hardnormly/
+├── hardnormly.sh                    # Main pipeline script (standalone)
+├── defaults/                        # Default filter files and hg19 genome file
+├── ref/                             # Reference FASTA, target/exclusion BED files
+├── conda/                           # Full conda environment (standalone usage)
+│   └── hardnormly_environment.yml
+├── workflow/                        # Snakemake workflow (standard layout)
+│   ├── Snakefile                    # Entry point (min_version 8.0, config validation)
+│   ├── rules/
+│   │   ├── common.smk              # Config shortcuts and helper functions
+│   │   └── hardnormly.smk          # Pipeline rule (calls hardnormly.sh)
+│   ├── envs/
+│   │   └── hardnormly.yaml         # Lightweight conda env (bcftools, bedtools, htslib)
+│   └── schemas/
+│       └── config.schema.yaml      # JSON Schema for config validation
+├── config/
+│   └── config.yaml                 # Workflow configuration (hierarchical)
+├── profiles/
+│   ├── default/
+│   │   └── config.yaml             # Default resources and execution settings
+│   └── charite/
+│       └── config.yaml             # Charite SLURM cluster settings
+└── scripts/
+    └── run_snakemake.sh            # Launcher with cluster auto-detection
+```
+
 ## Key Files
 
 - `hardnormly.sh` — main script, all pipeline logic
-- `snakemake/hardnormly.smk` — Snakemake workflow definition
-- `snakemake/config.yaml` — Snakemake config (reference paths, BED files, filter file, slop, output dir)
-- `conda/hardnormly_environment.yml` — full conda environment specification
-- `defaults/` — default filter files and hg19 genome file
-- `ref/` — reference FASTA, target BED files (Agilent/IDT panels), and exclusion BED files
+- `workflow/Snakefile` — Snakemake workflow entry point
+- `workflow/rules/common.smk` — config shortcuts, VCF list loading helpers
+- `workflow/rules/hardnormly.smk` — pipeline rule definition
+- `workflow/schemas/config.schema.yaml` — config validation schema
+- `config/config.yaml` — workflow configuration (reference paths, BED files, filters, output)
+- `profiles/default/config.yaml` — resource allocations and execution settings
+- `conda/hardnormly_environment.yml` — full conda environment specification (standalone)
+- `workflow/envs/hardnormly.yaml` — lightweight conda env (Snakemake per-rule)
 
 ## Environment Setup
 
 ```bash
+# For standalone hardnormly.sh usage (full environment with plotting tools)
 conda env create -f conda/hardnormly_environment.yml
 conda activate hardnormly
+
+# For Snakemake workflow (manages per-rule envs automatically)
+conda activate snakemake  # needs snakemake 8+
 ```
 
 Key dependencies: bcftools 1.20, bedtools 2.31, htslib (bgzip/tabix), mysql client, matplotlib, tectonic.
@@ -60,14 +96,35 @@ Key dependencies: bcftools 1.20, bedtools 2.31, htslib (bgzip/tabix), mysql clie
   --filters-file defaults/gatk_filters.txt -g defaults/hg19.genome -o output.vcf.gz
 ```
 
+### Snakemake (local)
+```bash
+# From repository root
+snakemake --snakefile workflow/Snakefile --configfile config/config.yaml \
+  --workflow-profile profiles/default -n  # dry run
+```
+
 ### Snakemake (SLURM)
 ```bash
-# From snakemake/ directory
-snakemake -s hardnormly.smk --use-conda --profile=cubi-v1 -j500
-```
-Or submit via `run_hardnormly.sh` (SBATCH wrapper).
+# Submit via launcher script (auto-detects cluster)
+sbatch scripts/run_snakemake.sh
 
-The Snakemake workflow reads VCF paths from the file specified in `config.yaml` → `vcf_files` (one path per line).
+# Or run directly with cluster profile
+snakemake --snakefile workflow/Snakefile --configfile config/config.yaml \
+  --workflow-profile profiles/default --profile profiles/charite
+```
+
+The workflow reads VCF paths from the file specified in `config/config.yaml` → `paths.vcf_list` (one path per line).
+
+### Config Structure
+
+The config (`config/config.yaml`) uses hierarchical sections:
+- `ref` — reference genome paths and build
+- `paths` — input VCF list, output directory, log subdirectory
+- `regions` — include/exclude BED files, slop value
+- `filtering` — filter definitions file, PASS-only flag
+- `processing` — stats generation, auto-indexing, plot generation
+
+Config is validated against `workflow/schemas/config.schema.yaml` at workflow start.
 
 ## Development Notes
 
@@ -76,3 +133,5 @@ The Snakemake workflow reads VCF paths from the file specified in `config.yaml` 
 - `--debug` enables `set -x` tracing and verbose logging throughout.
 - `--no-cleanup` preserves the temp directory for inspecting intermediate files.
 - The `stats/plot.py` file is auto-generated by `plot-vcfstats`, not hand-written code.
+- Resources (threads, memory, runtime) are managed via profiles, not hardcoded in rules.
+- The Snakemake workflow tracks actual output VCFs (not just logs) for proper dependency tracking.

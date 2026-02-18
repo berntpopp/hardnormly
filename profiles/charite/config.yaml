@@ -1,0 +1,6 @@
+executor: slurm
+default-resources:
+  slurm_partition: compute
+  slurm_account: sc-users
+jobs: 50
+latency-wait: 60
