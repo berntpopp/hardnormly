@@ -19,3 +19,26 @@
 
 # files with test in the name
 *test*
+
+# Allow tests directory and test data files (exceptions must come AFTER *test*)
+!/tests/
+!/tests/**
+!/tests/**/*.vcf
+!/tests/**/*.vcf.gz
+!/tests/**/*.vcf.gz.tbi
+!/tests/**/*.bed
+!/tests/**/*.fa
+!/tests/**/*.fa.fai
+
+# BATS libraries (installed by tests/setup_bats.sh, not tracked)
+/tests/bats/
+/tests/test_helper/bats-support/
+/tests/test_helper/bats-assert/
+/tests/test_helper/bats-file/
+
+# MkDocs build output
+/site/
+
+# Allow .planning directory (contains "test-data" phase name which *test* would block)
+!/.planning/
+!/.planning/**

@@ -1,0 +1,39 @@
+#!/bin/bash
+# .githooks/pre-commit
+# Checks staged shell scripts with ShellCheck and shfmt before commit.
+# Activate with: scripts/setup-hooks.sh
+
+set -euo pipefail
+
+# Get list of staged .sh files (added, copied, or modified)
+staged_sh_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.sh$' || true)
+
+if [[ -z "$staged_sh_files" ]]; then
+	exit 0 # No shell files staged; nothing to check
+fi
+
+echo "Pre-commit: checking staged shell files..."
+
+failed=0
+
+while IFS= read -r file; do
+	echo "  ShellCheck: $file"
+	if ! shellcheck "$file"; then
+		failed=1
+	fi
+
+	echo "  shfmt:      $file"
+	if ! shfmt -d -i 0 -bn -ci "$file"; then
+		failed=1
+	fi
+done <<<"$staged_sh_files"
+
+if [[ $failed -ne 0 ]]; then
+	echo ""
+	echo "Pre-commit hook failed. Fix the issues above before committing."
+	echo "  Lint:   shellcheck <file>"
+	echo "  Format: shfmt -w -i 0 -bn -ci <file>"
+	exit 1
+fi
+
+echo "Pre-commit: all checks passed."

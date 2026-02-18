@@ -1,0 +1,101 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+description: Configuration schema for the hardnormly Snakemake workflow
+type: object
+
+required:
+  - ref
+  - paths
+
+properties:
+  ref:
+    type: object
+    required:
+      - fasta
+    properties:
+      fasta:
+        type: string
+        description: Path to reference FASTA file
+      genome_file:
+        type: string
+        description: Path to genome file (chrom sizes)
+      build:
+        type: string
+        enum:
+          - GRCh37
+          - GRCh38
+        description: Genome build version
+
+  paths:
+    type: object
+    required:
+      - vcf_list
+      - output_folder
+    properties:
+      vcf_list:
+        type: string
+        description: Path to file listing input VCF paths (one per line)
+      output_folder:
+        type: string
+        description: Output directory for processed VCFs
+      log_subdir:
+        type: string
+        default: logs
+        description: Subdirectory name for log files within output folder
+
+  regions:
+    type: object
+    properties:
+      include_beds:
+        type: array
+        items:
+          type: string
+        description: BED files defining regions to include
+      exclude_beds:
+        type: array
+        items:
+          type: string
+        description: BED files defining regions to exclude
+      slop:
+        type: integer
+        minimum: 0
+        default: 100
+        description: Number of bases to extend BED regions
+
+  filtering:
+    type: object
+    properties:
+      caller:
+        type: string
+        enum:
+          - gatk
+          - freebayes
+        description: Auto-select built-in filter set by caller name (alternative to filters_file)
+      filters_file:
+        type: string
+        description: Path to filter definitions file (overrides caller if both set)
+      strip_annotations:
+        type: string
+        description: Comma-separated INFO fields to remove before filtering (e.g., INFO/CSQ,INFO/ANN)
+      only_pass:
+        type: boolean
+        default: false
+        description: Keep only PASS variants in output
+
+  processing:
+    type: object
+    properties:
+      generate_stats:
+        type: boolean
+        default: true
+        description: Generate bcftools stats output
+      auto_index:
+        type: boolean
+        default: true
+        description: Automatically index output VCF
+      plot_stats:
+        type: boolean
+        default: false
+        description: Generate plots from bcftools stats
+      plot_output_dir:
+        type: string
+        description: Base directory for per-sample stats plots (default: {output_folder}/plots)

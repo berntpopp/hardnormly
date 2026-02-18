@@ -1,127 +1,80 @@
 # hardnormly
 
-**hardnormly** is a toolkit for VCF normalization and hard filtering. It leverages `bcftools` for variant filtering and `bedtools` for region-based operations on genomic intervals. The script provides a streamlined approach for intersecting BED files, applying VCF normalization, and performing hard filtering based on user-defined criteria.
+[![CI](https://github.com/berntpopp/hardnormly/actions/workflows/ci.yml/badge.svg)](https://github.com/berntpopp/hardnormly/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## Features
+VCF normalization and hard filtering toolkit for whole-exome sequencing variant processing.
 
-- **VCF Normalization**: Normalize variants using a reference FASTA file.
-- **Region Filtering**: Filter variants based on BED file regions with optional padding.
-- **Hard Filtering**: Apply user-defined filters using `bcftools`.
-- **Flexible Input**: Provide filters directly via CLI or read them from a file.
-
-## Dependencies
-
-- `bcftools`
-- `bedtools`
-- `mysql` (for genome file creation if not provided)
-- `tectonic` (for generating PDF summary)
-- `matplotlib` (for generating plots)
-
-These can be installed via package conda for example:
+## Quick Start
 
 ```bash
-conda create --name hardnormly bcftools bedtools mysql tectonic matplotlib
-```
-
-Or using the conda environment yml file:
-
-```bash
+# Install dependencies
 conda env create -f conda/hardnormly_environment.yml
-``` 
+conda activate hardnormly
 
-## Usage
-
-```bash
-./hardnormly.sh -v <input.vcf.gz> -f <reference.fasta> -b <regions1.bed> -b <regions2.bed> -o <output.vcf.gz> [--filters '<filter_expression>'] [--filters-file <filters.txt>]
-```
-
-### Example
-
-```bash
-./hardnormly.sh \
+# Run the pipeline
+./hardnormly.sh run-pipeline \
   -v input.vcf.gz \
   -f reference.fasta \
-  -b regions1.bed \
-  -b regions2.bed \
-  --filters 'FORMAT/DP<20' \
-  --filters 'QUAL<300' \
+  --caller gatk \
   -o output.vcf.gz
 ```
 
-### Options
+This normalizes variants (multiallelic splitting, left-alignment) and applies GATK hard filters, writing soft-filter tags to the FILTER column.
 
-- \`-v, --vcf <input.vcf.gz>\`: Input VCF file (compressed \`.vcf.gz\` format is recommended).
-- \`-f, --fasta <reference.fasta>\`: Reference FASTA file for VCF normalization.
-- \`-b, --bed <regions.bed>\`: BED file(s) for region-based filtering (you can specify multiple files).
-- \`-g, --genome <genome.file>\`: Genome file for \`bedtools slop\` operation (default: \`hg19.genome\`). This is used to apply padding around BED regions.
-- \`-o, --output <output.vcf.gz>\`: Output VCF file (compressed \`.vcf.gz\` format is recommended).
-- \`--filters <filter_expression>\`: Inline filter expressions for \`bcftools\`. Multiple filters can be specified by repeating this option.
-- \`--filters-file <filters.txt>\`: A file containing filter expressions, one per line. This is an alternative to specifying filters on the command line.
+## Pipeline at a Glance
 
-### Filter Expression Example
+```mermaid
+flowchart LR
+    A[VCF] --> B[Region<br>Annotation]
+    B --> C[Strip<br>Annotations]
+    C --> D[Normalize]
+    D --> E[Hard<br>Filter]
+    E --> F[Output]
+```
 
-Filter expressions for \`bcftools\` are used to specify conditions for excluding variants. You can specify them directly in the command line or load them from a file.
+See [docs/pipeline.md](docs/pipeline.md) for the full step-by-step breakdown.
 
-**Inline Filter Example:**
+## Installation
+
+**Full environment** (standalone CLI with plotting):
 ```bash
---filters 'FORMAT/DP<20' --filters 'QUAL<300'
+conda env create -f conda/hardnormly_environment.yml
+conda activate hardnormly
 ```
 
-**Filters File Example:**
-The file \`filters.txt\` should contain one filter expression per line:
-```
-FORMAT/DP<20
-QUAL<300
-FORMAT/VAF<0.2 && GT!="hom"
-```
-
-Then use the \`--filters-file\` option:
+**Minimal** (CLI only, no plots):
 ```bash
---filters-file filters.txt
+conda create -n hardnormly bcftools bedtools htslib mysql
+conda activate hardnormly
 ```
 
-## Genome File Creation
-
-If the genome file for \`bedtools slop\` is not provided, it can be generated using the UCSC MySQL database:
+**CI / apt-get**:
 ```bash
-mysql --user=genome --host=genome-mysql.cse.ucsc.edu -A -e "select chrom, size from hg19.chromInfo" | grep -v "^chrom" | sed 's/chr//g' > hg19.genome
+apt-get install -y bcftools bedtools tabix
 ```
 
-This file is required for the padding operation performed by \`bedtools slop\`.
+## Documentation
 
-### Exclusion BED Files Documentation
+| Guide | Description |
+|-------|-------------|
+| [Pipeline](docs/pipeline.md) | Step-by-step pipeline logic with diagram |
+| [Options Reference](docs/options.md) | Complete flag reference, categorized |
+| [Filters](docs/filters.md) | Filter system, file format, custom filters |
+| [Examples](docs/examples.md) | Real-world usage recipes |
+| [Snakemake](docs/snakemake.md) | Batch processing with Snakemake |
+| [Architecture](docs/architecture.md) | Module structure and development |
+| [Filter Definitions](defaults/filters.md) | Detailed GATK and Freebayes filter reference |
 
-#### Purpose:
-Exclusion BED files are used to filter out problematic regions of the genome, such as areas with low mappability, high repeat content, or known technical artifacts. These regions are often flagged to avoid false positives in variant calling.
+## Subcommands
 
-#### Usage:
-To use exclusion BED files, specify them with the `--exclude-bed` option. These files define genomic intervals to exclude during the VCF filtering process. The script will use these intervals to annotate variants and filter out those that overlap with exclusion regions.
-
-Example:
-```bash
-./hardnormly.sh -v input.vcf.gz -f reference.fasta --exclude-bed exclusion.bed -o output.vcf.gz
+```
+hardnormly.sh run-pipeline [options]            # Normalize and filter (default)
+hardnormly.sh generate-inclusion-bed [options]   # Merge include BED files
+hardnormly.sh generate-exclusion-bed [options]   # Merge exclusion BED files
 ```
 
-#### Format:
-Exclusion BED files follow the standard BED format, which includes:
-1. Chromosome
-2. Start Position
-3. End Position
-4. (Optional) Annotation (e.g., "LowMappability")
-
-Example BED file:
-```
-chr1    10000   10500   LowMappability
-chr1    20000   20500   RepeatRegion
-```
-
-#### Resources:
-- **[Excluderanges Repository](https://github.com/dozmorovlab/excluderanges):** A collection of exclusion BED files for various species and use cases.
-- **[UCSC Encode Downloads](https://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeMapability):** Provides access to mappability tracks and other exclusion regions for the hg19 genome.
-
-#### Best Practices:
-- Ensure your exclusion BED file is properly formatted and indexed (e.g., using `bgzip` and `tabix`).
-- Use exclusion files relevant to your specific genome build and analysis goals to improve variant calling accuracy.
+Run `hardnormly.sh --help` or `hardnormly.sh <subcommand> --help` for details.
 
 ## License
 

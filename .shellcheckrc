@@ -1,0 +1,16 @@
+# .shellcheckrc
+# Source: https://github.com/koalaman/shellcheck/blob/master/shellcheck.1.md
+
+# Target shell: bash (ensures bash-specific checks)
+shell=bash
+
+# Enable optional checks
+# require-double-brackets: warn on [ ] usage in bash (prefer [[ ]])
+enable=require-double-brackets
+# deprecate-which: warn on `which`, prefer `command -v`
+enable=deprecate-which
+# check-set-e-suppressed: warn when set -e is suppressed during function calls
+enable=check-set-e-suppressed
+
+# Allow sourcing files that shellcheck can't find (common in bash scripts)
+external-sources=true

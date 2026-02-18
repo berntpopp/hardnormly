@@ -1,0 +1,36 @@
+from snakemake.utils import min_version, validate
+
+
+# Enforce minimum Snakemake version
+min_version("8.0")
+
+
+# Load and validate configuration
+configfile: "../config/config.yaml"
+
+
+validate(config, "../workflow/schemas/config.schema.yaml")
+
+
+# Load helper functions and config shortcuts
+include: "rules/common.smk"
+
+
+# Load pipeline rules
+include: "rules/hardnormly.smk"
+
+
+# Load VCF jobs
+JOBS = get_vcf_jobs()
+
+
+rule all:
+    input:
+        expand(
+            os.path.join(OUTPUT_DIR, "{vcf_basename}.hardnormly.vcf.gz"),
+            vcf_basename=JOBS.keys(),
+        ),
+        expand(
+            os.path.join(OUTPUT_DIR, "{vcf_basename}.hardnormly.vcf.gz.tbi"),
+            vcf_basename=JOBS.keys(),
+        ),

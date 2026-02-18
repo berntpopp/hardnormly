@@ -1,0 +1,25 @@
+# Execution settings
+latency-wait: 60
+jobs: 20
+rerun-incomplete: true
+retries: 1
+printshellcmds: true
+
+# Software deployment
+software-deployment-method:
+  - conda
+
+# Default resources
+default-resources:
+  mem_mb: 4000
+  runtime: 120
+
+# Per-rule resources
+set-threads:
+  run_hardnormly_pipeline: 2
+
+set-resources:
+  run_hardnormly_pipeline:
+    mem_mb: 8000
+    runtime: 480
+    cpus_per_task: 2

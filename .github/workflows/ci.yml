@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install shfmt
+        run: sudo apt-get update && sudo apt-get install -y shfmt
+
+      - name: Run ShellCheck
+        run: shellcheck hardnormly.sh lib/*.sh .githooks/pre-commit scripts/setup-hooks.sh scripts/generate_exclusion_bed.sh tests/setup_bats.sh
+
+      - name: Check shfmt formatting
+        run: shfmt -d -i 0 -bn -ci hardnormly.sh lib/*.sh .githooks/pre-commit scripts/setup-hooks.sh scripts/generate_exclusion_bed.sh tests/setup_bats.sh
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install bioinformatics tools
+        run: sudo apt-get update && sudo apt-get install -y bcftools bedtools
+
+      - name: Install BATS
+        run: bash tests/setup_bats.sh
+
+      - name: Run BATS tests
+        run: tests/bats/bin/bats --print-output-on-failure tests/*.bats
