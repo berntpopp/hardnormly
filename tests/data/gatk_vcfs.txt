@@ -1,0 +1,2 @@
+tests/data/synthetic/gatk_sample_A.vcf.gz
+tests/data/synthetic/gatk_sample_B.vcf.gz

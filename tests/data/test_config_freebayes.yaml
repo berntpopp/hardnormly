@@ -1,0 +1,25 @@
+ref:
+  fasta: "tests/data/synthetic/mini_ref.fa"
+  genome_file: "tests/data/hg19_chr22.genome"
+  build: "GRCh37"
+
+paths:
+  vcf_list: "tests/data/freebayes_vcfs.txt"
+  output_folder: "tests/output/freebayes/"
+  log_subdir: "logs"
+
+regions:
+  include_beds:
+    - "tests/data/include_regions.bed"
+  exclude_beds:
+    - "tests/data/exclude_regions.bed"
+  slop: 20
+
+filtering:
+  filters_file: "defaults/freebayes_filters.txt"
+  only_pass: false
+
+processing:
+  generate_stats: false
+  auto_index: true
+  plot_stats: false
