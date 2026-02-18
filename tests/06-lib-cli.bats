@@ -27,7 +27,7 @@ setup() {
 
 @test "show_help outputs options section" {
 	run show_help
-	assert_output --partial "Options:"
+	assert_output --partial "Options (run-pipeline):"
 }
 
 @test "show_help exits with non-zero status" {

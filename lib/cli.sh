@@ -43,6 +43,10 @@ Options (run-pipeline):
   --version                Show version
   -h, --help               Show this help
 
+Filter file format (--filters-file):
+  Each line: <filter_name> <e|i> <bcftools_expression>
+  e = exclude (soft-filter), i = include (keep matching)
+
 Example:
   hardnormly.sh run-pipeline -v input.vcf.gz -f ref.fasta -o output.vcf.gz
 
