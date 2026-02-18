@@ -19,3 +19,13 @@
 
 # files with test in the name
 *test*
+
+# Allow tests directory and test data files (exceptions must come AFTER *test*)
+!/tests/
+!/tests/**
+!/tests/**/*.vcf
+!/tests/**/*.vcf.gz
+!/tests/**/*.vcf.gz.tbi
+!/tests/**/*.bed
+!/tests/**/*.fa
+!/tests/**/*.fa.fai
