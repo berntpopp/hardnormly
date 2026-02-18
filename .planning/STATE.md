@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 4 of 5 (Refactoring) — In progress
-Plan: 2 of 5 in phase 04 (done)
+Plan: 3 of 5 in phase 04 (done)
 Status: In progress
-Last activity: 2026-02-18 — Completed 04-02-PLAN.md (genome/BED/annotate extraction into lib/)
+Last activity: 2026-02-18 — Completed 04-03-PLAN.md (normalize/filter/stats extraction into lib/)
 
-Progress: [████████░░] 60% (12/20 plans complete)
+Progress: [████████░░] 65% (13/20 plans complete)
 
 ## Performance Metrics
 
@@ -30,10 +30,10 @@ Progress: [████████░░] 60% (12/20 plans complete)
 | 01-infrastructure | 3/3 ✓ | ~65 min | ~22 min |
 | 02-test-data | 4/4 ✓ | ~125 min | ~31 min |
 | 03-test-framework | 3/3 ✓ | ~43 min | ~14 min |
-| 04-refactoring | 2/5 | ~9 min | ~4.5 min |
+| 04-refactoring | 3/5 | ~14 min | ~4.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (3 min), 03-03 (25 min), 04-01 (4 min), 04-02 (5 min)
+- Last 5 plans: 03-03 (25 min), 04-01 (4 min), 04-02 (5 min), 04-03 (5 min)
 - Trend: refactoring plans fast (pure code extraction, no new logic)
 
 *Updated after each plan completion*
@@ -85,8 +85,11 @@ Progress: [████████░░] 60% (12/20 plans complete)
 - ERR trap kept in hardnormly.sh for transition period (will be removed in 04-04 after all commands wrapped in run_cmd)
 - lib/ modules sourced via _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" for robust path resolution
 - SC2310/SC2311 pattern: avoid || for function calls in set -Eeuo pipefail scripts; rely on propagation; use $(set -e; fn) form for command substitutions
-- Makefile SH_FILES now includes all 5 lib/ modules (lib/logging.sh, lib/cli.sh, lib/genome.sh, lib/bed.sh, lib/annotate.sh)
+- Makefile SH_FILES now includes all 8 lib/ modules (lib/logging.sh, lib/cli.sh, lib/genome.sh, lib/bed.sh, lib/annotate.sh, lib/normalize.sh, lib/filter.sh, lib/stats.sh)
 - create_genome_file uses manual retry loop (not run_cmd_with_retry) because it needs stdout capture; run_cmd_with_retry resolved for genome in 04-02 via retry loop in lib/genome.sh
+- normalize_vcf does NOT use run_cmd — bcftools norm emits warnings on stderr even on success; manual mktemp capture used to preserve Warning/Lines logging
+- apply_filter_stages takes stages as positional args after tmp_dir — clean varargs signature avoiding nameref complexity
+- All 8 lib/ modules complete; hardnormly.sh is now a slim orchestrator (~227 lines)
 
 ### Pending Todos
 
@@ -100,6 +103,6 @@ Progress: [████████░░] 60% (12/20 plans complete)
 
 ## Session Continuity
 
-Last session: 2026-02-18T19:36:25Z
-Stopped at: Completed 04-02-PLAN.md — genome/BED/annotate extraction into lib/genome.sh, lib/bed.sh, lib/annotate.sh
+Last session: 2026-02-18T19:44:35Z
+Stopped at: Completed 04-03-PLAN.md — normalize/filter/stats extraction into lib/normalize.sh, lib/filter.sh, lib/stats.sh
 Resume file: None
