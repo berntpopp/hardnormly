@@ -2,7 +2,7 @@
 # lib/bed.sh — BED file normalization, merging, compression, and header creation
 # Provides: normalize_bed, merge_include_beds, merge_exclude_beds,
 #           compress_index_bed, create_header_file
-# Requires: lib/logging.sh (log_msg, debug_msg, run_cmd)
+# Requires: lib/logging.sh (log_msg, debug_msg, error_msg, run_cmd)
 
 [[ -n "${_LIB_BED_LOADED:-}" ]] && return 0
 readonly _LIB_BED_LOADED=1
@@ -15,7 +15,11 @@ normalize_bed() {
 	local output_file="$3"
 	debug_msg "Normalizing BED file: $bed_file with annotation: $annotation"
 	awk -v annot="$annotation" '{OFS="\t"; print $1, $2, $3, annot}' "$bed_file" \
-		| bedtools sort -i - >"$output_file"
+		| bedtools sort -i - >"$output_file" \
+		|| {
+			error_msg "normalize_bed: bedtools sort pipeline failed for $bed_file"
+			return 1
+		}
 	debug_msg "Normalized BED file written to: $output_file"
 }
 
@@ -33,11 +37,15 @@ merge_include_beds() {
 		log_msg "Intersecting and padding normalized inclusion BED files..."
 		bedtools intersect -a "${bed_files[0]}" -b "${bed_files[@]:1}" \
 			| bedtools sort -i - \
-			| bedtools slop -b "$slop" -g "$genome_file" >"$output_file"
+			| bedtools slop -b "$slop" -g "$genome_file" >"$output_file" \
+			|| {
+				error_msg "merge_include_beds: bedtools intersect/sort/slop pipeline failed"
+				return 1
+			}
 		debug_msg "Combined inclusion regions written to: $output_file"
 	elif [[ "${#bed_files[@]}" -eq 1 ]]; then
 		log_msg "Padding single normalized inclusion BED file..."
-		bedtools slop -b "$slop" -g "$genome_file" -i "${bed_files[0]}" >"$output_file"
+		run_cmd bedtools slop -b "$slop" -g "$genome_file" -i "${bed_files[0]}" >"$output_file"
 		debug_msg "Single inclusion BED file padded and written to: $output_file"
 	fi
 }
@@ -54,7 +62,11 @@ merge_exclude_beds() {
 		log_msg "Combining normalized exclusion BED files..."
 		bedtools multiinter -i "${bed_files[@]}" \
 			| bedtools sort -i - \
-			| awk '{OFS="\t"; print $1, $2, $3, "1"}' >"$output_file"
+			| awk '{OFS="\t"; print $1, $2, $3, "1"}' >"$output_file" \
+			|| {
+				error_msg "merge_exclude_beds: bedtools multiinter/sort pipeline failed"
+				return 1
+			}
 		debug_msg "Combined exclusion regions written to: $output_file"
 	elif [[ "${#bed_files[@]}" -eq 1 ]]; then
 		cp "${bed_files[0]}" "$output_file"
@@ -67,8 +79,8 @@ merge_exclude_beds() {
 # Produces <bed_file>.gz and <bed_file>.gz.tbi
 compress_index_bed() {
 	local bed_file="$1"
-	bgzip -f "$bed_file"
-	tabix -p bed "${bed_file}.gz"
+	run_cmd bgzip -f "$bed_file"
+	run_cmd tabix -p bed "${bed_file}.gz"
 }
 
 # create_header_file — write a VCF INFO header line for a BED annotation field
