@@ -87,26 +87,26 @@ Plans:
 **Depends on**: Phase 3
 **Requirements**: REFR-01, REFR-02, REFR-03, REFR-04, REFR-05, REFR-06, REFR-07, REFR-08,
                  REFR-09, REFR-10, REFR-11, REFR-12, REFR-13
+**Plans:** 5 plans
 **Success Criteria** (what must be TRUE):
   1. All Phase 3 tests still pass after refactoring (no regressions)
   2. `lib/` contains 8 focused modules (logging, cli, genome, bed, annotate, normalize, filter, stats)
   3. The filter pipeline runs without eval on dynamically built strings
   4. Every external command failure is caught by a consistent run_cmd or equivalent pattern
   5. Unit tests exist for key functions in each lib/ module and pass
-**Plans**: TBD
 
 Plans:
-- [ ] 04-01: Create lib/logging.sh and lib/cli.sh, update main script to source them
-- [ ] 04-02: Create lib/genome.sh, lib/bed.sh, lib/annotate.sh
-- [ ] 04-03: Create lib/normalize.sh, lib/filter.sh (replace eval), lib/stats.sh
-- [ ] 04-04: Finalize hardnormly.sh as orchestrator, fix cleanup/trap pattern
-- [ ] 04-05: Write unit tests for each lib/ module
+- [ ] 04-01-PLAN.md — Extract lib/logging.sh and lib/cli.sh, update hardnormly.sh to source them (REFR-01, REFR-02)
+- [ ] 04-02-PLAN.md — Extract lib/genome.sh, lib/bed.sh, lib/annotate.sh (REFR-03, REFR-04, REFR-05)
+- [ ] 04-03-PLAN.md — Extract lib/normalize.sh, lib/filter.sh, lib/stats.sh (REFR-06, REFR-07, REFR-08)
+- [ ] 04-04-PLAN.md — Finalize orchestrator, remove ERR trap, update Makefile/CI (REFR-09, REFR-10, REFR-11, REFR-12)
+- [ ] 04-05-PLAN.md — Unit tests for each lib/ module (REFR-13)
 
 ### Phase 5: Features & Docs
 
 **Goal**: New user-facing capabilities work and are discoverable via help text
 **Depends on**: Phase 4
-**Requirements**: FEAT-01, FEAT-02, FEAT-03, FEAT-04, FEAT-05, FEAT-06, FEAT-07,
+**Requirements**: FEAT-01, FEAT-02, FEAT-03, FEAT-04, FEAT-05, FEAT-06, FEAT-07, FEAT-08,
                  DOCS-01, DOCS-02, DOCS-03
 **Success Criteria** (what must be TRUE):
   1. Running `hardnormly.sh run-pipeline [args]` and `hardnormly.sh [args]` produce identical output
@@ -121,11 +121,12 @@ Plans:
 - [ ] 05-02: Add subcommand dispatcher and generate-inclusion-bed, generate-exclusion-bed (FEAT-02 to FEAT-04, FEAT-07)
 - [ ] 05-03: Add --caller flag and exclusion BED generation helper script (FEAT-05, FEAT-06)
 - [ ] 05-04: Enhance --help with examples, filter format, BED source docs (DOCS-01, DOCS-02, DOCS-03)
+- [ ] 05-05: Add --strip-annotations flag for removing INFO fields before filtering (FEAT-08)
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -133,4 +134,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Test Data | 4/4 | Complete | 2026-02-18 |
 | 3. Test Framework | 3/3 | Complete | 2026-02-18 |
 | 4. Refactoring | 0/5 | Not started | - |
-| 5. Features & Docs | 0/4 | Not started | - |
+| 5. Features & Docs | 0/5 | Not started | - |
