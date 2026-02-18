@@ -18,10 +18,10 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y shfmt
 
       - name: Run ShellCheck
-        run: shellcheck hardnormly.sh lib/*.sh .githooks/pre-commit scripts/setup-hooks.sh tests/setup_bats.sh
+        run: shellcheck hardnormly.sh lib/*.sh .githooks/pre-commit scripts/setup-hooks.sh scripts/generate_exclusion_bed.sh tests/setup_bats.sh
 
       - name: Check shfmt formatting
-        run: shfmt -d -i 0 -bn -ci hardnormly.sh lib/*.sh .githooks/pre-commit scripts/setup-hooks.sh tests/setup_bats.sh
+        run: shfmt -d -i 0 -bn -ci hardnormly.sh lib/*.sh .githooks/pre-commit scripts/setup-hooks.sh scripts/generate_exclusion_bed.sh tests/setup_bats.sh
 
   test:
     name: Test
