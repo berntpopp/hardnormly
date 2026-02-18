@@ -14,6 +14,9 @@ source "${_SCRIPT_DIR}/lib/cli.sh"
 source "${_SCRIPT_DIR}/lib/genome.sh"
 source "${_SCRIPT_DIR}/lib/bed.sh"
 source "${_SCRIPT_DIR}/lib/annotate.sh"
+source "${_SCRIPT_DIR}/lib/normalize.sh"
+source "${_SCRIPT_DIR}/lib/filter.sh"
+source "${_SCRIPT_DIR}/lib/stats.sh"
 
 # Default values for parameters
 include_bed_files=()
@@ -175,44 +178,13 @@ fi
 
 # Step 5: Normalize the VCF file and write to an intermediate file
 normalized_vcf="$tmp_dir/normalized.vcf.gz"
-norm_output=$(mktemp)
-norm_stdout=$(mktemp)
-
-# Run the command and capture both stdout and stderr
-bcftools norm -m-any --force -a --atom-overlaps . --write-index=tbi -f "$fasta_file" "$vcf_file" \
-	-Oz -o "$normalized_vcf" 2>"$norm_output" 1>"$norm_stdout" \
-	|| {
-		log_msg "Error: Failed to normalize the VCF."
-		log_msg "bcftools norm error details: $(cat "$norm_output")"
-		rm -f "$norm_output" "$norm_stdout"
-		exit 1
-	}
-
-# Log any warnings (even if the command succeeded)
-if grep -q "Warning" "$norm_output"; then
-	log_msg "bcftools norm warnings: $(cat "$norm_output")"
-fi
-
-# Log the summary line from stdout (e.g., Lines total/split/joined/realigned/skipped)
-if grep -q "Lines" "$norm_stdout"; then
-	log_msg "bcftools norm summary: $(grep 'Lines' "$norm_stdout")"
-fi
-
-# Clean up the temporary files
-rm -f "$norm_output" "$norm_stdout"
-
-debug_msg "Normalized VCF written to: $normalized_vcf"
+normalize_vcf "$vcf_file" "$fasta_file" "$normalized_vcf" "$tmp_dir"
 
 # Step 6: Apply filters to the normalized VCF
 log_msg "Filtering the normalized VCF file..."
 
 # Initialize the filter pipeline with fill-tags applied to a BCF temp file
-bcftools view "$normalized_vcf" \
-	| bcftools +fill-tags -Ob -o "$tmp_dir/filter_current.bcf" \
-	|| {
-		log_msg "Error: Failed to initialize filter pipeline."
-		exit 1
-	}
+init_filter_pipeline "$normalized_vcf" "$tmp_dir"
 
 # Build filter stages array — each entry encodes: "name|action|expression"
 filter_stages=()
@@ -229,89 +201,22 @@ fi
 parse_filter_args filter_stages "$filters_file" "${filters[@]}"
 
 # Apply each filter stage sequentially via BCF temp files
-for stage in "${filter_stages[@]}"; do
-	stage_name=""
-	stage_action=""
-	stage_expr=""
-	IFS="|" read -r stage_name stage_action stage_expr <<<"$stage"
-	debug_msg "Applying filter: $stage_name ($stage_action) '$stage_expr'"
-	bcftools filter -m+ -s "$stage_name" "-${stage_action}" "$stage_expr" \
-		"$tmp_dir/filter_current.bcf" -Ob -o "$tmp_dir/filter_next.bcf" \
-		|| {
-			log_msg "Error: Filter '$stage_name' failed."
-			exit 1
-		}
-	mv "$tmp_dir/filter_next.bcf" "$tmp_dir/filter_current.bcf"
-done
+apply_filter_stages "$tmp_dir" "${filter_stages[@]}"
 
-# Build output arguments based on the desired output file format
-output_args=()
-if [[ -n "$output_vcf" ]]; then
-	if [[ "$output_vcf" == *.vcf.gz ]]; then
-		output_args+=("-Oz")
-		if [[ "$auto_index" == "true" ]]; then
-			output_args+=("--write-index=tbi")
-			debug_msg "Auto-index enabled for compressed output."
-		fi
-	elif [[ "$output_vcf" == *.vcf ]]; then
-		output_args+=("-Ov")
-	else
-		log_msg "Error: Unrecognized output file format for $output_vcf."
-		exit 1
-	fi
-	output_args+=("-o" "$output_vcf")
-fi
-
-# Apply PASS filter and write final output
-if [[ "$only_pass" == "true" ]]; then
-	bcftools view -f PASS "${output_args[@]}" "$tmp_dir/filter_current.bcf" \
-		|| {
-			log_msg "Error: PASS filter failed."
-			exit 1
-		}
-else
-	bcftools view "${output_args[@]}" "$tmp_dir/filter_current.bcf" \
-		|| {
-			log_msg "Error: Failed to write output."
-			exit 1
-		}
-fi
+# Write final output (format detection, optional PASS filter, optional auto-index)
+write_filtered_output "$tmp_dir" "$output_vcf" "$only_pass" "$auto_index"
 
 # Step 7: Generate stats file if the --generate-stats option is set and output_vcf is provided
 if [[ "$generate_stats" == "true" ]] && [[ -n "$output_vcf" ]]; then
 	stats_output="${output_vcf%.vcf.gz}.stats.txt"
 	debug_msg "Generating stats file: $stats_output"
-	bcftools stats "$output_vcf" >"$stats_output" \
-		|| {
-			log_msg "Error: Failed to generate stats file."
-			exit 1
-		}
+	generate_stats "$output_vcf" "$stats_output"
 	log_msg "Stats file saved to $stats_output"
 
 	# If plotting is requested
 	if [[ "$plot_stats" == "true" ]]; then
 		log_msg "Plotting stats to $plot_output_dir"
-		plot_output=$(mktemp)
-
-		# Run the plot-vcfstats command and capture its output
-		plot-vcfstats "$stats_output" -p "$plot_output_dir" >"$plot_output" 2>&1 \
-			|| {
-				log_msg "Error: Failed to plot stats."
-				# Log any output before cleaning up
-				while IFS= read -r line; do
-					log_msg "Plot-vcfstats output: $line"
-				done <"$plot_output"
-				rm -f "$plot_output"
-				exit 1
-			}
-
-		# Process and log the output from the plot-vcfstats command
-		while IFS= read -r line; do
-			log_msg "Plot-vcfstats output: $line"
-		done <"$plot_output"
-
-		log_msg "Plots saved to $plot_output_dir"
-		rm -f "$plot_output"
+		plot_stats_output "$stats_output" "$plot_output_dir" "$tmp_dir"
 	fi
 else
 	debug_msg "Stats generation skipped (either --generate-stats was not set or no output file provided)."
