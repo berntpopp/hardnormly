@@ -114,14 +114,13 @@ Plans:
   3. Running `hardnormly.sh --caller gatk` uses gatk_filters.txt without requiring --filters-file
   4. A plot-vcfstats failure is logged but the pipeline continues and exits 0
   5. `hardnormly.sh --help` shows usage examples and filter file format description
-**Plans**: TBD
+**Plans:** 4 plans
 
 Plans:
-- [ ] 05-01: Make plot-vcfstats errors non-fatal (FEAT-01)
-- [ ] 05-02: Add subcommand dispatcher and generate-inclusion-bed, generate-exclusion-bed (FEAT-02 to FEAT-04, FEAT-07)
-- [ ] 05-03: Add --caller flag and exclusion BED generation helper script (FEAT-05, FEAT-06)
-- [ ] 05-04: Enhance --help with examples, filter format, BED source docs (DOCS-01, DOCS-02, DOCS-03)
-- [ ] 05-05: Add --strip-annotations flag for removing INFO fields before filtering (FEAT-08)
+- [ ] 05-01-PLAN.md — Non-fatal plot-vcfstats, --caller flag, --strip-annotations flag (FEAT-01, FEAT-06, FEAT-08)
+- [ ] 05-02-PLAN.md — Exclusion BED helper script, README filter format and BED source docs (FEAT-05, DOCS-02, DOCS-03)
+- [ ] 05-03-PLAN.md — Subcommand dispatcher, compact --help, backward compat, smoke tests (FEAT-02, FEAT-07, DOCS-01)
+- [ ] 05-04-PLAN.md — generate-inclusion-bed and generate-exclusion-bed subcommands (FEAT-03, FEAT-04)
 
 ## Progress
 
@@ -134,4 +133,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Test Data | 4/4 | Complete | 2026-02-18 |
 | 3. Test Framework | 3/3 | Complete | 2026-02-18 |
 | 4. Refactoring | 0/5 | Not started | - |
-| 5. Features & Docs | 0/5 | Not started | - |
+| 5. Features & Docs | 0/4 | Not started | - |
