@@ -24,7 +24,7 @@ clone_if_missing() {
 	fi
 
 	echo "Installing $repo@$version → $dest"
-	git clone --depth 1 --branch "$version" "https://github.com/bats-core/$repo.git" "$dest"
+	git clone -c core.autocrlf=false --depth 1 --branch "$version" "https://github.com/bats-core/$repo.git" "$dest"
 }
 
 clone_if_missing bats-core "$SCRIPT_DIR/bats" "$BATS_CORE_VERSION"
