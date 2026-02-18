@@ -71,7 +71,8 @@ show_help() {
 
 # Function to log messages
 log_msg() {
-    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    local timestamp
+    timestamp=$(date +"%Y-%m-%d %H:%M:%S")
     if [[ -n "$log_file" ]]; then
         echo "[$timestamp] $1" >> "$log_file"
     else
@@ -271,8 +272,7 @@ log_msg "Annotating VCF with BED regions..."
 
 # Annotate with inclusion regions if the file exists
 if [[ -f "$tmp_dir/merged_include_regions.bed.gz" ]]; then
-    bcftools annotate -a "$tmp_dir/merged_include_regions.bed.gz" -h "$tmp_dir/include_regions.hdr" -c CHROM,FROM,TO,INCLUDE_REGION "$vcf_file" -Oz -o "$tmp_dir/temp_include_annotated.vcf.gz"
-    if [[ $? -ne 0 ]]; then
+    if ! bcftools annotate -a "$tmp_dir/merged_include_regions.bed.gz" -h "$tmp_dir/include_regions.hdr" -c CHROM,FROM,TO,INCLUDE_REGION "$vcf_file" -Oz -o "$tmp_dir/temp_include_annotated.vcf.gz"; then
         log_msg "Error: Failed to annotate VCF with inclusion regions."
         exit 1
     fi
@@ -284,8 +284,7 @@ fi
 
 # Annotate with exclusion regions if the file exists
 if [[ -f "$tmp_dir/merged_exclude_regions.bed.gz" ]]; then
-    bcftools annotate -a "$tmp_dir/merged_exclude_regions.bed.gz" -h "$tmp_dir/exclude_regions.hdr" -c CHROM,FROM,TO,EXCLUDE_REGION "$vcf_file" -Oz -o "$tmp_dir/temp_exclude_annotated.vcf.gz"
-    if [[ $? -ne 0 ]]; then
+    if ! bcftools annotate -a "$tmp_dir/merged_exclude_regions.bed.gz" -h "$tmp_dir/exclude_regions.hdr" -c CHROM,FROM,TO,EXCLUDE_REGION "$vcf_file" -Oz -o "$tmp_dir/temp_exclude_annotated.vcf.gz"; then
         log_msg "Error: Failed to annotate VCF with exclusion regions."
         exit 1
     fi
@@ -397,11 +396,12 @@ fi
 # Print the final composed pipeline command in debug mode
 debug_msg "Executing pipeline: $pipeline_cmd"
 
-# Execute the composed pipeline command
-eval "$pipeline_cmd"
-
-# Check for errors
-if [[ $? -ne 0 ]]; then
+# Execute the composed pipeline command.
+# SC2294: eval is used here to compose a dynamic bcftools pipeline with variable filter stages.
+# This is a temporary exception — eval will be replaced with an array-based sequential pipeline
+# in Plan 02 (eval replacement), which is the proper structural fix.
+# shellcheck disable=SC2294
+if ! eval "$pipeline_cmd"; then
     log_msg "Error: Failed to filter the VCF."
     exit 1
 fi
@@ -410,8 +410,7 @@ fi
 if $generate_stats && [[ -n "$output_vcf" ]]; then
     stats_output="${output_vcf%.vcf.gz}.stats.txt"
     debug_msg "Generating stats file: $stats_output"
-    bcftools stats "$output_vcf" > "$stats_output"
-    if [[ $? -ne 0 ]]; then
+    if ! bcftools stats "$output_vcf" > "$stats_output"; then
         log_msg "Error: Failed to generate stats file."
         exit 1
     fi
