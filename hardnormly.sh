@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.7.0"
+version="0.7.1"
 
 set -Eeuo pipefail
 
@@ -405,7 +405,7 @@ if [[ -f "$tmp_dir/merged_include_regions.bed.gz" ]]; then
 	filter_stages+=("NOT_IN_INCLUDE_REGION|e|INFO/INCLUDE_REGION!=1")
 fi
 if [[ -f "$tmp_dir/merged_exclude_regions.bed.gz" ]]; then
-	filter_stages+=("IN_EXCLUDE_REGION|e|INFO/EXCLUDE_REGION=1")
+	filter_stages+=("IN_EXCLUDE_REGION|e|INFO/EXCLUDE_REGION==1")
 fi
 
 # Parse inline and file-based filters into filter_stages (delegates to lib/cli.sh)

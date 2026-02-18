@@ -1,6 +1,6 @@
 # Architecture
 
-hardnormly is a modular bash application. The main script (`hardnormly.sh`, ~445 lines) orchestrates the pipeline and subcommands by sourcing eight focused library modules.
+hardnormly is a modular bash application. The main script (`hardnormly.sh`) orchestrates the pipeline and subcommands by sourcing eight focused library modules.
 
 ## Module Structure
 
@@ -88,7 +88,7 @@ Formatting uses tabs, binary ops at line start, case body indent (`shfmt -i 0 -b
 ### Testing
 
 ```bash
-make test           # Run all 120 BATS tests
+make test           # Run full BATS test suite
 make test-debug     # Verbose output, keep temp dirs
 ```
 
