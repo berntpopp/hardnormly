@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 
 ## Current Position
 
-Phase: 3 of 5 (Test Framework) — COMPLETE
-Plan: 3 of 3 in phase 03 (all done)
-Status: Phase complete
-Last activity: 2026-02-18 — Completed 03-03-PLAN.md (integration, regression, genome flag, edge case tests)
+Phase: 4 of 5 (Refactoring) — In progress
+Plan: 1 of 5 in phase 04 (done)
+Status: In progress
+Last activity: 2026-02-18 — Completed 04-01-PLAN.md (logging and CLI extraction into lib/)
 
-Progress: [██████░░░░] 50% (10/20 plans complete)
+Progress: [███████░░░] 55% (11/20 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: ~23 minutes
-- Total execution time: ~233 minutes
+- Total plans completed: 11
+- Average duration: ~21 minutes
+- Total execution time: ~237 minutes
 
 **By Phase:**
 
@@ -30,10 +30,11 @@ Progress: [██████░░░░] 50% (10/20 plans complete)
 | 01-infrastructure | 3/3 ✓ | ~65 min | ~22 min |
 | 02-test-data | 4/4 ✓ | ~125 min | ~31 min |
 | 03-test-framework | 3/3 ✓ | ~43 min | ~14 min |
+| 04-refactoring | 1/5 | ~4 min | ~4 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-04 (10 min), 03-01 (25 min), 03-02 (3 min), 03-03 (25 min)
-- Trend: stable, test plans fast due to good synthetic VCF design
+- Last 5 plans: 03-01 (25 min), 03-02 (3 min), 03-03 (25 min), 04-01 (4 min)
+- Trend: refactoring plans fast (pure code extraction, no new logic)
 
 *Updated after each plan completion*
 
@@ -76,10 +77,18 @@ Progress: [██████░░░░] 50% (10/20 plans complete)
 - HAVE_FULL_REF guard allows TFWK-04 tests to skip when ref/hs37d5.fa absent (CI environments)
 - Regression comparison uses bcftools query CHROM/POS/FILTER (not binary diff) — avoids header timestamp noise
 - 1000G VCFs have only GT FORMAT field — GATK/Freebayes filters not applicable; integration tests run without --filters-file
+- Include guard pattern: [[ -n "${_LIB_X_LOADED:-}" ]] && return 0; readonly _LIB_X_LOADED=1 (all lib/ modules)
+- parse_args sets caller-scope globals directly (not namerefs) — simpler for 20+ variables, only called once
+- parse_filter_args uses nameref (local -n) for caller-controlled array (testability)
+- Boolean comparisons changed from bare $var to [[ "$var" == "true" ]] in hardnormly.sh for string variables
+- run_cmd uses ${_TMP_DIR:+${_TMP_DIR}/} expansion — falls back to /tmp before set_tmp_dir is called
+- ERR trap kept in hardnormly.sh for transition period (will be removed in 04-04 after all commands wrapped in run_cmd)
+- lib/ modules sourced via _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" for robust path resolution
+- New .sh files added to Makefile SH_FILES needed: lib/logging.sh, lib/cli.sh (blocker for next plans too)
 
 ### Pending Todos
 
-None yet.
+- Add lib/logging.sh and lib/cli.sh (and future lib/ files) to Makefile SH_FILES and CI lint steps
 
 ### Blockers/Concerns
 
@@ -87,9 +96,10 @@ None yet.
 - New .sh files in future phases must be manually added to Makefile SH_FILES and CI lint steps.
 - Windows dev: BATS setup script uses -c core.autocrlf=false to prevent CRLF corruption on clone
 - TFWK-04 real-data tests require ref/hs37d5.fa — CI must either provide this file or accept that tests skip
+- run_cmd_with_retry not yet wired to UCSC MySQL call in hardnormly.sh — to be handled in 04-02 or 04-03 (genome.sh extraction)
 
 ## Session Continuity
 
-Last session: 2026-02-18
-Stopped at: Completed 03-03-PLAN.md — integration, regression, genome flag, and edge case tests (1 file created)
+Last session: 2026-02-18T19:27:45Z
+Stopped at: Completed 04-01-PLAN.md — logging and CLI extraction into lib/logging.sh and lib/cli.sh
 Resume file: None
