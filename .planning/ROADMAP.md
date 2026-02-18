@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v0.7.0 — Code Quality, Testing & Features** - Phases 1-5 (in progress)
+- ✅ **v0.7.0 — Code Quality, Testing & Features** - Phases 1-5 (complete)
 
 ## Overview
 
@@ -23,7 +23,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Test Data** - Synthetic and real data subsets that make automated tests possible
 - [x] **Phase 3: Test Framework** - BATS smoke, filter, integration, and regression tests
 - [x] **Phase 4: Refactoring** - Modularize into lib/, replace eval, unify error handling
-- [ ] **Phase 5: Features & Docs** - Subcommands, --caller flag, exclusion BED generation, help text
+- [x] **Phase 5: Features & Docs** - Subcommands, --caller flag, exclusion BED generation, help text
 
 ## Phase Details
 
@@ -117,10 +117,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Non-fatal plot-vcfstats, --caller flag, --strip-annotations flag (FEAT-01, FEAT-06, FEAT-08)
-- [ ] 05-02-PLAN.md — Exclusion BED helper script, README filter format and BED source docs (FEAT-05, DOCS-02, DOCS-03)
-- [ ] 05-03-PLAN.md — Subcommand dispatcher, compact --help, backward compat, smoke tests (FEAT-02, FEAT-07, DOCS-01)
-- [ ] 05-04-PLAN.md — generate-inclusion-bed and generate-exclusion-bed subcommands (FEAT-03, FEAT-04)
+- [x] 05-01-PLAN.md — Non-fatal plot-vcfstats, --caller flag, --strip-annotations flag (FEAT-01, FEAT-06, FEAT-08)
+- [x] 05-02-PLAN.md — Exclusion BED helper script, README filter format and BED source docs (FEAT-05, DOCS-02, DOCS-03)
+- [x] 05-03-PLAN.md — Subcommand dispatcher, compact --help, backward compat, smoke tests (FEAT-02, FEAT-07, DOCS-01)
+- [x] 05-04-PLAN.md — generate-inclusion-bed and generate-exclusion-bed subcommands (FEAT-03, FEAT-04)
 
 ## Progress
 
@@ -133,4 +133,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Test Data | 4/4 | Complete | 2026-02-18 |
 | 3. Test Framework | 3/3 | Complete | 2026-02-18 |
 | 4. Refactoring | 5/5 | Complete | 2026-02-18 |
-| 5. Features & Docs | 0/4 | Not started | - |
+| 5. Features & Docs | 4/4 | Complete | 2026-02-18 |

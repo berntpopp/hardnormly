@@ -55,20 +55,20 @@ Requirements for milestone v0.7.0. Each maps to roadmap phases.
 
 ### Features
 
-- [ ] **FEAT-01**: Plot-vcfstats errors are non-fatal (logged but don't exit the pipeline)
-- [ ] **FEAT-02**: Subcommand dispatcher routes to generate-inclusion-bed, generate-exclusion-bed, or run-pipeline
-- [ ] **FEAT-03**: `generate-inclusion-bed` subcommand produces a merged include BED from inputs
-- [ ] **FEAT-04**: `generate-exclusion-bed` subcommand produces a merged exclusion BED from inputs
-- [ ] **FEAT-05**: Helper script generates combined exclusion BED files for hg19 and hg38 from public sources
-- [ ] **FEAT-06**: `--caller` flag auto-selects the matching filter file (gatk → gatk_filters.txt, freebayes → freebayes_filters.txt)
-- [ ] **FEAT-07**: Running without a subcommand defaults to `run-pipeline` (backward compatible)
-- [ ] **FEAT-08**: `--strip-annotations` flag removes specified INFO fields (e.g., INFO/CSQ) via `bcftools annotate -x` before filtering
+- [x] **FEAT-01**: Plot-vcfstats errors are non-fatal (logged but don't exit the pipeline)
+- [x] **FEAT-02**: Subcommand dispatcher routes to generate-inclusion-bed, generate-exclusion-bed, or run-pipeline
+- [x] **FEAT-03**: `generate-inclusion-bed` subcommand produces a merged include BED from inputs
+- [x] **FEAT-04**: `generate-exclusion-bed` subcommand produces a merged exclusion BED from inputs
+- [x] **FEAT-05**: Helper script generates combined exclusion BED files for hg19 and hg38 from public sources
+- [x] **FEAT-06**: `--caller` flag auto-selects the matching filter file (gatk → gatk_filters.txt, freebayes → freebayes_filters.txt)
+- [x] **FEAT-07**: Running without a subcommand defaults to `run-pipeline` (backward compatible)
+- [x] **FEAT-08**: `--strip-annotations` flag removes specified INFO fields (e.g., INFO/CSQ) via `bcftools annotate -x` before filtering
 
 ### Documentation
 
-- [ ] **DOCS-01**: `--help` output includes usage examples section
-- [ ] **DOCS-02**: `--help` output describes filter file format
-- [ ] **DOCS-03**: Exclusion BED file sources documented (origin URL, genome build, regions covered)
+- [x] **DOCS-01**: `--help` output includes usage examples section
+- [x] **DOCS-02**: `--help` output describes filter file format
+- [x] **DOCS-03**: Exclusion BED file sources documented (origin URL, genome build, regions covered)
 
 ## v2 Requirements
 
@@ -134,17 +134,17 @@ Deferred to future milestones. Tracked but not in current roadmap.
 | REFR-11 | Phase 4 | Complete |
 | REFR-12 | Phase 4 | Complete |
 | REFR-13 | Phase 4 | Complete |
-| FEAT-01 | Phase 5 | Pending |
-| FEAT-02 | Phase 5 | Pending |
-| FEAT-03 | Phase 5 | Pending |
-| FEAT-04 | Phase 5 | Pending |
-| FEAT-05 | Phase 5 | Pending |
-| FEAT-06 | Phase 5 | Pending |
-| FEAT-07 | Phase 5 | Pending |
-| FEAT-08 | Phase 5 | Pending |
-| DOCS-01 | Phase 5 | Pending |
-| DOCS-02 | Phase 5 | Pending |
-| DOCS-03 | Phase 5 | Pending |
+| FEAT-01 | Phase 5 | Complete |
+| FEAT-02 | Phase 5 | Complete |
+| FEAT-03 | Phase 5 | Complete |
+| FEAT-04 | Phase 5 | Complete |
+| FEAT-05 | Phase 5 | Complete |
+| FEAT-06 | Phase 5 | Complete |
+| FEAT-07 | Phase 5 | Complete |
+| FEAT-08 | Phase 5 | Complete |
+| DOCS-01 | Phase 5 | Complete |
+| DOCS-02 | Phase 5 | Complete |
+| DOCS-03 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 44 total (note: count in header was 43 — INFR through DOCS per category counts)
