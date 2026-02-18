@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Reliably normalize and filter VCF files for clean variant calls
-**Current focus:** Phase 4 — CI Integration
+**Current focus:** Phase 4 — Refactoring
 
 ## Current Position
 
@@ -65,7 +65,7 @@ Progress: [██████░░░░] 50% (10/20 plans complete)
 - hardnormly.sh had 3 bugs in --auto-index and exclude BED annotation (fixed in 02-04): exclude annotation "exclude"→"1", --write-index=tbi flag syntax (was -W tbi)
 - Test configs include ref.genome_file pointing to tests/data/hg19_chr22.genome to avoid UCSC MySQL queries during tests
 - Expected output baseline records commit at time of generation (not task commit) for accurate provenance
-- BATS installed via git submodules (not bats-action) — uses load not bats_load_library, requires submodules:recursive in CI checkout
+- BATS installed via setup script (tests/setup_bats.sh) — clones pinned versions with core.autocrlf=false, gitignored dirs, CI runs setup script before tests
 - _get_filter helper takes 3 args (vcf, chrom, pos) for forward-compatibility with hg38 chr-prefixed VCFs
 - .gitattributes eol=lf added for *.sh *.bash *.bats — fixes CRLF corruption on Windows with core.autocrlf=true
 - CI test job uses apt-get bcftools/bedtools (not conda) — sufficient for BATS tests
@@ -85,7 +85,7 @@ None yet.
 
 - `make help` fails on Windows dev environment (sh.exe @echo issue) — works on Linux CI. Not blocking.
 - New .sh files in future phases must be manually added to Makefile SH_FILES and CI lint steps.
-- Windows dev: BATS submodule files need dos2unix after clone (CRLF from autocrlf=true) — .gitattributes eol=lf prevents this going forward but existing clones need manual fix
+- Windows dev: BATS setup script uses -c core.autocrlf=false to prevent CRLF corruption on clone
 - TFWK-04 real-data tests require ref/hs37d5.fa — CI must either provide this file or accept that tests skip
 
 ## Session Continuity

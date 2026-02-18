@@ -29,13 +29,13 @@ Requirements for milestone v0.7.0. Each maps to roadmap phases.
 
 ### Testing — Framework
 
-- [ ] **TFWK-01**: BATS smoke tests verify --help exits 0, --version prints version, missing args exits non-zero
-- [ ] **TFWK-02**: BATS filter tests verify each GATK filter correctly tags matching variants
-- [ ] **TFWK-03**: BATS filter tests verify each Freebayes filter correctly tags matching variants
-- [ ] **TFWK-04**: BATS integration test runs full pipeline on real data and produces valid output
-- [ ] **TFWK-05**: BATS regression tests compare pipeline output against expected output files
-- [ ] **TFWK-06**: BATS test verifies -g/--genome flag works (issue #13 — close after verification)
-- [ ] **TFWK-07**: BATS edge case tests verify empty VCF, no filters, no BED files don't crash
+- [x] **TFWK-01**: BATS smoke tests verify --help exits 0, --version prints version, missing args exits non-zero
+- [x] **TFWK-02**: BATS filter tests verify each GATK filter correctly tags matching variants
+- [x] **TFWK-03**: BATS filter tests verify each Freebayes filter correctly tags matching variants
+- [x] **TFWK-04**: BATS integration test runs full pipeline on real data and produces valid output
+- [x] **TFWK-05**: BATS regression tests compare pipeline output against expected output files
+- [x] **TFWK-06**: BATS test verifies -g/--genome flag works (issue #13 — close after verification)
+- [x] **TFWK-07**: BATS edge case tests verify empty VCF, no filters, no BED files don't crash
 
 ### Refactoring
 
@@ -113,13 +113,13 @@ Deferred to future milestones. Tracked but not in current roadmap.
 | TDAT-06 | Phase 2 | Complete |
 | TDAT-07 | Phase 2 | Complete |
 | TDAT-08 | Phase 2 | Complete |
-| TFWK-01 | Phase 3 | Pending |
-| TFWK-02 | Phase 3 | Pending |
-| TFWK-03 | Phase 3 | Pending |
-| TFWK-04 | Phase 3 | Pending |
-| TFWK-05 | Phase 3 | Pending |
-| TFWK-06 | Phase 3 | Pending |
-| TFWK-07 | Phase 3 | Pending |
+| TFWK-01 | Phase 3 | Complete |
+| TFWK-02 | Phase 3 | Complete |
+| TFWK-03 | Phase 3 | Complete |
+| TFWK-04 | Phase 3 | Complete |
+| TFWK-05 | Phase 3 | Complete |
+| TFWK-06 | Phase 3 | Complete |
+| TFWK-07 | Phase 3 | Complete |
 | REFR-01 | Phase 4 | Pending |
 | REFR-02 | Phase 4 | Pending |
 | REFR-03 | Phase 4 | Pending |

@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Infrastructure** - Linting, CI, strict mode — quality foundation that unblocks everything
 - [x] **Phase 2: Test Data** - Synthetic and real data subsets that make automated tests possible
-- [ ] **Phase 3: Test Framework** - BATS smoke, filter, integration, and regression tests
+- [x] **Phase 3: Test Framework** - BATS smoke, filter, integration, and regression tests
 - [ ] **Phase 4: Refactoring** - Modularize into lib/, replace eval, unify error handling
 - [ ] **Phase 5: Features & Docs** - Subcommands, --caller flag, exclusion BED generation, help text
 
@@ -77,9 +77,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — BATS infrastructure, shared helper, smoke tests, CI/Makefile (TFWK-01)
-- [ ] 03-02-PLAN.md — GATK and Freebayes filter unit tests (TFWK-02, TFWK-03)
-- [ ] 03-03-PLAN.md — Integration, regression, genome flag, and edge case tests (TFWK-04, TFWK-05, TFWK-06, TFWK-07)
+- [x] 03-01-PLAN.md — BATS infrastructure, shared helper, smoke tests, CI/Makefile (TFWK-01)
+- [x] 03-02-PLAN.md — GATK and Freebayes filter unit tests (TFWK-02, TFWK-03)
+- [x] 03-03-PLAN.md — Integration, regression, genome flag, and edge case tests (TFWK-04, TFWK-05, TFWK-06, TFWK-07)
 
 ### Phase 4: Refactoring
 
@@ -131,6 +131,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 3/3 | Complete | 2026-02-18 |
 | 2. Test Data | 4/4 | Complete | 2026-02-18 |
-| 3. Test Framework | 0/3 | Planned | - |
+| 3. Test Framework | 3/3 | Complete | 2026-02-18 |
 | 4. Refactoring | 0/5 | Not started | - |
 | 5. Features & Docs | 0/4 | Not started | - |
