@@ -82,6 +82,26 @@ Then use the \`--filters-file\` option:
 --filters-file filters.txt
 ```
 
+### Filter File Format
+
+Filter files (e.g., `defaults/gatk_filters.txt`) use three space-separated columns per line:
+
+```
+<filter_name> <action> <bcftools_expression>
+```
+
+| Column | Description |
+|--------|-------------|
+| `filter_name` | Name applied to the VCF FILTER field (e.g., `DPu10het`) |
+| `action` | `e` = exclude (soft-filter, tag non-matching), `i` = include (keep matching) |
+| `bcftools_expression` | A bcftools filter expression (e.g., `FORMAT/DP<10 && GT!="hom"`) |
+
+Example line: `DPu10het e FORMAT/DP<10 && GT!="hom"`
+
+Two default filter sets are provided:
+- `defaults/gatk_filters.txt` — GATK HaplotypeCaller filters
+- `defaults/freebayes_filters.txt` — Freebayes caller filters
+
 ## Batch Processing with Snakemake
 
 For processing multiple VCF files in parallel (e.g., on a SLURM cluster), hardnormly includes a Snakemake 8+ workflow.
@@ -138,39 +158,25 @@ mysql --user=genome --host=genome-mysql.cse.ucsc.edu -A -e "select chrom, size f
 
 This file is required for the padding operation performed by \`bedtools slop\`.
 
-### Exclusion BED Files Documentation
+### Generating Exclusion BED Files
 
-#### Purpose:
-Exclusion BED files are used to filter out problematic regions of the genome, such as areas with low mappability, high repeat content, or known technical artifacts. These regions are often flagged to avoid false positives in variant calling.
+The helper script `scripts/generate_exclusion_bed.sh` downloads and merges exclusion regions from four public genomic databases:
 
-#### Usage:
-To use exclusion BED files, specify them with the `--exclude-bed` option. These files define genomic intervals to exclude during the VCF filtering process. The script will use these intervals to annotate variants and filter out those that overlap with exclusion regions.
+| Source | Description | URL Pattern |
+|--------|-------------|-------------|
+| ENCODE Blacklist | Anomalous signal regions | `github.com/Boyle-Lab/Blacklist` |
+| Segmental Duplications | UCSC SuperDups table | `hgdownload.soe.ucsc.edu/.../genomicSuperDups.txt.gz` |
+| Low Complexity | RepeatMasker Low_complexity class | `hgdownload.soe.ucsc.edu/.../rmsk.txt.gz` |
+| Centromeres/Telomeres | UCSC gap table (hg19) / cytoBandIdeo (hg38) | `hgdownload.soe.ucsc.edu/.../gap.txt.gz` |
 
-Example:
+Supports hg19 and hg38 genome builds:
+
 ```bash
-./hardnormly.sh -v input.vcf.gz -f reference.fasta --exclude-bed exclusion.bed -o output.vcf.gz
+bash scripts/generate_exclusion_bed.sh -b hg19 -o ref/hg19_exclusion.bed
+bash scripts/generate_exclusion_bed.sh -b hg38 -o ref/hg38_exclusion.bed
 ```
 
-#### Format:
-Exclusion BED files follow the standard BED format, which includes:
-1. Chromosome
-2. Start Position
-3. End Position
-4. (Optional) Annotation (e.g., "LowMappability")
-
-Example BED file:
-```
-chr1    10000   10500   LowMappability
-chr1    20000   20500   RepeatRegion
-```
-
-#### Resources:
-- **[Excluderanges Repository](https://github.com/dozmorovlab/excluderanges):** A collection of exclusion BED files for various species and use cases.
-- **[UCSC Encode Downloads](https://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeMapability):** Provides access to mappability tracks and other exclusion regions for the hg19 genome.
-
-#### Best Practices:
-- Ensure your exclusion BED file is properly formatted and indexed (e.g., using `bgzip` and `tabix`).
-- Use exclusion files relevant to your specific genome build and analysis goals to improve variant calling accuracy.
+The output BED can be passed to hardnormly as `--exclude-bed`.
 
 ## License
 
