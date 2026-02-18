@@ -18,14 +18,14 @@ Requirements for milestone v0.7.0. Each maps to roadmap phases.
 
 ### Testing — Data
 
-- [ ] **TDAT-01**: Synthetic GATK-style VCFs exist (samples A and B) with variants covering all GATK filter triggers
-- [ ] **TDAT-02**: Synthetic Freebayes-style VCFs exist (samples A and B) with variants covering all Freebayes filter triggers
-- [ ] **TDAT-03**: Synthetic utility VCFs exist (multiallelic, minimal, empty_variants) for edge case testing
-- [ ] **TDAT-04**: Synthetic reference FASTA and BED files exist for test region (chr22:16M-16.1M)
-- [ ] **TDAT-05**: Real data subsets exist (GIAB NA12878, 1000 Genomes 3 samples, Freebayes tiny) with indexes
-- [ ] **TDAT-06**: Test data generation script (`generate_test_data.sh`) can reproducibly create all real data subsets
-- [ ] **TDAT-07**: Expected output files exist for regression testing (pre-validated pipeline output)
-- [ ] **TDAT-08**: VCF list files and test configs exist for Snakemake batch testing
+- [x] **TDAT-01**: Synthetic GATK-style VCFs exist (samples A and B) with variants covering all GATK filter triggers
+- [x] **TDAT-02**: Synthetic Freebayes-style VCFs exist (samples A and B) with variants covering all Freebayes filter triggers
+- [x] **TDAT-03**: Synthetic utility VCFs exist (multiallelic, minimal, empty_variants) for edge case testing
+- [x] **TDAT-04**: Synthetic reference FASTA and BED files exist for test region (chr22:16M-16.1M)
+- [x] **TDAT-05**: Real data subsets exist (GIAB NA12878, 1000 Genomes 3 samples, Freebayes tiny) with indexes
+- [x] **TDAT-06**: Test data generation script (`generate_test_data.sh`) can reproducibly create all real data subsets
+- [x] **TDAT-07**: Expected output files exist for regression testing (pre-validated pipeline output)
+- [x] **TDAT-08**: VCF list files and test configs exist for Snakemake batch testing
 
 ### Testing — Framework
 
@@ -105,14 +105,14 @@ Deferred to future milestones. Tracked but not in current roadmap.
 | INFR-04 | Phase 1 | Complete |
 | INFR-05 | Phase 1 | Complete |
 | INFR-06 | Phase 1 | Complete |
-| TDAT-01 | Phase 2 | Pending |
-| TDAT-02 | Phase 2 | Pending |
-| TDAT-03 | Phase 2 | Pending |
-| TDAT-04 | Phase 2 | Pending |
-| TDAT-05 | Phase 2 | Pending |
-| TDAT-06 | Phase 2 | Pending |
-| TDAT-07 | Phase 2 | Pending |
-| TDAT-08 | Phase 2 | Pending |
+| TDAT-01 | Phase 2 | Complete |
+| TDAT-02 | Phase 2 | Complete |
+| TDAT-03 | Phase 2 | Complete |
+| TDAT-04 | Phase 2 | Complete |
+| TDAT-05 | Phase 2 | Complete |
+| TDAT-06 | Phase 2 | Complete |
+| TDAT-07 | Phase 2 | Complete |
+| TDAT-08 | Phase 2 | Complete |
 | TFWK-01 | Phase 3 | Pending |
 | TFWK-02 | Phase 3 | Pending |
 | TFWK-03 | Phase 3 | Pending |

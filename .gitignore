@@ -30,6 +30,12 @@
 !/tests/**/*.fa
 !/tests/**/*.fa.fai
 
+# BATS libraries (installed by tests/setup_bats.sh, not tracked)
+/tests/bats/
+/tests/test_helper/bats-support/
+/tests/test_helper/bats-assert/
+/tests/test_helper/bats-file/
+
 # Allow .planning directory (contains "test-data" phase name which *test* would block)
 !/.planning/
 !/.planning/**

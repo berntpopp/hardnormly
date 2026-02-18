@@ -20,7 +20,7 @@ then modularization, then features that depend on the modular structure.
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Infrastructure** - Linting, CI, strict mode — quality foundation that unblocks everything
-- [ ] **Phase 2: Test Data** - Synthetic and real data subsets that make automated tests possible
+- [x] **Phase 2: Test Data** - Synthetic and real data subsets that make automated tests possible
 - [ ] **Phase 3: Test Framework** - BATS smoke, filter, integration, and regression tests
 - [ ] **Phase 4: Refactoring** - Modularize into lib/, replace eval, unify error handling
 - [ ] **Phase 5: Features & Docs** - Subcommands, --caller flag, exclusion BED generation, help text
@@ -58,10 +58,10 @@ Plans:
   4. Pre-computed expected output VCFs exist that the regression tests can diff against
 
 Plans:
-- [ ] 02-01-PLAN.md — Fix gitignore, create directory structure, reference FASTA, BED and genome files (TDAT-04)
-- [ ] 02-02-PLAN.md — Create synthetic GATK and Freebayes VCFs with all filter triggers (TDAT-01, TDAT-02)
-- [ ] 02-03-PLAN.md — Utility VCFs, real data generation script, download real data subsets (TDAT-03, TDAT-05, TDAT-06)
-- [ ] 02-04-PLAN.md — Generate expected output files and Snakemake test configs (TDAT-07, TDAT-08)
+- [x] 02-01-PLAN.md — Fix gitignore, create directory structure, reference FASTA, BED and genome files (TDAT-04)
+- [x] 02-02-PLAN.md — Create synthetic GATK and Freebayes VCFs with all filter triggers (TDAT-01, TDAT-02)
+- [x] 02-03-PLAN.md — Utility VCFs, real data generation script, download real data subsets (TDAT-03, TDAT-05, TDAT-06)
+- [x] 02-04-PLAN.md — Generate expected output files and Snakemake test configs (TDAT-07, TDAT-08)
 
 ### Phase 3: Test Framework
 
@@ -130,7 +130,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 3/3 | Complete | 2026-02-18 |
-| 2. Test Data | 0/4 | Planned | - |
+| 2. Test Data | 4/4 | Complete | 2026-02-18 |
 | 3. Test Framework | 0/3 | Planned | - |
 | 4. Refactoring | 0/5 | Not started | - |
 | 5. Features & Docs | 0/4 | Not started | - |

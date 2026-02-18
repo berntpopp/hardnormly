@@ -18,10 +18,10 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y shfmt
 
       - name: Run ShellCheck
-        run: shellcheck hardnormly.sh .githooks/pre-commit scripts/setup-hooks.sh
+        run: shellcheck hardnormly.sh .githooks/pre-commit scripts/setup-hooks.sh tests/setup_bats.sh
 
       - name: Check shfmt formatting
-        run: shfmt -d -i 0 -bn -ci hardnormly.sh .githooks/pre-commit scripts/setup-hooks.sh
+        run: shfmt -d -i 0 -bn -ci hardnormly.sh .githooks/pre-commit scripts/setup-hooks.sh tests/setup_bats.sh
 
   test:
     name: Test
@@ -29,11 +29,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install bioinformatics tools
         run: sudo apt-get update && sudo apt-get install -y bcftools bedtools
+
+      - name: Install BATS
+        run: bash tests/setup_bats.sh
 
       - name: Run BATS tests
         run: tests/bats/bin/bats --print-output-on-failure tests/*.bats

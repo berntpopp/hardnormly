@@ -4,8 +4,6 @@
 
 set -euo pipefail
 
-export PATH=/home/bernt/miniconda3/envs/hardnormly/bin:/usr/bin:/bin
-
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO_ROOT"
 
