@@ -27,7 +27,7 @@ Progress: [██░░░░░░░░] 25% (5/20 plans complete)
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-infrastructure | 3/4 | ~65 min | ~22 min |
+| 01-infrastructure | 3/3 ✓ | ~65 min | ~22 min |
 | 02-test-data | 2/4 | ~70 min | ~35 min |
 
 **Recent Trend:**

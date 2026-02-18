@@ -19,7 +19,7 @@ then modularization, then features that depend on the modular structure.
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Infrastructure** - Linting, CI, strict mode — quality foundation that unblocks everything
+- [x] **Phase 1: Infrastructure** - Linting, CI, strict mode — quality foundation that unblocks everything
 - [ ] **Phase 2: Test Data** - Synthetic and real data subsets that make automated tests possible
 - [ ] **Phase 3: Test Framework** - BATS smoke, filter, integration, and regression tests
 - [ ] **Phase 4: Refactoring** - Modularize into lib/, replace eval, unify error handling
@@ -41,9 +41,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. The script exits non-zero immediately when any piped command fails
 
 Plans:
-- [ ] 01-01-PLAN.md — ShellCheck config, fix findings, apply shfmt formatting (INFR-01, INFR-02)
-- [ ] 01-02-PLAN.md — Strict mode, traps, exception handling, eval replacement (INFR-03)
-- [ ] 01-03-PLAN.md — Pre-commit hooks, GitHub Actions CI, Makefile (INFR-04, INFR-05, INFR-06)
+- [x] 01-01-PLAN.md — ShellCheck config, fix findings, apply shfmt formatting (INFR-01, INFR-02)
+- [x] 01-02-PLAN.md — Strict mode, traps, exception handling, eval replacement (INFR-03)
+- [x] 01-03-PLAN.md — Pre-commit hooks, GitHub Actions CI, Makefile (INFR-04, INFR-05, INFR-06)
 
 ### Phase 2: Test Data
 
@@ -130,7 +130,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure | 0/3 | Planned | - |
+| 1. Infrastructure | 3/3 | Complete | 2026-02-18 |
 | 2. Test Data | 0/4 | Planned | - |
 | 3. Test Framework | 0/4 | Not started | - |
 | 4. Refactoring | 0/5 | Not started | - |

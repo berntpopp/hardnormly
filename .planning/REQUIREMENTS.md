@@ -9,12 +9,12 @@ Requirements for milestone v0.7.0. Each maps to roadmap phases.
 
 ### Infrastructure
 
-- [ ] **INFR-01**: Project has ShellCheck linting with `.shellcheckrc` config and all existing findings fixed
-- [ ] **INFR-02**: Project has shfmt formatting applied with `.editorconfig` for consistent style
-- [ ] **INFR-03**: Script runs with `set -euo pipefail` and targeted exception handling for expected failures
-- [ ] **INFR-04**: GitHub Actions workflow runs ShellCheck + shfmt checks on every push/PR
-- [ ] **INFR-05**: GitHub Actions workflow runs BATS tests on every push/PR
-- [ ] **INFR-06**: Pre-commit hooks enforce ShellCheck, shfmt, and trailing-whitespace checks locally
+- [x] **INFR-01**: Project has ShellCheck linting with `.shellcheckrc` config and all existing findings fixed
+- [x] **INFR-02**: Project has shfmt formatting applied with `.editorconfig` for consistent style
+- [x] **INFR-03**: Script runs with `set -euo pipefail` and targeted exception handling for expected failures
+- [x] **INFR-04**: GitHub Actions workflow runs ShellCheck + shfmt checks on every push/PR
+- [x] **INFR-05**: GitHub Actions workflow runs BATS tests on every push/PR
+- [x] **INFR-06**: Pre-commit hooks enforce ShellCheck, shfmt, and trailing-whitespace checks locally
 
 ### Testing — Data
 
@@ -99,12 +99,12 @@ Deferred to future milestones. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFR-01 | Phase 1 | Pending |
-| INFR-02 | Phase 1 | Pending |
-| INFR-03 | Phase 1 | Pending |
-| INFR-04 | Phase 1 | Pending |
-| INFR-05 | Phase 1 | Pending |
-| INFR-06 | Phase 1 | Pending |
+| INFR-01 | Phase 1 | Complete |
+| INFR-02 | Phase 1 | Complete |
+| INFR-03 | Phase 1 | Complete |
+| INFR-04 | Phase 1 | Complete |
+| INFR-05 | Phase 1 | Complete |
+| INFR-06 | Phase 1 | Complete |
 | TDAT-01 | Phase 2 | Pending |
 | TDAT-02 | Phase 2 | Pending |
 | TDAT-03 | Phase 2 | Pending |
