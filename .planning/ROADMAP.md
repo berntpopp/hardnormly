@@ -50,18 +50,18 @@ Plans:
 **Goal**: All the data needed to run automated tests exists in the repo and can be regenerated
 **Depends on**: Phase 1
 **Requirements**: TDAT-01, TDAT-02, TDAT-03, TDAT-04, TDAT-05, TDAT-06, TDAT-07, TDAT-08
+**Plans:** 4 plans
 **Success Criteria** (what must be TRUE):
   1. `tests/data/` contains synthetic VCFs that include variants triggering every GATK and Freebayes filter
   2. A minimal reference FASTA and matching BED files exist for the chr22 test region
   3. Running `tests/generate_test_data.sh` from a clean checkout reproduces all real data subsets
   4. Pre-computed expected output VCFs exist that the regression tests can diff against
-**Plans**: TBD
 
 Plans:
-- [ ] 02-01: Create synthetic GATK and Freebayes VCFs with all filter triggers
-- [ ] 02-02: Create synthetic utility VCFs, reference FASTA, and BED files
-- [ ] 02-03: Create real data subsets (GIAB NA12878, 1000G, Freebayes tiny) + generation script
-- [ ] 02-04: Generate expected output files and Snakemake test configs
+- [ ] 02-01-PLAN.md — Fix gitignore, create directory structure, reference FASTA, BED and genome files (TDAT-04)
+- [ ] 02-02-PLAN.md — Create synthetic GATK and Freebayes VCFs with all filter triggers (TDAT-01, TDAT-02)
+- [ ] 02-03-PLAN.md — Utility VCFs, real data generation script, download real data subsets (TDAT-03, TDAT-05, TDAT-06)
+- [ ] 02-04-PLAN.md — Generate expected output files and Snakemake test configs (TDAT-07, TDAT-08)
 
 ### Phase 3: Test Framework
 
@@ -131,7 +131,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 0/3 | Planned | - |
-| 2. Test Data | 0/4 | Not started | - |
+| 2. Test Data | 0/4 | Planned | - |
 | 3. Test Framework | 0/4 | Not started | - |
 | 4. Refactoring | 0/5 | Not started | - |
 | 5. Features & Docs | 0/4 | Not started | - |
