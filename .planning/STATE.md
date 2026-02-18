@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Reliably normalize and filter VCF files for clean variant calls
-**Current focus:** Phase 4 — Refactoring
+**Current focus:** Phase 4 — Refactoring (complete)
 
 ## Current Position
 
-Phase: 4 of 5 (Refactoring) — In progress
-Plan: 4 of 5 in phase 04 (done)
-Status: In progress
-Last activity: 2026-02-18 — Completed 04-04-PLAN.md (ERR trap removed, Makefile/CI wildcard for lib/)
+Phase: 4 of 5 (Refactoring) — Phase complete
+Plan: 5 of 5 in phase 04 (done)
+Status: Phase complete
+Last activity: 2026-02-18 — Completed 04-05-PLAN.md (unit tests for all 8 lib/ modules, 112 total tests)
 
-Progress: [████████░░] 70% (14/20 plans complete)
+Progress: [████████████░░] 75% (15/20 plans complete)
 
 ## Performance Metrics
 
@@ -30,11 +30,11 @@ Progress: [████████░░] 70% (14/20 plans complete)
 | 01-infrastructure | 3/3 ✓ | ~65 min | ~22 min |
 | 02-test-data | 4/4 ✓ | ~125 min | ~31 min |
 | 03-test-framework | 3/3 ✓ | ~43 min | ~14 min |
-| 04-refactoring | 4/5 | ~16 min | ~4.0 min |
+| 04-refactoring | 5/5 ✓ | ~22 min | ~4.4 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (4 min), 04-02 (5 min), 04-03 (5 min), 04-04 (2 min)
-- Trend: refactoring plans fast (pure code extraction, no new logic)
+- Last 5 plans: 04-02 (5 min), 04-03 (5 min), 04-04 (2 min), 04-05 (6 min)
+- Trend: refactoring plans fast; unit tests slightly longer than code extraction
 
 *Updated after each plan completion*
 
@@ -91,6 +91,10 @@ Progress: [████████░░] 70% (14/20 plans complete)
 - normalize_vcf does NOT use run_cmd — bcftools norm emits warnings on stderr even on success; manual mktemp capture used to preserve Warning/Lines logging
 - apply_filter_stages takes stages as positional args after tmp_dir — clean varargs signature avoiding nameref complexity
 - All 8 lib/ modules complete; hardnormly.sh is a clean orchestrator (~219 lines)
+- Unit tests for all 8 lib/ modules via 05-lib-logging.bats, 06-lib-cli.bats, 07-lib-modules.bats (57 new tests)
+- --separate-stderr flag (BATS 1.5.0+) used for error_msg stderr assertions in unit tests
+- create_genome_file tested as function existence only — no network call in unit tests
+- bats_require_minimum_version 1.5.0 added to suppress BW02 warnings for run flags
 
 ### Pending Todos
 
@@ -105,6 +109,6 @@ Progress: [████████░░] 70% (14/20 plans complete)
 
 ## Session Continuity
 
-Last session: 2026-02-18T19:49:53Z
-Stopped at: Completed 04-04-PLAN.md — ERR trap removed, Makefile/CI updated to wildcard lib/*.sh
+Last session: 2026-02-18T19:59:55Z
+Stopped at: Completed 04-05-PLAN.md — unit tests for all 8 lib/ modules; Phase 4 complete
 Resume file: None
