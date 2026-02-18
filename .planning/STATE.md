@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 5 of 5 (Features/Docs) — In progress
-Plan: 2 of 4 in phase 05 (done)
+Plan: 2 of 4 in phase 05 (05-01 now complete; 05-02 was done; 05-03 and 05-04 remain)
 Status: In progress
-Last activity: 2026-02-18 — Completed 05-02-PLAN.md (exclusion BED helper script and README documentation)
+Last activity: 2026-02-18 — Completed 05-01-PLAN.md (--caller, --strip-annotations, non-fatal plot)
 
-Progress: [█████████████░] 80% (16/20 plans complete)
+Progress: [█████████████░] 89% (17/19 plans complete)
 
 ## Performance Metrics
 
@@ -31,10 +31,10 @@ Progress: [█████████████░] 80% (16/20 plans complete
 | 02-test-data | 4/4 ✓ | ~125 min | ~31 min |
 | 03-test-framework | 3/3 ✓ | ~43 min | ~14 min |
 | 04-refactoring | 5/5 ✓ | ~22 min | ~4.4 min |
-| 05-features-docs | 2/4 | ~10 min | ~5 min |
+| 05-features-docs | 3/4 | ~22 min | ~7 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-03 (5 min), 04-04 (2 min), 04-05 (6 min), 05-01 (~5 min), 05-02 (5 min)
+- Last 5 plans: 04-04 (2 min), 04-05 (6 min), 05-01 (7 min), 05-02 (5 min), 05-01 re-exec (7 min)
 - Trend: features/docs plans fast (~5 min); aligned with refactoring phase velocity
 
 *Updated after each plan completion*
@@ -100,6 +100,10 @@ Progress: [█████████████░] 80% (16/20 plans complete
 - hg38 centromere fallback: try gap.txt.gz first, use cytoBandIdeo.txt.gz if <10 rows
 - scripts/ additions: always add to both Makefile SH_FILES explicitly and CI lint steps
 - shfmt pipe-redirect: final redirect in multiline pipe gets one extra indent level vs pipe continuation lines
+- SC2310 fires on `if ! fn` under check-set-e-suppressed in .shellcheckrc — use # shellcheck disable=SC2310 inline; if ! pattern is still the right intent
+- --caller resolution placed in hardnormly.sh (not cli.sh) — _SCRIPT_DIR is only available in hardnormly.sh
+- strip_vcf_annotations is step 4.5 in pipeline: runs between exclusion BED annotation and normalization
+- Python heredoc dollar-sign expansion: use a Python file on disk instead of heredoc when $ must survive WSL bash invocation
 
 ### Pending Todos
 
@@ -114,6 +118,6 @@ Progress: [█████████████░] 80% (16/20 plans complete
 
 ## Session Continuity
 
-Last session: 2026-02-18T20:32:49Z
-Stopped at: Completed 05-02-PLAN.md — exclusion BED helper script + README documentation
+Last session: 2026-02-18T20:33:38Z
+Stopped at: Completed 05-01-PLAN.md — --caller, --strip-annotations, non-fatal plot
 Resume file: None
