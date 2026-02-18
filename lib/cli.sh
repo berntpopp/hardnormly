@@ -6,32 +6,47 @@
 [[ -n "${_LIB_CLI_LOADED:-}" ]] && return 0
 readonly _LIB_CLI_LOADED=1
 
-# show_help — print usage message and exit with code 1
+# show_help — print compact subcommand-aware usage and exit with code 1
 show_help() {
-	echo "Usage: $0 -v <vcf_file> -f <fasta_file> [-o <output_vcf>] [options]"
-	echo ""
-	echo "Options:"
-	echo "  -v, --vcf            Input VCF file (required). The variant call format file to be processed."
-	echo "  -f, --fasta          Reference FASTA file for normalization (required). The reference genome sequence in FASTA format."
-	echo "  -b, --include-bed    BED file(s) for inclusion. Specifies regions to include. Can specify multiple BED files."
-	echo "  -e, --exclude-bed    BED file(s) for exclusion. Specifies regions to exclude. Can specify multiple BED files."
-	echo "  -g, --genome         Genome file for slop operation. A file defining chromosome sizes for applying padding. If provided, it skips genome file generation."
-	echo "  --genome-build       Genome build to use for UCSC MySQL query (default: hg19). If no genome file is provided, this will fetch chromosome sizes."
-	echo "  --slop               Slop size for region padding (default: 20bp). Adds padding to the BED regions during processing."
-	echo "  -o, --output         Output VCF file. If not specified, the result will be sent to stdout."
-	echo "  --filters            Inline bcftools filter expression. You can specify multiple filters in the format: filter_name action expression."
-	echo "  --filters-file       File containing bcftools filter expressions. Each line should be in the format: filter_name action expression."
-	echo "  --only-pass          Filter to retain only variants with a PASS status in the VCF."
-	echo "  --generate-stats     Generate a statistics file from the output VCF using bcftools stats."
-	echo "  --plot-stats         Plot the stats file using plot-vcfstats. Requires --generate-stats."
-	echo "  --plot-output-dir    Directory to save the plots. Required if --plot-stats is set."
-	echo "  --tmp-dir            Temporary directory to use. By default, a unique directory is created using mktemp."
-	echo "  --no-cleanup         Do not clean up the temporary directory after execution. Useful for debugging."
-	echo "  --log-file           File to write logs to. If not provided, logs will be written to stdout."
-	echo "  --auto-index         Automatically index the output VCF (if compressed). Adds '-W' to bcftools view."
-	echo "  --debug              Enable debug mode. Prints all executed commands and detailed messages for troubleshooting."
-	echo "  --version            Display the script version."
-	echo "  -h, --help           Display this help message."
+	cat <<'HELP'
+Usage: hardnormly.sh <subcommand> [options]
+       hardnormly.sh [options]           (legacy, implies run-pipeline)
+
+Subcommands:
+  run-pipeline             Normalize and filter a VCF file (default)
+  generate-inclusion-bed   Merge BED files into a combined inclusion region
+  generate-exclusion-bed   Merge BED files into a combined exclusion region
+
+Options (run-pipeline):
+  -v, --vcf FILE           Input VCF file (required)
+  -f, --fasta FILE         Reference FASTA file (required)
+  -o, --output FILE        Output VCF file (default: stdout)
+  -b, --include-bed FILE   Include BED file (repeatable)
+  -e, --exclude-bed FILE   Exclude BED file (repeatable)
+  -g, --genome FILE        Genome file for slop (skips UCSC fetch)
+  --genome-build BUILD     Genome build for UCSC fetch (default: hg19)
+  --slop N                 Region padding in bp (default: 20)
+  --caller CALLER          Auto-select filter file: gatk, freebayes
+  --filters-file FILE      Filter expression file
+  --filters EXPR           Inline filter: "name action expression"
+  --strip-annotations LIST Remove INFO fields before filtering (e.g. INFO/CSQ,INFO/ANN)
+  --only-pass              Keep only PASS variants in output
+  --generate-stats         Generate bcftools stats file
+  --plot-stats             Plot stats (requires --generate-stats, --plot-output-dir)
+  --plot-output-dir DIR    Directory for plot output
+  --auto-index             Auto-index compressed output VCF
+  --tmp-dir DIR            Custom temp directory
+  --no-cleanup             Preserve temp directory after run
+  --log-file FILE          Log to file instead of stdout
+  --debug                  Enable verbose debug output
+  --version                Show version
+  -h, --help               Show this help
+
+Example:
+  hardnormly.sh run-pipeline -v input.vcf.gz -f ref.fasta -o output.vcf.gz
+
+Run 'hardnormly.sh <subcommand> --help' for subcommand-specific options.
+HELP
 	exit 1
 }
 
