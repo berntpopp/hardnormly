@@ -29,3 +29,7 @@
 !/tests/**/*.bed
 !/tests/**/*.fa
 !/tests/**/*.fa.fai
+
+# Allow .planning directory (contains "test-data" phase name which *test* would block)
+!/.planning/
+!/.planning/**
