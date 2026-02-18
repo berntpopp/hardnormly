@@ -1,6 +1,7 @@
 # hardnormly
 
 [![CI](https://github.com/berntpopp/hardnormly/actions/workflows/ci.yml/badge.svg)](https://github.com/berntpopp/hardnormly/actions/workflows/ci.yml)
+[![Docs](https://github.com/berntpopp/hardnormly/actions/workflows/docs.yml/badge.svg)](https://berntpopp.github.io/hardnormly/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 VCF normalization and hard filtering toolkit for whole-exome sequencing variant processing.
@@ -55,6 +56,8 @@ apt-get install -y bcftools bedtools tabix
 ```
 
 ## Documentation
+
+Full documentation is available at **https://berntpopp.github.io/hardnormly/**
 
 | Guide | Description |
 |-------|-------------|
