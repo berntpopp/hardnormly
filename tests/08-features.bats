@@ -142,17 +142,16 @@ setup() {
 @test "FEAT-03: generate-inclusion-bed produces non-empty BED file" {
 	local output="${BATS_TEST_TMPDIR}/inclusion.bed"
 
-	run "$HARDNORMLY" generate-inclusion-bed \
+	"$HARDNORMLY" generate-inclusion-bed \
 		-b "${TEST_DATA}/include_regions.bed" \
 		-g "${TEST_DATA}/hg19_chr22.genome" \
 		-o "$output"
 
-	assert_success
-	[[ -f "$output" ]]
+	[ -f "$output" ]
 
 	local lines
 	lines=$(wc -l <"$output")
-	[[ "$lines" -gt 0 ]]
+	[ "$lines" -gt 0 ]
 }
 
 @test "FEAT-03: generate-inclusion-bed output has 3+ columns and sorted coordinates" {
@@ -201,16 +200,15 @@ setup() {
 @test "FEAT-04: generate-exclusion-bed produces non-empty BED file" {
 	local output="${BATS_TEST_TMPDIR}/exclusion.bed"
 
-	run "$HARDNORMLY" generate-exclusion-bed \
+	"$HARDNORMLY" generate-exclusion-bed \
 		-e "${TEST_DATA}/exclude_regions.bed" \
 		-o "$output"
 
-	assert_success
-	[[ -f "$output" ]]
+	[ -f "$output" ]
 
 	local lines
 	lines=$(wc -l <"$output")
-	[[ "$lines" -gt 0 ]]
+	[ "$lines" -gt 0 ]
 }
 
 @test "FEAT-04: generate-exclusion-bed output preserves region coordinates" {
@@ -236,15 +234,13 @@ setup() {
 	printf '22\t10000\t20000\n' >"$bed_a"
 	printf '22\t30000\t40000\n' >"$bed_b"
 
-	run "$HARDNORMLY" generate-exclusion-bed \
+	"$HARDNORMLY" generate-exclusion-bed \
 		-e "$bed_a" \
 		-e "$bed_b" \
 		-o "$output"
 
-	assert_success
-
 	# Merged output should contain regions from both files
 	local lines
 	lines=$(wc -l <"$output")
-	[[ "$lines" -ge 2 ]]
+	[ "$lines" -ge 2 ]
 }

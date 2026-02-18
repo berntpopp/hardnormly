@@ -10,8 +10,8 @@ readonly _LIB_GENOME_LOADED=1
 # Usage: create_genome_file <genome_build> <tmp_dir>
 # Prints the path to the created genome file on stdout.
 # Returns 1 on failure after max_attempts.
-# Uses manual retry loop (not run_cmd_with_retry) because the pipeline
-# captures stdout to a file — run_cmd's stderr redirect conflicts with that.
+# Uses a manual retry loop because this function captures stdout for its return
+# value — run_cmd's stderr redirect would conflict with that.
 create_genome_file() {
 	local genome_build="$1"
 	local tmp_dir="$2"

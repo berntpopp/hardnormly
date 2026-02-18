@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Reliably normalize and filter VCF files for clean variant calls
-**Current focus:** Milestone v0.7.0 — All phases complete, verified
+**Current focus:** Milestone v0.7.0 — AUDIT PASSED, ready to complete/archive
 
 ## Current Position
 
 Phase: 5 of 5 (Features/Docs) — COMPLETE, VERIFIED
 Plan: 4 of 4 in phase 05 (all complete: 05-01, 05-02, 05-03, 05-04)
-Status: Milestone v0.7.0 complete — all 5 phases executed and verified
-Last activity: 2026-02-18 — Phase 5 verified; orchestrator fixed DOCS-02 gap and test regression
+Status: Milestone v0.7.0 audit passed — all tech debt resolved, 130/130 tests pass
+Last activity: 2026-02-18 — Resolved all 7 audit tech debt items; fixed latent bug in generate-bed subcommands
 
-Progress: [███████████████] 100% (19/19 plans complete, all phases verified)
+Progress: [███████████████] 100% (19/19 plans complete, all phases verified, audit passed)
 
 ## Performance Metrics
 
@@ -114,6 +114,8 @@ Progress: [███████████████] 100% (19/19 plans comp
 - genome_file REQUIRED for generate-inclusion-bed (slop needs it), NOT required for generate-exclusion-bed
 - No bgzip/tabix in generate-*-bed subcommands — plain BED output; users compress separately if needed
 - SC2064 disable inline for trap "rm -rf '$tmp_dir'" EXIT — double quotes capture current tmp_dir value at trap definition time
+- bash set -e subtlety: `[[ false == true ]] && cmd` as LAST statement in a function returns exit code 1 to caller; set -e in caller fires even though set -e is exempt inside the function. Fix: explicit `return 0` at end of functions
+- BATS best practice: for commands expected to succeed, call directly (not via `run`) — failures surface naturally via set -e in the test function
 
 ### Pending Todos
 
@@ -128,6 +130,6 @@ Progress: [███████████████] 100% (19/19 plans comp
 
 ## Session Continuity
 
-Last session: 2026-02-18T21:15:00Z
-Stopped at: Phase 5 verified; milestone v0.7.0 all phases complete. Orchestrator corrected DOCS-02 (filter format in --help) and test regression (Options: assertion).
+Last session: 2026-02-18T23:00:00Z
+Stopped at: All 7 audit tech debt items resolved. 130 tests pass. Audit status updated to passed. Ready for /gsd:complete-milestone.
 Resume file: None

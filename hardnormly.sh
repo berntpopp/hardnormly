@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.6.0"
+version="0.7.0"
 
 set -Eeuo pipefail
 
@@ -140,6 +140,7 @@ cmd_generate_inclusion_bed() {
 	# Copy to output
 	cp "$tmp_dir/merged.bed" "$output_file"
 	[[ "$verbose" == true ]] && log_msg "Output written to: $output_file"
+	return 0
 }
 
 # cmd_generate_exclusion_bed — merge BED files into a combined exclusion region file
@@ -211,6 +212,7 @@ cmd_generate_exclusion_bed() {
 	# Copy to output
 	cp "$tmp_dir/merged.bed" "$output_file"
 	[[ "$verbose" == true ]] && log_msg "Output written to: $output_file"
+	return 0
 }
 
 # Subcommand dispatcher — routes to subcommand handler or falls through to run-pipeline

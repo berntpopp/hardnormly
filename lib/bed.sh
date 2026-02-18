@@ -13,13 +13,21 @@ normalize_bed() {
 	local bed_file="$1"
 	local annotation="$2"
 	local output_file="$3"
+	local _stderr_file
 	debug_msg "Normalizing BED file: $bed_file with annotation: $annotation"
-	awk -v annot="$annotation" '{OFS="\t"; print $1, $2, $3, annot}' "$bed_file" \
-		| bedtools sort -i - >"$output_file" \
-		|| {
-			error_msg "normalize_bed: bedtools sort pipeline failed for $bed_file"
-			return 1
-		}
+	_stderr_file=$(mktemp "${_TMP_DIR:+${_TMP_DIR}/}pipe-XXXXXX")
+	{
+		awk -v annot="$annotation" '{OFS="\t"; print $1, $2, $3, annot}' "$bed_file" \
+			| bedtools sort -i -
+	} >"$output_file" 2>"$_stderr_file" || {
+		local _stderr_content
+		_stderr_content=$(cat "$_stderr_file")
+		rm -f "$_stderr_file"
+		error_msg "normalize_bed: bedtools sort pipeline failed for $bed_file"
+		[[ -n "$_stderr_content" ]] && error_msg "Stderr: ${_stderr_content}"
+		return 1
+	}
+	rm -f "$_stderr_file"
 	debug_msg "Normalized BED file written to: $output_file"
 }
 
@@ -34,14 +42,22 @@ merge_include_beds() {
 	local bed_files=("$@")
 
 	if [[ "${#bed_files[@]}" -gt 1 ]]; then
+		local _stderr_file
 		log_msg "Intersecting and padding normalized inclusion BED files..."
-		bedtools intersect -a "${bed_files[0]}" -b "${bed_files[@]:1}" \
-			| bedtools sort -i - \
-			| bedtools slop -b "$slop" -g "$genome_file" >"$output_file" \
-			|| {
-				error_msg "merge_include_beds: bedtools intersect/sort/slop pipeline failed"
-				return 1
-			}
+		_stderr_file=$(mktemp "${_TMP_DIR:+${_TMP_DIR}/}pipe-XXXXXX")
+		{
+			bedtools intersect -a "${bed_files[0]}" -b "${bed_files[@]:1}" \
+				| bedtools sort -i - \
+				| bedtools slop -b "$slop" -g "$genome_file"
+		} >"$output_file" 2>"$_stderr_file" || {
+			local _stderr_content
+			_stderr_content=$(cat "$_stderr_file")
+			rm -f "$_stderr_file"
+			error_msg "merge_include_beds: bedtools intersect/sort/slop pipeline failed"
+			[[ -n "$_stderr_content" ]] && error_msg "Stderr: ${_stderr_content}"
+			return 1
+		}
+		rm -f "$_stderr_file"
 		debug_msg "Combined inclusion regions written to: $output_file"
 	elif [[ "${#bed_files[@]}" -eq 1 ]]; then
 		log_msg "Padding single normalized inclusion BED file..."
@@ -59,14 +75,22 @@ merge_exclude_beds() {
 	local bed_files=("$@")
 
 	if [[ "${#bed_files[@]}" -gt 1 ]]; then
+		local _stderr_file
 		log_msg "Combining normalized exclusion BED files..."
-		bedtools multiinter -i "${bed_files[@]}" \
-			| bedtools sort -i - \
-			| awk '{OFS="\t"; print $1, $2, $3, "1"}' >"$output_file" \
-			|| {
-				error_msg "merge_exclude_beds: bedtools multiinter/sort pipeline failed"
-				return 1
-			}
+		_stderr_file=$(mktemp "${_TMP_DIR:+${_TMP_DIR}/}pipe-XXXXXX")
+		{
+			bedtools multiinter -i "${bed_files[@]}" \
+				| bedtools sort -i - \
+				| awk '{OFS="\t"; print $1, $2, $3, "1"}'
+		} >"$output_file" 2>"$_stderr_file" || {
+			local _stderr_content
+			_stderr_content=$(cat "$_stderr_file")
+			rm -f "$_stderr_file"
+			error_msg "merge_exclude_beds: bedtools multiinter/sort pipeline failed"
+			[[ -n "$_stderr_content" ]] && error_msg "Stderr: ${_stderr_content}"
+			return 1
+		}
+		rm -f "$_stderr_file"
 		debug_msg "Combined exclusion regions written to: $output_file"
 	elif [[ "${#bed_files[@]}" -eq 1 ]]; then
 		cp "${bed_files[0]}" "$output_file"
