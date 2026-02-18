@@ -74,13 +74,12 @@ Plans:
   3. Each Freebayes filter is verified to tag exactly the variants it should
   4. Running the full pipeline on real data produces a valid, non-empty VCF
   5. Passing an empty VCF, omitting filters, or omitting BED files does not crash the script
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 03-01: Smoke tests (--help, --version, missing args)
-- [ ] 03-02: GATK and Freebayes filter unit tests
-- [ ] 03-03: Integration test (full pipeline on real data)
-- [ ] 03-04: Regression tests (diff against expected output) and edge case tests
+- [ ] 03-01-PLAN.md — BATS infrastructure, shared helper, smoke tests, CI/Makefile (TFWK-01)
+- [ ] 03-02-PLAN.md — GATK and Freebayes filter unit tests (TFWK-02, TFWK-03)
+- [ ] 03-03-PLAN.md — Integration, regression, genome flag, and edge case tests (TFWK-04, TFWK-05, TFWK-06, TFWK-07)
 
 ### Phase 4: Refactoring
 
@@ -132,6 +131,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 3/3 | Complete | 2026-02-18 |
 | 2. Test Data | 0/4 | Planned | - |
-| 3. Test Framework | 0/4 | Not started | - |
+| 3. Test Framework | 0/3 | Planned | - |
 | 4. Refactoring | 0/5 | Not started | - |
 | 5. Features & Docs | 0/4 | Not started | - |
