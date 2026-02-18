@@ -37,7 +37,9 @@ only_pass=false                               # Option to filter only PASS varia
 generate_stats=false                          # Option to generate stats file
 plot_stats=false                              # Option to plot the stats
 plot_output_dir=""
-auto_index=false # New option: auto-index output if compressed
+auto_index=false     # New option: auto-index output if compressed
+caller=""            # --caller flag (gatk or freebayes)
+strip_annotations="" # --strip-annotations comma-separated INFO fields
 
 # Cleanup handler — always runs on EXIT, preserving the original exit code
 cleanup_handler() {
@@ -61,6 +63,27 @@ parse_args "$@"
 # Configure logging module with parsed values
 set_log_file "$log_file"
 set_debug "$debug"
+
+# Resolve --caller to a filter file path (if set)
+if [[ -n "$caller" ]]; then
+	case "$caller" in
+		gatk)
+			_caller_file="${_SCRIPT_DIR}/defaults/gatk_filters.txt"
+			;;
+		freebayes)
+			_caller_file="${_SCRIPT_DIR}/defaults/freebayes_filters.txt"
+			;;
+		*)
+			echo "Error: Unknown --caller '$caller'. Valid values: gatk, freebayes" >&2
+			exit 1
+			;;
+	esac
+	if [[ -n "$filters_file" ]]; then
+		log_msg "Warning: Both --caller and --filters-file provided; --filters-file takes precedence."
+	else
+		filters_file="$_caller_file"
+	fi
+fi
 
 # Validate parsed arguments (delegates to lib/cli.sh)
 validate_args
@@ -167,6 +190,14 @@ else
 	debug_msg "Skipping annotation with exclusion regions because the file does not exist."
 fi
 
+# Step 4.5: Strip specified INFO annotations (if --strip-annotations was provided)
+if [[ -n "$strip_annotations" ]]; then
+	log_msg "Stripping annotations: $strip_annotations"
+	strip_vcf_annotations "$vcf_file" "$strip_annotations" "$tmp_dir/temp_stripped.vcf.gz"
+	vcf_file="$tmp_dir/temp_stripped.vcf.gz"
+	debug_msg "Stripped annotations from VCF: $vcf_file"
+fi
+
 # Step 5: Normalize the VCF file and write to an intermediate file
 normalized_vcf="$tmp_dir/normalized.vcf.gz"
 normalize_vcf "$vcf_file" "$fasta_file" "$normalized_vcf" "$tmp_dir"
@@ -204,10 +235,17 @@ if [[ "$generate_stats" == "true" ]] && [[ -n "$output_vcf" ]]; then
 	generate_stats "$output_vcf" "$stats_output"
 	log_msg "Stats file saved to $stats_output"
 
-	# If plotting is requested
+	# If plotting is requested (non-fatal: plot failure does not abort the pipeline)
 	if [[ "$plot_stats" == "true" ]]; then
 		log_msg "Plotting stats to $plot_output_dir"
-		plot_stats_output "$stats_output" "$plot_output_dir" "$tmp_dir"
+		_plot_rc=0
+		# shellcheck disable=SC2310
+		if ! plot_stats_output "$stats_output" "$plot_output_dir" "$tmp_dir"; then
+			_plot_rc=1
+		fi
+		if [[ "$_plot_rc" -ne 0 ]]; then
+			log_msg "Warning: plot-vcfstats failed; pipeline continues."
+		fi
 	fi
 else
 	debug_msg "Stats generation skipped (either --generate-stats was not set or no output file provided)."
