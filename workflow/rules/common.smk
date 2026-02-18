@@ -48,4 +48,4 @@ def get_vcf_jobs():
 
 def get_hardnormly_script():
     """Resolve path to hardnormly.sh relative to the repository root."""
-    return os.path.join(workflow.basedir, "..", "..", "hardnormly.sh")
+    return os.path.join(workflow.basedir, "..", "hardnormly.sh")
