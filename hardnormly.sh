@@ -5,6 +5,13 @@ version="0.6.0"
 
 set -Eeuo pipefail
 
+# Resolve script directory for sourcing lib/ modules
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source library modules (logging first — cli.sh depends on log_msg)
+source "${_SCRIPT_DIR}/lib/logging.sh"
+source "${_SCRIPT_DIR}/lib/cli.sh"
+
 # Default values for parameters
 include_bed_files=()
 exclude_bed_files=()
@@ -51,211 +58,24 @@ cleanup_handler() {
 trap 'err_handler ${LINENO}' ERR
 trap cleanup_handler EXIT
 
-# Function to display help message
-show_help() {
-	echo "Usage: $0 -v <vcf_file> -f <fasta_file> [-o <output_vcf>] [options]"
-	echo ""
-	echo "Options:"
-	echo "  -v, --vcf            Input VCF file (required). The variant call format file to be processed."
-	echo "  -f, --fasta          Reference FASTA file for normalization (required). The reference genome sequence in FASTA format."
-	echo "  -b, --include-bed    BED file(s) for inclusion. Specifies regions to include. Can specify multiple BED files."
-	echo "  -e, --exclude-bed    BED file(s) for exclusion. Specifies regions to exclude. Can specify multiple BED files."
-	echo "  -g, --genome         Genome file for slop operation. A file defining chromosome sizes for applying padding. If provided, it skips genome file generation."
-	echo "  --genome-build       Genome build to use for UCSC MySQL query (default: hg19). If no genome file is provided, this will fetch chromosome sizes."
-	echo "  --slop               Slop size for region padding (default: 20bp). Adds padding to the BED regions during processing."
-	echo "  -o, --output         Output VCF file. If not specified, the result will be sent to stdout."
-	echo "  --filters            Inline bcftools filter expression. You can specify multiple filters in the format: filter_name action expression."
-	echo "  --filters-file       File containing bcftools filter expressions. Each line should be in the format: filter_name action expression."
-	echo "  --only-pass          Filter to retain only variants with a PASS status in the VCF."
-	echo "  --generate-stats     Generate a statistics file from the output VCF using bcftools stats."
-	echo "  --plot-stats         Plot the stats file using plot-vcfstats. Requires --generate-stats."
-	echo "  --plot-output-dir    Directory to save the plots. Required if --plot-stats is set."
-	echo "  --tmp-dir            Temporary directory to use. By default, a unique directory is created using mktemp."
-	echo "  --no-cleanup         Do not clean up the temporary directory after execution. Useful for debugging."
-	echo "  --log-file           File to write logs to. If not provided, logs will be written to stdout."
-	echo "  --auto-index         Automatically index the output VCF (if compressed). Adds '-W' to bcftools view."
-	echo "  --debug              Enable debug mode. Prints all executed commands and detailed messages for troubleshooting."
-	echo "  --version            Display the script version."
-	echo "  -h, --help           Display this help message."
-	exit 1
-}
+# Parse command-line arguments (delegates to lib/cli.sh)
+parse_args "$@"
 
-# Function to log messages
-log_msg() {
-	local timestamp
-	timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-	if [[ -n "$log_file" ]]; then
-		echo "[$timestamp] $1" >>"$log_file"
-	else
-		echo "[$timestamp] $1"
-	fi
-}
+# Configure logging module with parsed values
+set_log_file "$log_file"
+set_debug "$debug"
 
-# Function to print debug messages
-debug_msg() {
-	if $debug; then
-		log_msg "[DEBUG] $1"
-	fi
-}
-
-# Parsing command-line arguments
-while [[ "$#" -gt 0 ]]; do
-	case "$1" in
-		-v | --vcf)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			vcf_file="$2"
-			shift
-			;;
-		-f | --fasta)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			fasta_file="$2"
-			shift
-			;;
-		-b | --include-bed)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			include_bed_files+=("$2")
-			shift
-			;;
-		-e | --exclude-bed)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			exclude_bed_files+=("$2")
-			shift
-			;;
-		-g | --genome)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			genome_file="$2"
-			shift
-			;;
-		--genome-build)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			genome_build="$2"
-			shift
-			;;
-		--slop)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			slop="$2"
-			shift
-			;;
-		-o | --output)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			output_vcf="$2"
-			shift
-			;;
-		--filters)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			filters+=("$2")
-			shift
-			;;
-		--filters-file)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			filters_file="$2"
-			shift
-			;;
-		--plot-output-dir)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			plot_output_dir="$2"
-			shift
-			;;
-		--only-pass)
-			only_pass=true
-			;;
-		--generate-stats)
-			generate_stats=true
-			;;
-		--plot-stats)
-			plot_stats=true
-			;;
-		--tmp-dir)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			tmp_dir="$2"
-			shift
-			;;
-		--no-cleanup)
-			cleanup=false
-			;;
-		--log-file)
-			[[ -z "$2" || "$2" == -* ]] && {
-				echo "Error: Argument for $1 is missing"
-				show_help
-			}
-			log_file="$2"
-			shift
-			;;
-		--auto-index) # <--- New option
-			auto_index=true ;;
-		--debug)
-			debug=true
-			;;
-		--version)
-			echo "Version: $version"
-			exit 0
-			;;
-		-h | --help)
-			show_help
-			;;
-		*)
-			echo "Unknown parameter: $1"
-			show_help
-			;;
-	esac
-	shift
-done
-
-# Validate --plot-stats requires both --generate-stats and --plot-output-dir
-if $plot_stats && { [[ -z "$plot_output_dir" ]] || ! $generate_stats; }; then
-	log_msg "Error: --plot-stats requires both --generate-stats and --plot-output-dir."
-	exit 1
-fi
+# Validate parsed arguments (delegates to lib/cli.sh)
+validate_args
 
 # Enable debugging if --debug flag is set
-if $debug; then
+if [[ "$debug" == "true" ]]; then
 	set -x # Enable command tracing (prints every command)
-fi
-
-# Check required parameters
-if [[ -z "$vcf_file" || -z "$fasta_file" ]]; then
-	log_msg "Error: Missing required parameters."
-	show_help
 fi
 
 # Create the temporary directory if it doesn't exist
 mkdir -p "$tmp_dir"
+set_tmp_dir "$tmp_dir"
 debug_msg "Temporary directory set to: $tmp_dir"
 
 # Function to normalize BED files
@@ -425,7 +245,7 @@ bcftools view "$normalized_vcf" \
 # Build filter stages array — each entry encodes: "name|action|expression"
 filter_stages=()
 
-# Region-based filters
+# Region-based filters (depend on BED processing results above)
 if [[ -f "$tmp_dir/merged_include_regions.bed.gz" ]]; then
 	filter_stages+=("NOT_IN_INCLUDE_REGION|e|INFO/INCLUDE_REGION!=1")
 fi
@@ -433,22 +253,8 @@ if [[ -f "$tmp_dir/merged_exclude_regions.bed.gz" ]]; then
 	filter_stages+=("IN_EXCLUDE_REGION|e|INFO/EXCLUDE_REGION=1")
 fi
 
-# Inline filters
-for filter in "${filters[@]}"; do
-	filter_name=""
-	filter_action=""
-	filter_expr=""
-	IFS=" " read -r filter_name filter_action filter_expr <<<"$filter"
-	filter_stages+=("${filter_name}|${filter_action}|${filter_expr}")
-done
-
-# File-based filters
-if [[ -n "$filters_file" ]]; then
-	while IFS=" " read -r filter_name filter_action filter_expr; do
-		filter_expr=$(tr -d '\r\n' <<<"$filter_expr")
-		filter_stages+=("${filter_name}|${filter_action}|${filter_expr}")
-	done <"$filters_file"
-fi
+# Parse inline and file-based filters into filter_stages (delegates to lib/cli.sh)
+parse_filter_args filter_stages "$filters_file" "${filters[@]}"
 
 # Apply each filter stage sequentially via BCF temp files
 for stage in "${filter_stages[@]}"; do
@@ -471,7 +277,7 @@ output_args=()
 if [[ -n "$output_vcf" ]]; then
 	if [[ "$output_vcf" == *.vcf.gz ]]; then
 		output_args+=("-Oz")
-		if $auto_index; then
+		if [[ "$auto_index" == "true" ]]; then
 			output_args+=("--write-index=tbi")
 			debug_msg "Auto-index enabled for compressed output."
 		fi
@@ -485,7 +291,7 @@ if [[ -n "$output_vcf" ]]; then
 fi
 
 # Apply PASS filter and write final output
-if $only_pass; then
+if [[ "$only_pass" == "true" ]]; then
 	bcftools view -f PASS "${output_args[@]}" "$tmp_dir/filter_current.bcf" \
 		|| {
 			log_msg "Error: PASS filter failed."
@@ -500,7 +306,7 @@ else
 fi
 
 # Step 7: Generate stats file if the --generate-stats option is set and output_vcf is provided
-if $generate_stats && [[ -n "$output_vcf" ]]; then
+if [[ "$generate_stats" == "true" ]] && [[ -n "$output_vcf" ]]; then
 	stats_output="${output_vcf%.vcf.gz}.stats.txt"
 	debug_msg "Generating stats file: $stats_output"
 	bcftools stats "$output_vcf" >"$stats_output" \
@@ -511,7 +317,7 @@ if $generate_stats && [[ -n "$output_vcf" ]]; then
 	log_msg "Stats file saved to $stats_output"
 
 	# If plotting is requested
-	if $plot_stats; then
+	if [[ "$plot_stats" == "true" ]]; then
 		log_msg "Plotting stats to $plot_output_dir"
 		plot_output=$(mktemp)
 
