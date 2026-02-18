@@ -1,6 +1,6 @@
 #!/bin/bash
 # lib/annotate.sh — VCF annotation with BED region INFO fields
-# Provides: annotate_vcf_with_regions
+# Provides: annotate_vcf_with_regions, strip_vcf_annotations
 # Requires: lib/logging.sh (run_cmd)
 
 [[ -n "${_LIB_ANNOTATE_LOADED:-}" ]] && return 0
@@ -21,4 +21,14 @@ annotate_vcf_with_regions() {
 		-c CHROM,FROM,TO,"$field_name" \
 		"$vcf_file" \
 		-Oz -o "$output_vcf"
+}
+
+# strip_vcf_annotations — remove specified INFO fields from a VCF via bcftools annotate -x
+# Usage: strip_vcf_annotations <vcf_file> <strip_list> <output_vcf>
+# strip_list is comma-separated (e.g., "INFO/CSQ,INFO/ANN"), matching bcftools annotate -x syntax.
+strip_vcf_annotations() {
+	local vcf_file="$1"
+	local strip_list="$2"
+	local output_vcf="$3"
+	run_cmd bcftools annotate -x "$strip_list" "$vcf_file" -Oz -o "$output_vcf"
 }
