@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Reliably normalize and filter VCF files for clean variant calls
-**Current focus:** Phase 2 — Test Data
+**Current focus:** Phase 1 — Infrastructure
 
 ## Current Position
 
