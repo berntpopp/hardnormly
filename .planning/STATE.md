@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Reliably normalize and filter VCF files for clean variant calls
-**Current focus:** Phase 4 — Refactoring (complete)
+**Current focus:** Phase 5 — Features and Documentation (in progress)
 
 ## Current Position
 
-Phase: 4 of 5 (Refactoring) — Phase complete
-Plan: 5 of 5 in phase 04 (done)
-Status: Phase complete
-Last activity: 2026-02-18 — Completed 04-05-PLAN.md (unit tests for all 8 lib/ modules, 112 total tests)
+Phase: 5 of 5 (Features/Docs) — In progress
+Plan: 2 of 4 in phase 05 (done)
+Status: In progress
+Last activity: 2026-02-18 — Completed 05-02-PLAN.md (exclusion BED helper script and README documentation)
 
-Progress: [████████████░░] 75% (15/20 plans complete)
+Progress: [█████████████░] 80% (16/20 plans complete)
 
 ## Performance Metrics
 
@@ -31,10 +31,11 @@ Progress: [████████████░░] 75% (15/20 plans complete
 | 02-test-data | 4/4 ✓ | ~125 min | ~31 min |
 | 03-test-framework | 3/3 ✓ | ~43 min | ~14 min |
 | 04-refactoring | 5/5 ✓ | ~22 min | ~4.4 min |
+| 05-features-docs | 2/4 | ~10 min | ~5 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-02 (5 min), 04-03 (5 min), 04-04 (2 min), 04-05 (6 min)
-- Trend: refactoring plans fast; unit tests slightly longer than code extraction
+- Last 5 plans: 04-03 (5 min), 04-04 (2 min), 04-05 (6 min), 05-01 (~5 min), 05-02 (5 min)
+- Trend: features/docs plans fast (~5 min); aligned with refactoring phase velocity
 
 *Updated after each plan completion*
 
@@ -95,6 +96,10 @@ Progress: [████████████░░] 75% (15/20 plans complete
 - --separate-stderr flag (BATS 1.5.0+) used for error_msg stderr assertions in unit tests
 - create_genome_file tested as function existence only — no network call in unit tests
 - bats_require_minimum_version 1.5.0 added to suppress BW02 warnings for run flags
+- generate_exclusion_bed.sh uses bedtools sort+merge (not multiinter) for union of all exclusion regions
+- hg38 centromere fallback: try gap.txt.gz first, use cytoBandIdeo.txt.gz if <10 rows
+- scripts/ additions: always add to both Makefile SH_FILES explicitly and CI lint steps
+- shfmt pipe-redirect: final redirect in multiline pipe gets one extra indent level vs pipe continuation lines
 
 ### Pending Todos
 
@@ -109,6 +114,6 @@ Progress: [████████████░░] 75% (15/20 plans complete
 
 ## Session Continuity
 
-Last session: 2026-02-18T19:59:55Z
-Stopped at: Completed 04-05-PLAN.md — unit tests for all 8 lib/ modules; Phase 4 complete
+Last session: 2026-02-18T20:32:49Z
+Stopped at: Completed 05-02-PLAN.md — exclusion BED helper script + README documentation
 Resume file: None
