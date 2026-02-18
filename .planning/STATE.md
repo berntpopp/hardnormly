@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 4 of 5 (Refactoring) — In progress
-Plan: 3 of 5 in phase 04 (done)
+Plan: 4 of 5 in phase 04 (done)
 Status: In progress
-Last activity: 2026-02-18 — Completed 04-03-PLAN.md (normalize/filter/stats extraction into lib/)
+Last activity: 2026-02-18 — Completed 04-04-PLAN.md (ERR trap removed, Makefile/CI wildcard for lib/)
 
-Progress: [████████░░] 65% (13/20 plans complete)
+Progress: [████████░░] 70% (14/20 plans complete)
 
 ## Performance Metrics
 
@@ -30,10 +30,10 @@ Progress: [████████░░] 65% (13/20 plans complete)
 | 01-infrastructure | 3/3 ✓ | ~65 min | ~22 min |
 | 02-test-data | 4/4 ✓ | ~125 min | ~31 min |
 | 03-test-framework | 3/3 ✓ | ~43 min | ~14 min |
-| 04-refactoring | 3/5 | ~14 min | ~4.7 min |
+| 04-refactoring | 4/5 | ~16 min | ~4.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-03 (25 min), 04-01 (4 min), 04-02 (5 min), 04-03 (5 min)
+- Last 5 plans: 04-01 (4 min), 04-02 (5 min), 04-03 (5 min), 04-04 (2 min)
 - Trend: refactoring plans fast (pure code extraction, no new logic)
 
 *Updated after each plan completion*
@@ -82,14 +82,15 @@ Progress: [████████░░] 65% (13/20 plans complete)
 - parse_filter_args uses nameref (local -n) for caller-controlled array (testability)
 - Boolean comparisons changed from bare $var to [[ "$var" == "true" ]] in hardnormly.sh for string variables
 - run_cmd uses ${_TMP_DIR:+${_TMP_DIR}/} expansion — falls back to /tmp before set_tmp_dir is called
-- ERR trap kept in hardnormly.sh for transition period (will be removed in 04-04 after all commands wrapped in run_cmd)
+- ERR trap removed from hardnormly.sh in 04-04; cleanup_handler is sole cleanup mechanism; set -Eeuo pipefail kept
 - lib/ modules sourced via _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" for robust path resolution
 - SC2310/SC2311 pattern: avoid || for function calls in set -Eeuo pipefail scripts; rely on propagation; use $(set -e; fn) form for command substitutions
-- Makefile SH_FILES now includes all 8 lib/ modules (lib/logging.sh, lib/cli.sh, lib/genome.sh, lib/bed.sh, lib/annotate.sh, lib/normalize.sh, lib/filter.sh, lib/stats.sh)
+- Makefile SH_FILES uses $(wildcard lib/*.sh) — auto-discovers all lib/ modules without manual edits
+- CI shellcheck and shfmt steps use lib/*.sh glob — matches Makefile coverage
 - create_genome_file uses manual retry loop (not run_cmd_with_retry) because it needs stdout capture; run_cmd_with_retry resolved for genome in 04-02 via retry loop in lib/genome.sh
 - normalize_vcf does NOT use run_cmd — bcftools norm emits warnings on stderr even on success; manual mktemp capture used to preserve Warning/Lines logging
 - apply_filter_stages takes stages as positional args after tmp_dir — clean varargs signature avoiding nameref complexity
-- All 8 lib/ modules complete; hardnormly.sh is now a slim orchestrator (~227 lines)
+- All 8 lib/ modules complete; hardnormly.sh is a clean orchestrator (~219 lines)
 
 ### Pending Todos
 
@@ -100,9 +101,10 @@ Progress: [████████░░] 65% (13/20 plans complete)
 - `make help` fails on Windows dev environment (sh.exe @echo issue) — works on Linux CI. Not blocking.
 - Windows dev: BATS setup script uses -c core.autocrlf=false to prevent CRLF corruption on clone
 - TFWK-04 real-data tests require ref/hs37d5.fa — CI must either provide this file or accept that tests skip
+- (RESOLVED 04-04) "Must manually add new .sh files to Makefile/CI" — wildcard/glob now handles this automatically
 
 ## Session Continuity
 
-Last session: 2026-02-18T19:44:35Z
-Stopped at: Completed 04-03-PLAN.md — normalize/filter/stats extraction into lib/normalize.sh, lib/filter.sh, lib/stats.sh
+Last session: 2026-02-18T19:49:53Z
+Stopped at: Completed 04-04-PLAN.md — ERR trap removed, Makefile/CI updated to wildcard lib/*.sh
 Resume file: None
