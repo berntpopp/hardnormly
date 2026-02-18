@@ -43,7 +43,7 @@ setup() {
 	local cols
 	cols=$(awk '{print NF}' "$output")
 	# Must have 4 columns (chrom, start, end, annotation)
-	[ "$cols" -eq 4 ]
+	[[ "$cols" -eq 4 ]]
 }
 
 @test "normalize_bed annotation column contains expected value" {
@@ -53,7 +53,7 @@ setup() {
 	normalize_bed "$input" "MYREGION" "$output"
 	local annot
 	annot=$(awk '{print $4}' "$output")
-	[ "$annot" = "MYREGION" ]
+	[[ "$annot" = "MYREGION" ]]
 }
 
 @test "normalize_bed sorts multiple regions by coordinate" {
@@ -64,13 +64,13 @@ setup() {
 	local first_start
 	first_start=$(awk 'NR==1{print $2}' "$output")
 	# First region after sort must be the one with lower start coordinate
-	[ "$first_start" -eq 10000 ]
+	[[ "$first_start" -eq 10000 ]]
 }
 
 @test "create_header_file writes VCF INFO header line" {
 	local hdr="${BATS_TEST_TMPDIR}/test.hdr"
 	create_header_file "MY_FIELD" "Test description" "$hdr"
-	[ -f "$hdr" ]
+	[[ -f "$hdr" ]]
 	grep -q "##INFO=" "$hdr"
 }
 
@@ -90,8 +90,8 @@ setup() {
 	local bed="${BATS_TEST_TMPDIR}/regions.bed"
 	printf '22\t10000\t20000\t1\n' >"$bed"
 	compress_index_bed "$bed"
-	[ -f "${bed}.gz" ]
-	[ -f "${bed}.gz.tbi" ]
+	[[ -f "${bed}.gz" ]]
+	[[ -f "${bed}.gz.tbi" ]]
 }
 
 # ===========================================================================
@@ -141,7 +141,7 @@ setup() {
 
 	local info
 	info=$(bcftools query -f '%INFO/INCLUDE_REGION\n' "$output")
-	[ "$info" = "1" ]
+	[[ "$info" = "1" ]]
 }
 
 # ===========================================================================
@@ -155,7 +155,7 @@ setup() {
 		"${SYNTH}/mini_ref.fa" \
 		"$output" \
 		"${BATS_TEST_TMPDIR}"
-	[ -f "$output" ]
+	[[ -f "$output" ]]
 }
 
 @test "normalize_vcf output is valid VCF with header" {
@@ -180,7 +180,7 @@ setup() {
 	local count
 	count=$(bcftools view -H "$output" | wc -l)
 	# minimal.vcf.gz has exactly 1 variant
-	[ "$count" -eq 1 ]
+	[[ "$count" -eq 1 ]]
 }
 
 @test "normalize_vcf splits multiallelic sites" {
@@ -193,7 +193,7 @@ setup() {
 	local count
 	count=$(bcftools view -H "$output" | wc -l)
 	# multiallelic site should be split into multiple records
-	[ "$count" -gt 1 ]
+	[[ "$count" -gt 1 ]]
 }
 
 # ===========================================================================
@@ -202,7 +202,7 @@ setup() {
 
 @test "init_filter_pipeline creates filter_current.bcf" {
 	init_filter_pipeline "${SYNTH}/minimal.vcf.gz" "${BATS_TEST_TMPDIR}"
-	[ -f "${BATS_TEST_TMPDIR}/filter_current.bcf" ]
+	[[ -f "${BATS_TEST_TMPDIR}/filter_current.bcf" ]]
 }
 
 @test "apply_filter_stages applies a single exclude filter correctly" {
@@ -212,7 +212,7 @@ setup() {
 	# Variant at 22:10001 with DP=20 should remain PASS
 	local filter
 	filter=$(bcftools query -f '%FILTER\n' "${BATS_TEST_TMPDIR}/filter_current.bcf")
-	[ "$filter" = "PASS" ]
+	[[ "$filter" = "PASS" ]]
 }
 
 @test "apply_filter_stages tags variant when filter expression matches" {
@@ -221,7 +221,7 @@ setup() {
 	apply_filter_stages "${BATS_TEST_TMPDIR}" "lowDP|e|FORMAT/DP<30"
 	local filter
 	filter=$(bcftools query -f '%FILTER\n' "${BATS_TEST_TMPDIR}/filter_current.bcf")
-	[ "$filter" = "lowDP" ]
+	[[ "$filter" = "lowDP" ]]
 }
 
 @test "apply_filter_stages chains multiple filters" {
@@ -241,7 +241,7 @@ setup() {
 	init_filter_pipeline "${SYNTH}/minimal.vcf.gz" "${BATS_TEST_TMPDIR}"
 	local output="${BATS_TEST_TMPDIR}/output.vcf.gz"
 	write_filtered_output "${BATS_TEST_TMPDIR}" "$output" "false" "false"
-	[ -f "$output" ]
+	[[ -f "$output" ]]
 }
 
 @test "write_filtered_output produces valid VCF with variants" {
@@ -250,7 +250,7 @@ setup() {
 	write_filtered_output "${BATS_TEST_TMPDIR}" "$output" "false" "false"
 	local count
 	count=$(bcftools view -H "$output" | wc -l)
-	[ "$count" -eq 1 ]
+	[[ "$count" -eq 1 ]]
 }
 
 @test "write_filtered_output applies PASS filter when only_pass is true" {
@@ -262,7 +262,7 @@ setup() {
 	# Variant was tagged, so PASS filter removes it — output should be empty
 	local count
 	count=$(bcftools view -H "$output" | wc -l)
-	[ "$count" -eq 0 ]
+	[[ "$count" -eq 0 ]]
 }
 
 # ===========================================================================
@@ -272,7 +272,7 @@ setup() {
 @test "generate_stats produces a stats file" {
 	local stats="${BATS_TEST_TMPDIR}/output.stats"
 	generate_stats "${SYNTH}/minimal.vcf.gz" "$stats"
-	[ -f "$stats" ]
+	[[ -f "$stats" ]]
 }
 
 @test "generate_stats output contains SN section header" {
@@ -287,7 +287,7 @@ setup() {
 	# SN section contains number of records
 	local records
 	records=$(grep "^SN.*number of records" "$stats" | awk '{print $NF}')
-	[ "$records" -ge 1 ]
+	[[ "$records" -ge 1 ]]
 }
 
 # ===========================================================================

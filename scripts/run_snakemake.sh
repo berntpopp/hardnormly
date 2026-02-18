@@ -8,20 +8,21 @@
 #SBATCH --output=slurm_logs/%x-%j.log
 
 set -euo pipefail
+shopt -s inherit_errexit
 
 # ── Cluster auto-detection ──────────────────────────────────────────────────
 
 detect_cluster() {
-    local hostname
-    hostname=$(hostname -f 2>/dev/null || hostname)
+	local hostname
+	hostname=$(hostname -f 2>/dev/null || hostname)
 
-    if [[ "$hostname" == *".internal.bih"* ]] || [[ "$hostname" == *"hpc-login"* ]]; then
-        echo "bih"
-    elif [[ "$hostname" == *"charite"* ]] || [[ "$hostname" == *"hpc2"* ]]; then
-        echo "charite"
-    else
-        echo "local"
-    fi
+	if [[ "$hostname" == *".internal.bih"* ]] || [[ "$hostname" == *"hpc-login"* ]]; then
+		echo "bih"
+	elif [[ "$hostname" == *"charite"* ]] || [[ "$hostname" == *"hpc2"* ]]; then
+		echo "charite"
+	else
+		echo "local"
+	fi
 }
 
 CLUSTER=$(detect_cluster)
@@ -30,7 +31,8 @@ echo "Detected cluster: $CLUSTER"
 # ── Conda activation ───────────────────────────────────────────────────────
 
 if [[ "$CLUSTER" == "charite" ]]; then
-    source "$HOME/.bashrc"
+	# shellcheck source=/dev/null
+	source "$HOME/.bashrc"
 fi
 
 eval "$(conda shell.bash hook)"
@@ -39,15 +41,16 @@ conda activate snakemake
 # ── TMPDIR setup ────────────────────────────────────────────────────────────
 
 if [[ "$CLUSTER" == "bih" ]]; then
-    export TMPDIR="${HOME}/scratch/tmp"
+	export TMPDIR="${HOME}/scratch/tmp"
 elif [[ "$CLUSTER" == "charite" ]]; then
-    export TMPDIR="/scratch/${USER}/tmp"
+	export TMPDIR="/scratch/${USER}/tmp"
 else
-    export TMPDIR="${TMPDIR:-/tmp}"
+	export TMPDIR="${TMPDIR:-/tmp}"
 fi
 
 mkdir -p "$TMPDIR"
-export TMPDIR=$(mktemp -d "${TMPDIR}/hardnormly.XXXXXX")
+TMPDIR=$(mktemp -d "${TMPDIR}/hardnormly.XXXXXX")
+export TMPDIR
 trap 'rm -rf "$TMPDIR"' EXIT
 
 # ── SLURM log directory ────────────────────────────────────────────────────
@@ -63,11 +66,11 @@ shift 2 2>/dev/null || true
 
 # ── Profile selection ───────────────────────────────────────────────────────
 
-CLUSTER_PROFILE=""
+CLUSTER_PROFILE_ARGS=()
 if [[ "$CLUSTER" == "charite" ]]; then
-    CLUSTER_PROFILE="--profile profiles/charite"
+	CLUSTER_PROFILE_ARGS=(--profile profiles/charite)
 elif [[ "$CLUSTER" == "bih" ]]; then
-    CLUSTER_PROFILE="--profile profiles/bih"
+	CLUSTER_PROFILE_ARGS=(--profile profiles/bih)
 fi
 
 # ── Run Snakemake ───────────────────────────────────────────────────────────
@@ -75,10 +78,10 @@ fi
 echo "Starting hardnormly Snakemake workflow at $(date)"
 
 snakemake \
-    --snakefile "$SNAKEFILE" \
-    --configfile "$CONFIGFILE" \
-    --workflow-profile profiles/default \
-    $CLUSTER_PROFILE \
-    "$@"
+	--snakefile "$SNAKEFILE" \
+	--configfile "$CONFIGFILE" \
+	--workflow-profile profiles/default \
+	"${CLUSTER_PROFILE_ARGS[@]}" \
+	"$@"
 
 echo "Finished at $(date)"

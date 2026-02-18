@@ -91,11 +91,13 @@ setup() {
 
 @test "error_msg message appears on stderr" {
 	run --separate-stderr error_msg "critical failure"
+	# shellcheck disable=SC2154
 	[[ "$stderr" == *"critical failure"* ]]
 }
 
 @test "error_msg message includes ERROR: prefix" {
 	run --separate-stderr error_msg "bad input"
+	# shellcheck disable=SC2154
 	[[ "$stderr" == *"ERROR:"* ]]
 }
 
@@ -115,25 +117,26 @@ setup() {
 
 @test "run_cmd cleans up stderr temp file on success" {
 	local before after
-	before=$(ls "${BATS_TEST_TMPDIR}"/runcmd-* 2>/dev/null | wc -l)
+	before=$(find "${BATS_TEST_TMPDIR}" -maxdepth 1 -name 'runcmd-*' | wc -l)
 	run_cmd true
-	after=$(ls "${BATS_TEST_TMPDIR}"/runcmd-* 2>/dev/null | wc -l)
+	after=$(find "${BATS_TEST_TMPDIR}" -maxdepth 1 -name 'runcmd-*' | wc -l)
 	# No temp file should remain after successful run_cmd
-	[ "$after" -eq "$before" ]
+	[[ "$after" -eq "$before" ]]
 }
 
 @test "run_cmd cleans up stderr temp file on failure" {
 	local before after
-	before=$(ls "${BATS_TEST_TMPDIR}"/runcmd-* 2>/dev/null | wc -l)
+	before=$(find "${BATS_TEST_TMPDIR}" -maxdepth 1 -name 'runcmd-*' | wc -l)
 	run_cmd false || true
-	after=$(ls "${BATS_TEST_TMPDIR}"/runcmd-* 2>/dev/null | wc -l)
+	after=$(find "${BATS_TEST_TMPDIR}" -maxdepth 1 -name 'runcmd-*' | wc -l)
 	# No temp file should remain after failed run_cmd
-	[ "$after" -eq "$before" ]
+	[[ "$after" -eq "$before" ]]
 }
 
 @test "run_cmd reports command name in error output on failure" {
 	run --separate-stderr run_cmd false
 	assert_failure
+	# shellcheck disable=SC2154
 	[[ "$stderr" == *"false"* ]]
 }
 
@@ -141,6 +144,7 @@ setup() {
 	# Use a shell command that writes to stderr and fails
 	run --separate-stderr run_cmd bash -c 'echo "custom error output" >&2; exit 1'
 	assert_failure
+	# shellcheck disable=SC2154
 	[[ "$stderr" == *"custom error output"* ]]
 }
 
@@ -148,5 +152,5 @@ setup() {
 	local out_file="${BATS_TEST_TMPDIR}/touch_target"
 	run run_cmd touch "$out_file"
 	assert_success
-	[ -f "$out_file" ]
+	[[ -f "$out_file" ]]
 }

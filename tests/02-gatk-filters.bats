@@ -56,7 +56,7 @@ setup() {
 @test "GATK control SNP at 10101 is PASS" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10101)
-	[ "$filter" = "PASS" ]
+	[[ "$filter" = "PASS" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -66,37 +66,37 @@ setup() {
 @test "gatkSNPhard triggered by AS_FS=65 at 10201" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10201)
-	[ "$filter" = "gatkSNPhard" ]
+	[[ "$filter" = "gatkSNPhard" ]]
 }
 
 @test "gatkSNPhard triggered by AS_SOR=4 at 10301" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10301)
-	[ "$filter" = "gatkSNPhard" ]
+	[[ "$filter" = "gatkSNPhard" ]]
 }
 
 @test "gatkSNPhard triggered by AS_MQ=35 at 10401" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10401)
-	[ "$filter" = "gatkSNPhard" ]
+	[[ "$filter" = "gatkSNPhard" ]]
 }
 
 @test "gatkSNPhard triggered by AS_ReadPosRankSum=-10 at 10501" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10501)
-	[ "$filter" = "gatkSNPhard" ]
+	[[ "$filter" = "gatkSNPhard" ]]
 }
 
 @test "gatkSNPhard triggered by AS_MQRankSum=-15 at 10601" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10601)
-	[ "$filter" = "gatkSNPhard" ]
+	[[ "$filter" = "gatkSNPhard" ]]
 }
 
 @test "gatkSNPhard triggered by QUAL=20 at 10701" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10701)
-	[ "$filter" = "gatkSNPhard" ]
+	[[ "$filter" = "gatkSNPhard" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -106,7 +106,7 @@ setup() {
 @test "INDEL in exclude region at 20101 gets IN_EXCLUDE_REGION only (no hard filter)" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 20101)
-	[ "$filter" = "IN_EXCLUDE_REGION" ]
+	[[ "$filter" = "IN_EXCLUDE_REGION" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -116,19 +116,19 @@ setup() {
 @test "gatkINDELhard triggered by AS_FS=205 at 20201 (also IN_EXCLUDE_REGION)" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 20201)
-	[ "$filter" = "IN_EXCLUDE_REGION;gatkINDELhard" ]
+	[[ "$filter" = "IN_EXCLUDE_REGION;gatkINDELhard" ]]
 }
 
 @test "gatkINDELhard triggered by AS_ReadPosRankSum=-22 at 20301 (also IN_EXCLUDE_REGION)" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 20301)
-	[ "$filter" = "IN_EXCLUDE_REGION;gatkINDELhard" ]
+	[[ "$filter" = "IN_EXCLUDE_REGION;gatkINDELhard" ]]
 }
 
 @test "gatkINDELhard triggered by QUAL=25 at 20401 (also IN_EXCLUDE_REGION)" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 20401)
-	[ "$filter" = "IN_EXCLUDE_REGION;gatkINDELhard" ]
+	[[ "$filter" = "IN_EXCLUDE_REGION;gatkINDELhard" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -138,7 +138,7 @@ setup() {
 @test "DPu10het triggered by DP=8 het at 30101 (also NOT_IN_INCLUDE_REGION)" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 30101)
-	[ "$filter" = "NOT_IN_INCLUDE_REGION;DPu10het" ]
+	[[ "$filter" = "NOT_IN_INCLUDE_REGION;DPu10het" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -148,7 +148,7 @@ setup() {
 @test "DPu5hom triggered by DP=3 hom at 30201 (also NOT_IN_INCLUDE_REGION)" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 30201)
-	[ "$filter" = "NOT_IN_INCLUDE_REGION;DPu5hom" ]
+	[[ "$filter" = "NOT_IN_INCLUDE_REGION;DPu5hom" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -158,19 +158,19 @@ setup() {
 @test "VAFu02het triggered by low VAF het at 40101" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 40101)
-	[ "$filter" = "VAFu02het" ]
+	[[ "$filter" = "VAFu02het" ]]
 }
 
 @test "VAFo08het triggered by high VAF het at 50101" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 50101)
-	[ "$filter" = "VAFo08het" ]
+	[[ "$filter" = "VAFo08het" ]]
 }
 
 @test "VAFu095hom triggered by low VAF hom at 60101 (also NOT_IN_INCLUDE_REGION)" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 60101)
-	[ "$filter" = "NOT_IN_INCLUDE_REGION;VAFu095hom" ]
+	[[ "$filter" = "NOT_IN_INCLUDE_REGION;VAFu095hom" ]]
 }
 
 # ---------------------------------------------------------------------------

@@ -148,7 +148,7 @@ setup() {
 	actual_count=$(bcftools view -H "${OUTPUT_VCF}" | wc -l)
 	expected_count=$(bcftools view -H "${EXPECTED}/gatk_sample_A_filtered.vcf.gz" | wc -l)
 
-	[ "$actual_count" -eq "$expected_count" ]
+	[[ "$actual_count" -eq "$expected_count" ]]
 }
 
 # ===========================================================================
@@ -207,7 +207,7 @@ setup() {
 	filters_short=$(bcftools query -f '%CHROM\t%POS\t%FILTER\n' "$out_short")
 	filters_long=$(bcftools query -f '%CHROM\t%POS\t%FILTER\n' "$out_long")
 
-	[ "$filters_short" = "$filters_long" ]
+	[[ "$filters_short" = "$filters_long" ]]
 }
 
 # ===========================================================================
@@ -240,7 +240,7 @@ setup() {
 
 	local count
 	count=$(bcftools view -H "${OUTPUT_VCF}" | wc -l)
-	[ "$count" -eq 0 ]
+	[[ "$count" -eq 0 ]]
 }
 
 @test "TFWK-07: running without filters file does not crash the pipeline" {
@@ -291,5 +291,5 @@ setup() {
 	# All 16 variants must be present (no filtering applied)
 	local count
 	count=$(bcftools view -H "${OUTPUT_VCF}" | wc -l)
-	[ "$count" -eq 16 ]
+	[[ "$count" -eq 16 ]]
 }

@@ -52,7 +52,7 @@ setup() {
 @test "Freebayes control SNP at 10101 is PASS" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10101)
-	[ "$filter" = "PASS" ]
+	[[ "$filter" = "PASS" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -62,7 +62,7 @@ setup() {
 @test "lowQUAL triggered by QUAL=15 at 10201 (combined with QUALperAO)" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10201)
-	[ "$filter" = "lowQUAL;QUALperAO" ]
+	[[ "$filter" = "lowQUAL;QUALperAO" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -72,7 +72,7 @@ setup() {
 @test "QUALperAO triggered by QUAL/AO=6.25 at 10301 (QUAL=50 not lowQUAL)" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10301)
-	[ "$filter" = "QUALperAO" ]
+	[[ "$filter" = "QUALperAO" ]]
 }
 
 @test "10201 has both lowQUAL and QUALperAO in combined tag" {
@@ -88,13 +88,13 @@ setup() {
 @test "strandBias triggered by SAF=0 at 10401" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10401)
-	[ "$filter" = "strandBias" ]
+	[[ "$filter" = "strandBias" ]]
 }
 
 @test "strandBias triggered by SAR=0 at 10501" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10501)
-	[ "$filter" = "strandBias" ]
+	[[ "$filter" = "strandBias" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -104,7 +104,7 @@ setup() {
 @test "readPosBias triggered by RPR=1 and RPL=1 at 10601" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 10601)
-	[ "$filter" = "readPosBias" ]
+	[[ "$filter" = "readPosBias" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -114,7 +114,7 @@ setup() {
 @test "DPu10het triggered by DP=8 het at 20101 (also IN_EXCLUDE_REGION)" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 20101)
-	[ "$filter" = "IN_EXCLUDE_REGION;DPu10het" ]
+	[[ "$filter" = "IN_EXCLUDE_REGION;DPu10het" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -124,7 +124,7 @@ setup() {
 @test "DPu5hom triggered by DP=3 hom at 20201 (also IN_EXCLUDE_REGION)" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 20201)
-	[ "$filter" = "IN_EXCLUDE_REGION;DPu5hom" ]
+	[[ "$filter" = "IN_EXCLUDE_REGION;DPu5hom" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -134,7 +134,7 @@ setup() {
 @test "30101 has NOT_IN_INCLUDE_REGION, VAFu02het, and readPosBias combined" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 30101)
-	[ "$filter" = "NOT_IN_INCLUDE_REGION;VAFu02het;readPosBias" ]
+	[[ "$filter" = "NOT_IN_INCLUDE_REGION;VAFu02het;readPosBias" ]]
 }
 
 @test "30101 contains VAFu02het tag (VAF=2/20=0.1 < 0.2, het)" {
@@ -156,7 +156,7 @@ setup() {
 @test "VAFo08het triggered by high VAF het at 40101 (in include region)" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 40101)
-	[ "$filter" = "VAFo08het" ]
+	[[ "$filter" = "VAFo08het" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -166,7 +166,7 @@ setup() {
 @test "VAFu095hom triggered by VAF=0.9 hom at 50101" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 50101)
-	[ "$filter" = "VAFu095hom" ]
+	[[ "$filter" = "VAFu095hom" ]]
 }
 
 # ---------------------------------------------------------------------------
@@ -176,7 +176,7 @@ setup() {
 @test "60101 outside include region gets NOT_IN_INCLUDE_REGION only" {
 	local filter
 	filter=$(_get_filter "$OUTPUT_VCF" 22 60101)
-	[ "$filter" = "NOT_IN_INCLUDE_REGION" ]
+	[[ "$filter" = "NOT_IN_INCLUDE_REGION" ]]
 }
 
 # ---------------------------------------------------------------------------
