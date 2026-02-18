@@ -98,4 +98,4 @@ properties:
         description: Generate plots from bcftools stats
       plot_output_dir:
         type: string
-        description: Base directory for per-sample stats plots (default: {output_folder}/plots)
+        description: "Base directory for per-sample stats plots (default: {output_folder}/plots)"

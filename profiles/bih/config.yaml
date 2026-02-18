@@ -1,0 +1,6 @@
+executor: slurm
+default-resources:
+  slurm_partition: medium
+  slurm_account: hpc-ag-scholl
+jobs: 50
+latency-wait: 60
