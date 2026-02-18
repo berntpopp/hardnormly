@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 
 ## Current Position
 
-Phase: 2 of 5 (Test Data) — COMPLETE, advancing to Phase 3
-Plan: 4 of 4 in phase 02 (all complete)
-Status: Phase 2 complete
-Last activity: 2026-02-18 — Completed 02-04-PLAN.md (expected outputs and test configs)
+Phase: 3 of 5 (Test Framework)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-18 — Completed 03-01-PLAN.md (BATS infrastructure and smoke tests)
 
-Progress: [████░░░░░░] 35% (7/20 plans complete)
+Progress: [████░░░░░░] 40% (8/20 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: ~26 minutes
-- Total execution time: ~180 minutes
+- Total execution time: ~205 minutes
 
 **By Phase:**
 
@@ -29,9 +29,10 @@ Progress: [████░░░░░░] 35% (7/20 plans complete)
 |-------|-------|-------|----------|
 | 01-infrastructure | 3/3 ✓ | ~65 min | ~22 min |
 | 02-test-data | 4/4 ✓ | ~125 min | ~31 min |
+| 03-test-framework | 1/3 | ~25 min | ~25 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (25 min), 02-02 (45 min), 02-03 (45 min), 02-04 (10 min)
+- Last 5 plans: 02-02 (45 min), 02-03 (45 min), 02-04 (10 min), 03-01 (25 min)
 - Trend: stable ~10-45 min
 
 *Updated after each plan completion*
@@ -64,6 +65,10 @@ Progress: [████░░░░░░] 35% (7/20 plans complete)
 - hardnormly.sh had 3 bugs in --auto-index and exclude BED annotation (fixed in 02-04): exclude annotation "exclude"→"1", --write-index=tbi flag syntax (was -W tbi)
 - Test configs include ref.genome_file pointing to tests/data/hg19_chr22.genome to avoid UCSC MySQL queries during tests
 - Expected output baseline records commit at time of generation (not task commit) for accurate provenance
+- BATS installed via git submodules (not bats-action) — uses load not bats_load_library, requires submodules:recursive in CI checkout
+- _get_filter helper takes 3 args (vcf, chrom, pos) for forward-compatibility with hg38 chr-prefixed VCFs
+- .gitattributes eol=lf added for *.sh *.bash *.bats — fixes CRLF corruption on Windows with core.autocrlf=true
+- CI test job uses apt-get bcftools/bedtools (not conda) — sufficient for BATS tests
 
 ### Pending Todos
 
@@ -74,9 +79,11 @@ None yet.
 - `make help` fails on Windows dev environment (sh.exe @echo issue) — works on Linux CI. Not blocking.
 - New .sh files in future phases must be manually added to Makefile SH_FILES and CI lint steps.
 - hardnormly.sh 3 bug fixes in 02-04 may affect pre-existing test expectations — BATS tests in Phase 3 should use the fixed expected outputs in tests/data/expected/
+- Plan 03-02/03-03 must call _require_tools in setup() since filter tests need bcftools/bedtools
+- Windows dev: BATS submodule files need dos2unix after clone (CRLF from autocrlf=true) — .gitattributes eol=lf prevents this going forward but existing clones need manual fix
 
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 02-04-PLAN.md — expected outputs and test configs (18 files created/modified)
+Stopped at: Completed 03-01-PLAN.md — BATS infrastructure and smoke tests (10 files created/modified)
 Resume file: None
