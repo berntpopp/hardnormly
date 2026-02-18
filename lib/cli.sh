@@ -47,7 +47,8 @@ show_version() {
 # Variables set: include_bed_files, exclude_bed_files, filters (arrays)
 #   filters_file, fasta_file, vcf_file, output_vcf, genome_file, genome_build,
 #   log_file, plot_output_dir, tmp_dir, debug, cleanup, only_pass,
-#   generate_stats, plot_stats, auto_index, slop, version
+#   generate_stats, plot_stats, auto_index, slop, version,
+#   caller, strip_annotations
 # shellcheck disable=SC2034,SC2154
 parse_args() {
 	while [[ "$#" -gt 0 ]]; do
@@ -170,6 +171,22 @@ parse_args() {
 				;;
 			--auto-index)
 				auto_index=true
+				;;
+			--caller)
+				[[ -z "$2" || "$2" == -* ]] && {
+					echo "Error: Argument for $1 is missing"
+					show_help
+				}
+				caller="$2"
+				shift
+				;;
+			--strip-annotations)
+				[[ -z "$2" || "$2" == -* ]] && {
+					echo "Error: Argument for $1 is missing"
+					show_help
+				}
+				strip_annotations="$2"
+				shift
 				;;
 			--debug)
 				debug=true
