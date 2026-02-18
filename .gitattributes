@@ -1,2 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Shell scripts must always use LF line endings (CRLF breaks bash on Linux/WSL)
+*.sh text eol=lf
+*.bash text eol=lf
+*.bats text eol=lf
