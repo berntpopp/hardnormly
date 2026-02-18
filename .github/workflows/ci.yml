@@ -29,6 +29,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-      - name: Placeholder
-        run: echo "BATS tests will be added in Phase 3"
+      - name: Install bioinformatics tools
+        run: sudo apt-get update && sudo apt-get install -y bcftools bedtools
+
+      - name: Run BATS tests
+        run: tests/bats/bin/bats --print-output-on-failure tests/*.bats
