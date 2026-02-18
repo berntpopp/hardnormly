@@ -3,6 +3,8 @@
 # Script version
 version="0.6.0"
 
+set -Eeuo pipefail
+
 # Default values for parameters
 include_bed_files=()
 exclude_bed_files=()
@@ -24,21 +26,30 @@ plot_stats=false                              # Option to plot the stats
 plot_output_dir=""
 auto_index=false # New option: auto-index output if compressed
 
-# Ensure the temporary directory is cleaned up on exit or error
-trap '[[ $cleanup == true ]] && cleanup_tmp_dir' EXIT
-
-# Function to clean up the temporary directory
-cleanup_tmp_dir() {
-	if $cleanup; then
-		debug_msg "Starting cleanup of temporary directory: $tmp_dir"
-		if $debug; then
-			find "$tmp_dir" -type f -print -delete
-		else
-			rm -rf "$tmp_dir"
-		fi
-		debug_msg "Cleanup of temporary directory completed."
-	fi
+# Error handler — fires on any command failure due to set -E (errtrace)
+err_handler() {
+	local exit_code=$?
+	local line_number=$1
+	local failed_command="${BASH_COMMAND}"
+	echo "ERROR: '${failed_command}' failed (exit ${exit_code}) at line ${line_number}" >&2
 }
+
+# Cleanup handler — always runs on EXIT, preserving the original exit code
+cleanup_handler() {
+	local exit_code=$?
+	trap - EXIT # Prevent recursive re-entry if exit is called within this handler
+	if [[ "${cleanup:-true}" == "true" ]] && [[ -d "${tmp_dir:-}" ]]; then
+		if [[ "${debug:-false}" == "true" ]]; then
+			find "$tmp_dir" -type f -print -delete 2>/dev/null || true
+		else
+			rm -rf "$tmp_dir" 2>/dev/null || true
+		fi
+	fi
+	exit "$exit_code"
+}
+
+trap 'err_handler ${LINENO}' ERR
+trap cleanup_handler EXIT
 
 # Function to display help message
 show_help() {
@@ -376,16 +387,14 @@ norm_output=$(mktemp)
 norm_stdout=$(mktemp)
 
 # Run the command and capture both stdout and stderr
-bcftools norm -m-any --force -a --atom-overlaps . -W tbi -f "$fasta_file" "$vcf_file" -Oz -o "$normalized_vcf" 2>"$norm_output" 1>"$norm_stdout"
-norm_exit_code=$?
-
-# Check if there are any warnings or errors in the stderr output
-if [[ $norm_exit_code -ne 0 ]]; then
-	log_msg "Error: Failed to normalize the VCF."
-	log_msg "bcftools norm error details: $(cat "$norm_output")"
-	rm -f "$norm_output" "$norm_stdout"
-	exit 1
-fi
+bcftools norm -m-any --force -a --atom-overlaps . -W tbi -f "$fasta_file" "$vcf_file" \
+	-Oz -o "$normalized_vcf" 2>"$norm_output" 1>"$norm_stdout" \
+	|| {
+		log_msg "Error: Failed to normalize the VCF."
+		log_msg "bcftools norm error details: $(cat "$norm_output")"
+		rm -f "$norm_output" "$norm_stdout"
+		exit 1
+	}
 
 # Log any warnings (even if the command succeeded)
 if grep -q "Warning" "$norm_output"; then
@@ -405,91 +414,100 @@ debug_msg "Normalized VCF written to: $normalized_vcf"
 # Step 6: Apply filters to the normalized VCF
 log_msg "Filtering the normalized VCF file..."
 
-# Start building the pipeline command
-pipeline_cmd="bcftools view $normalized_vcf | bcftools +fill-tags"
+# Initialize the filter pipeline with fill-tags applied to a BCF temp file
+bcftools view "$normalized_vcf" \
+	| bcftools +fill-tags -Ob -o "$tmp_dir/filter_current.bcf" \
+	|| {
+		log_msg "Error: Failed to initialize filter pipeline."
+		exit 1
+	}
 
-# Apply filters based on the inclusion and exclusion annotations
+# Build filter stages array — each entry encodes: "name|action|expression"
+filter_stages=()
+
+# Region-based filters
 if [[ -f "$tmp_dir/merged_include_regions.bed.gz" ]]; then
-	filter_cmd="bcftools filter -s NOT_IN_INCLUDE_REGION -m+ -e 'INFO/INCLUDE_REGION!=1'"
-	pipeline_cmd="$pipeline_cmd | $filter_cmd"
-	debug_msg "Applied filter for inclusion regions: $filter_cmd"
+	filter_stages+=("NOT_IN_INCLUDE_REGION|e|INFO/INCLUDE_REGION!=1")
 fi
-
 if [[ -f "$tmp_dir/merged_exclude_regions.bed.gz" ]]; then
-	filter_cmd="bcftools filter -s IN_EXCLUDE_REGION -m+ -e 'INFO/EXCLUDE_REGION=1'"
-	pipeline_cmd="$pipeline_cmd | $filter_cmd"
-	debug_msg "Applied filter for exclusion regions: $filter_cmd"
+	filter_stages+=("IN_EXCLUDE_REGION|e|INFO/EXCLUDE_REGION=1")
 fi
 
-# Apply inline filters
+# Inline filters
 for filter in "${filters[@]}"; do
+	filter_name=""
+	filter_action=""
+	filter_expr=""
 	IFS=" " read -r filter_name filter_action filter_expr <<<"$filter"
-	filter_cmd="bcftools filter -m+ -s$filter_name -$filter_action '$filter_expr'"
-	pipeline_cmd="$pipeline_cmd | $filter_cmd"
-	debug_msg "Applied inline filter: $filter_cmd"
+	filter_stages+=("${filter_name}|${filter_action}|${filter_expr}")
 done
 
-# Apply filters from file, if provided
+# File-based filters
 if [[ -n "$filters_file" ]]; then
 	while IFS=" " read -r filter_name filter_action filter_expr; do
-		filter_expr=$(echo "$filter_expr" | tr -d '\r\n')
-		filter_cmd="bcftools filter -m+ -s$filter_name -$filter_action '$filter_expr'"
-		pipeline_cmd="$pipeline_cmd | $filter_cmd"
-		debug_msg "Applied filter from file: $filter_cmd"
+		filter_expr=$(tr -d '\r\n' <<<"$filter_expr")
+		filter_stages+=("${filter_name}|${filter_action}|${filter_expr}")
 	done <"$filters_file"
 fi
 
-# Apply PASS filter if the --only-pass option is set
-if $only_pass; then
-	pass_filter_cmd="bcftools view -f PASS"
-	pipeline_cmd="$pipeline_cmd | $pass_filter_cmd"
-	debug_msg "Applied PASS filter: $pass_filter_cmd"
-fi
+# Apply each filter stage sequentially via BCF temp files
+for stage in "${filter_stages[@]}"; do
+	stage_name=""
+	stage_action=""
+	stage_expr=""
+	IFS="|" read -r stage_name stage_action stage_expr <<<"$stage"
+	debug_msg "Applying filter: $stage_name ($stage_action) '$stage_expr'"
+	bcftools filter -m+ -s "$stage_name" "-${stage_action}" "$stage_expr" \
+		"$tmp_dir/filter_current.bcf" -Ob -o "$tmp_dir/filter_next.bcf" \
+		|| {
+			log_msg "Error: Filter '$stage_name' failed."
+			exit 1
+		}
+	mv "$tmp_dir/filter_next.bcf" "$tmp_dir/filter_current.bcf"
+done
 
-# Determine the output type based on the output file extension
+# Build output arguments based on the desired output file format
+output_args=()
 if [[ -n "$output_vcf" ]]; then
 	if [[ "$output_vcf" == *.vcf.gz ]]; then
-		output_type="z" # Compressed VCF
+		output_args+=("-Oz")
+		if $auto_index; then
+			output_args+=("-W" "tbi")
+			debug_msg "Auto-index enabled for compressed output."
+		fi
 	elif [[ "$output_vcf" == *.vcf ]]; then
-		output_type="v" # Uncompressed VCF
+		output_args+=("-Ov")
 	else
 		log_msg "Error: Unrecognized output file format for $output_vcf."
 		exit 1
 	fi
-
-	# Build the bcftools view command with optional auto-index (-W)
-	if $auto_index && [[ "$output_type" == "z" ]]; then
-		# If --auto-index is set AND output is compressed, add "-W"
-		pipeline_cmd="$pipeline_cmd | bcftools view -O$output_type -W tbi -o $output_vcf"
-		debug_msg "Auto-index enabled for compressed output."
-	else
-		pipeline_cmd="$pipeline_cmd | bcftools view -O$output_type -o $output_vcf"
-	fi
-else
-	pipeline_cmd="$pipeline_cmd | bcftools view"
+	output_args+=("-o" "$output_vcf")
 fi
 
-# Print the final composed pipeline command in debug mode
-debug_msg "Executing pipeline: $pipeline_cmd"
-
-# Execute the composed pipeline command.
-# SC2294: eval is used here to compose a dynamic bcftools pipeline with variable filter stages.
-# This is a temporary exception — eval will be replaced with an array-based sequential pipeline
-# in Plan 02 (eval replacement), which is the proper structural fix.
-# shellcheck disable=SC2294
-if ! eval "$pipeline_cmd"; then
-	log_msg "Error: Failed to filter the VCF."
-	exit 1
+# Apply PASS filter and write final output
+if $only_pass; then
+	bcftools view -f PASS "${output_args[@]}" "$tmp_dir/filter_current.bcf" \
+		|| {
+			log_msg "Error: PASS filter failed."
+			exit 1
+		}
+else
+	bcftools view "${output_args[@]}" "$tmp_dir/filter_current.bcf" \
+		|| {
+			log_msg "Error: Failed to write output."
+			exit 1
+		}
 fi
 
 # Step 7: Generate stats file if the --generate-stats option is set and output_vcf is provided
 if $generate_stats && [[ -n "$output_vcf" ]]; then
 	stats_output="${output_vcf%.vcf.gz}.stats.txt"
 	debug_msg "Generating stats file: $stats_output"
-	if ! bcftools stats "$output_vcf" >"$stats_output"; then
-		log_msg "Error: Failed to generate stats file."
-		exit 1
-	fi
+	bcftools stats "$output_vcf" >"$stats_output" \
+		|| {
+			log_msg "Error: Failed to generate stats file."
+			exit 1
+		}
 	log_msg "Stats file saved to $stats_output"
 
 	# If plotting is requested
@@ -498,19 +516,21 @@ if $generate_stats && [[ -n "$output_vcf" ]]; then
 		plot_output=$(mktemp)
 
 		# Run the plot-vcfstats command and capture its output
-		plot-vcfstats "$stats_output" -p "$plot_output_dir" >"$plot_output" 2>&1
-		plot_exit_code=$?
+		plot-vcfstats "$stats_output" -p "$plot_output_dir" >"$plot_output" 2>&1 \
+			|| {
+				log_msg "Error: Failed to plot stats."
+				# Log any output before cleaning up
+				while IFS= read -r line; do
+					log_msg "Plot-vcfstats output: $line"
+				done <"$plot_output"
+				rm -f "$plot_output"
+				exit 1
+			}
 
 		# Process and log the output from the plot-vcfstats command
 		while IFS= read -r line; do
 			log_msg "Plot-vcfstats output: $line"
 		done <"$plot_output"
-
-		if [[ $plot_exit_code -ne 0 ]]; then
-			log_msg "Error: Failed to plot stats."
-			rm -f "$plot_output"
-			exit 1
-		fi
 
 		log_msg "Plots saved to $plot_output_dir"
 		rm -f "$plot_output"
@@ -519,19 +539,6 @@ else
 	debug_msg "Stats generation skipped (either --generate-stats was not set or no output file provided)."
 fi
 
-# Cleanup temporary files
-if $cleanup; then
-	debug_msg "Cleaning up temporary directory: $tmp_dir"
-	rm -rf "$tmp_dir"
-else
-	debug_msg "Temporary directory not cleaned up: $tmp_dir"
-fi
-
 if [[ -n "$output_vcf" ]]; then
 	log_msg "Filtered VCF saved to $output_vcf"
-fi
-
-# Disable debugging if it was enabled
-if $debug; then
-	set +x # Disable command tracing
 fi
