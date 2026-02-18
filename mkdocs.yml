@@ -1,0 +1,49 @@
+site_name: hardnormly
+site_description: VCF normalization and hard filtering toolkit
+site_url: https://berntpopp.github.io/hardnormly/
+repo_url: https://github.com/berntpopp/hardnormly
+repo_name: hardnormly
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      toggle:
+        icon: material/brightness-7
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      toggle:
+        icon: material/brightness-4
+        name: Light mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - search.highlight
+
+nav:
+  - Home: index.md
+  - Pipeline: pipeline.md
+  - Options: options.md
+  - Filters: filters.md
+  - Examples: examples.md
+  - Snakemake: snakemake.md
+  - Architecture: architecture.md
+
+markdown_extensions:
+  - tables
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true

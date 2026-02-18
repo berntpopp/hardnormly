@@ -36,6 +36,9 @@
 /tests/test_helper/bats-assert/
 /tests/test_helper/bats-file/
 
+# MkDocs build output
+/site/
+
 # Allow .planning directory (contains "test-data" phase name which *test* would block)
 !/.planning/
 !/.planning/**
