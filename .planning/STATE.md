@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 5 of 5 (Features/Docs) — In progress
-Plan: 2 of 4 in phase 05 (05-01 now complete; 05-02 was done; 05-03 and 05-04 remain)
+Plan: 3 of 4 in phase 05 (05-01, 05-02, 05-03 complete; 05-04 remains)
 Status: In progress
-Last activity: 2026-02-18 — Completed 05-01-PLAN.md (--caller, --strip-annotations, non-fatal plot)
+Last activity: 2026-02-18 — Completed 05-03-PLAN.md (subcommand dispatcher, compact show_help, smoke tests)
 
-Progress: [█████████████░] 89% (17/19 plans complete)
+Progress: [██████████████░] 95% (18/19 plans complete)
 
 ## Performance Metrics
 
@@ -31,11 +31,11 @@ Progress: [█████████████░] 89% (17/19 plans complete
 | 02-test-data | 4/4 ✓ | ~125 min | ~31 min |
 | 03-test-framework | 3/3 ✓ | ~43 min | ~14 min |
 | 04-refactoring | 5/5 ✓ | ~22 min | ~4.4 min |
-| 05-features-docs | 3/4 | ~22 min | ~7 min |
+| 05-features-docs | 3/4 | ~37 min | ~9 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-04 (2 min), 04-05 (6 min), 05-01 (7 min), 05-02 (5 min), 05-01 re-exec (7 min)
-- Trend: features/docs plans fast (~5 min); aligned with refactoring phase velocity
+- Last 5 plans: 04-05 (6 min), 05-01 (7 min), 05-02 (5 min), 05-03 (15 min), —
+- Trend: features/docs plans fast (~5-15 min); dispatcher/help plan slightly longer due to investigation
 
 *Updated after each plan completion*
 
@@ -105,6 +105,10 @@ Progress: [█████████████░] 89% (17/19 plans complete
 - --caller resolution placed in hardnormly.sh (not cli.sh) — _SCRIPT_DIR is only available in hardnormly.sh
 - strip_vcf_annotations is step 4.5 in pipeline: runs between exclusion BED annotation and normalization
 - Python heredoc dollar-sign expansion: use a Python file on disk instead of heredoc when $ must survive WSL bash invocation
+- Subcommand dispatcher: case on _subcommand="${1:-}"; -* falls through to legacy parse_args; unknown words exit 1
+- show_help uses cat <<'HELP' heredoc (single-quoted) — prevents variable expansion, shellcheck-clean
+- cleanup_handler $? exit code quirk: direct shell test shows 0 but BATS correctly captures actual process exit status
+- Dispatcher code was pre-committed in docs(04) from prior session; Task 1 of 05-03 needed no new commit
 
 ### Pending Todos
 
@@ -119,6 +123,6 @@ Progress: [█████████████░] 89% (17/19 plans complete
 
 ## Session Continuity
 
-Last session: 2026-02-18T20:33:38Z
-Stopped at: Completed 05-01-PLAN.md — --caller, --strip-annotations, non-fatal plot
+Last session: 2026-02-18T20:50:00Z
+Stopped at: Completed 05-03-PLAN.md — subcommand dispatcher, compact show_help, 12 smoke tests
 Resume file: None
