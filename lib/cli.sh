@@ -1,6 +1,7 @@
 #!/bin/bash
 # lib/cli.sh — Argument parsing, validation, and filter parsing
-# Provides: show_help, show_version, parse_args, validate_args, parse_filter_args
+# Provides: show_help, show_version, parse_args, validate_args, parse_filter_args,
+#           show_help_generate_inclusion_bed, show_help_generate_exclusion_bed
 # Requires: lib/logging.sh (log_msg used in validate_args)
 
 [[ -n "${_LIB_CLI_LOADED:-}" ]] && return 0
@@ -54,6 +55,42 @@ HELP
 # Usage: show_version "$version"
 show_version() {
 	echo "Version: $1"
+	exit 0
+}
+
+# show_help_generate_inclusion_bed — help for generate-inclusion-bed subcommand
+show_help_generate_inclusion_bed() {
+	cat <<'HELP'
+Usage: hardnormly.sh generate-inclusion-bed [options]
+
+Merge one or more BED files into a combined inclusion region file.
+Applies bedtools intersect (for multiple files) and slop padding.
+
+Options:
+  -b, --include-bed FILE   Input BED file (required, repeatable)
+  -g, --genome FILE        Genome file for slop operation (required)
+  -o, --output FILE        Output merged BED file (required)
+  --slop N                 Region padding in bp (default: 20)
+  -v, --verbose            Show progress messages
+  -h, --help               Show this help
+HELP
+	exit 0
+}
+
+# show_help_generate_exclusion_bed — help for generate-exclusion-bed subcommand
+show_help_generate_exclusion_bed() {
+	cat <<'HELP'
+Usage: hardnormly.sh generate-exclusion-bed [options]
+
+Merge one or more BED files into a combined exclusion region file.
+Uses bedtools multiinter for union of all regions.
+
+Options:
+  -e, --exclude-bed FILE   Input BED file (required, repeatable)
+  -o, --output FILE        Output merged BED file (required)
+  -v, --verbose            Show progress messages
+  -h, --help               Show this help
+HELP
 	exit 0
 }
 
