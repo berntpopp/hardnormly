@@ -295,7 +295,7 @@ done
 # Normalize exclude BED files
 for bed_file in "${exclude_bed_files[@]}"; do
 	normalized_file="$tmp_dir/$(basename "$bed_file").normalized.bed"
-	normalize_bed "$bed_file" "exclude" "$normalized_file"
+	normalize_bed "$bed_file" "1" "$normalized_file"
 	normalized_exclude_bed_files+=("$normalized_file")
 done
 
@@ -387,7 +387,7 @@ norm_output=$(mktemp)
 norm_stdout=$(mktemp)
 
 # Run the command and capture both stdout and stderr
-bcftools norm -m-any --force -a --atom-overlaps . -W tbi -f "$fasta_file" "$vcf_file" \
+bcftools norm -m-any --force -a --atom-overlaps . --write-index=tbi -f "$fasta_file" "$vcf_file" \
 	-Oz -o "$normalized_vcf" 2>"$norm_output" 1>"$norm_stdout" \
 	|| {
 		log_msg "Error: Failed to normalize the VCF."
@@ -472,7 +472,7 @@ if [[ -n "$output_vcf" ]]; then
 	if [[ "$output_vcf" == *.vcf.gz ]]; then
 		output_args+=("-Oz")
 		if $auto_index; then
-			output_args+=("-W" "tbi")
+			output_args+=("--write-index=tbi")
 			debug_msg "Auto-index enabled for compressed output."
 		fi
 	elif [[ "$output_vcf" == *.vcf ]]; then
