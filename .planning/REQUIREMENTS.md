@@ -99,56 +99,56 @@ Deferred to future milestones. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFR-01 | TBD | Pending |
-| INFR-02 | TBD | Pending |
-| INFR-03 | TBD | Pending |
-| INFR-04 | TBD | Pending |
-| INFR-05 | TBD | Pending |
-| INFR-06 | TBD | Pending |
-| TDAT-01 | TBD | Pending |
-| TDAT-02 | TBD | Pending |
-| TDAT-03 | TBD | Pending |
-| TDAT-04 | TBD | Pending |
-| TDAT-05 | TBD | Pending |
-| TDAT-06 | TBD | Pending |
-| TDAT-07 | TBD | Pending |
-| TDAT-08 | TBD | Pending |
-| TFWK-01 | TBD | Pending |
-| TFWK-02 | TBD | Pending |
-| TFWK-03 | TBD | Pending |
-| TFWK-04 | TBD | Pending |
-| TFWK-05 | TBD | Pending |
-| TFWK-06 | TBD | Pending |
-| TFWK-07 | TBD | Pending |
-| REFR-01 | TBD | Pending |
-| REFR-02 | TBD | Pending |
-| REFR-03 | TBD | Pending |
-| REFR-04 | TBD | Pending |
-| REFR-05 | TBD | Pending |
-| REFR-06 | TBD | Pending |
-| REFR-07 | TBD | Pending |
-| REFR-08 | TBD | Pending |
-| REFR-09 | TBD | Pending |
-| REFR-10 | TBD | Pending |
-| REFR-11 | TBD | Pending |
-| REFR-12 | TBD | Pending |
-| REFR-13 | TBD | Pending |
-| FEAT-01 | TBD | Pending |
-| FEAT-02 | TBD | Pending |
-| FEAT-03 | TBD | Pending |
-| FEAT-04 | TBD | Pending |
-| FEAT-05 | TBD | Pending |
-| FEAT-06 | TBD | Pending |
-| FEAT-07 | TBD | Pending |
-| DOCS-01 | TBD | Pending |
-| DOCS-02 | TBD | Pending |
-| DOCS-03 | TBD | Pending |
+| INFR-01 | Phase 1 | Pending |
+| INFR-02 | Phase 1 | Pending |
+| INFR-03 | Phase 1 | Pending |
+| INFR-04 | Phase 1 | Pending |
+| INFR-05 | Phase 1 | Pending |
+| INFR-06 | Phase 1 | Pending |
+| TDAT-01 | Phase 2 | Pending |
+| TDAT-02 | Phase 2 | Pending |
+| TDAT-03 | Phase 2 | Pending |
+| TDAT-04 | Phase 2 | Pending |
+| TDAT-05 | Phase 2 | Pending |
+| TDAT-06 | Phase 2 | Pending |
+| TDAT-07 | Phase 2 | Pending |
+| TDAT-08 | Phase 2 | Pending |
+| TFWK-01 | Phase 3 | Pending |
+| TFWK-02 | Phase 3 | Pending |
+| TFWK-03 | Phase 3 | Pending |
+| TFWK-04 | Phase 3 | Pending |
+| TFWK-05 | Phase 3 | Pending |
+| TFWK-06 | Phase 3 | Pending |
+| TFWK-07 | Phase 3 | Pending |
+| REFR-01 | Phase 4 | Pending |
+| REFR-02 | Phase 4 | Pending |
+| REFR-03 | Phase 4 | Pending |
+| REFR-04 | Phase 4 | Pending |
+| REFR-05 | Phase 4 | Pending |
+| REFR-06 | Phase 4 | Pending |
+| REFR-07 | Phase 4 | Pending |
+| REFR-08 | Phase 4 | Pending |
+| REFR-09 | Phase 4 | Pending |
+| REFR-10 | Phase 4 | Pending |
+| REFR-11 | Phase 4 | Pending |
+| REFR-12 | Phase 4 | Pending |
+| REFR-13 | Phase 4 | Pending |
+| FEAT-01 | Phase 5 | Pending |
+| FEAT-02 | Phase 5 | Pending |
+| FEAT-03 | Phase 5 | Pending |
+| FEAT-04 | Phase 5 | Pending |
+| FEAT-05 | Phase 5 | Pending |
+| FEAT-06 | Phase 5 | Pending |
+| FEAT-07 | Phase 5 | Pending |
+| DOCS-01 | Phase 5 | Pending |
+| DOCS-02 | Phase 5 | Pending |
+| DOCS-03 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 43 total
-- Mapped to phases: 0
-- Unmapped: 43
+- v1 requirements: 44 total (note: count in header was 43 — INFR through DOCS per category counts)
+- Mapped to phases: 44
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after initial definition*
+*Last updated: 2026-02-18 after roadmap creation — all requirements mapped*
