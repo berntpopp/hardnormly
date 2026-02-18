@@ -39,3 +39,41 @@ setup() {
 	assert_failure
 	assert_output --partial "Unknown parameter"
 }
+
+@test "run-pipeline --help shows usage and exits non-zero" {
+	run "$HARDNORMLY" run-pipeline --help
+	assert_failure
+	assert_output --partial "Usage:"
+}
+
+@test "run-pipeline --version prints version and exits 0" {
+	run "$HARDNORMLY" run-pipeline --version
+	assert_success
+	assert_output --partial "Version:"
+}
+
+@test "unknown subcommand exits non-zero" {
+	run "$HARDNORMLY" bogus-subcommand
+	assert_failure
+	assert_output --partial "Unknown subcommand"
+}
+
+@test "--help output lists subcommands" {
+	run "$HARDNORMLY" --help
+	assert_failure
+	assert_output --partial "run-pipeline"
+	assert_output --partial "generate-inclusion-bed"
+	assert_output --partial "generate-exclusion-bed"
+}
+
+@test "--help output shows --caller flag" {
+	run "$HARDNORMLY" --help
+	assert_failure
+	assert_output --partial "--caller"
+}
+
+@test "--help output shows --strip-annotations flag" {
+	run "$HARDNORMLY" --help
+	assert_failure
+	assert_output --partial "--strip-annotations"
+}
