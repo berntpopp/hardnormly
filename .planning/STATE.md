@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 4 of 5 (Refactoring) — In progress
-Plan: 1 of 5 in phase 04 (done)
+Plan: 2 of 5 in phase 04 (done)
 Status: In progress
-Last activity: 2026-02-18 — Completed 04-01-PLAN.md (logging and CLI extraction into lib/)
+Last activity: 2026-02-18 — Completed 04-02-PLAN.md (genome/BED/annotate extraction into lib/)
 
-Progress: [███████░░░] 55% (11/20 plans complete)
+Progress: [████████░░] 60% (12/20 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
-- Average duration: ~21 minutes
-- Total execution time: ~237 minutes
+- Total plans completed: 12
+- Average duration: ~20 minutes
+- Total execution time: ~242 minutes
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [███████░░░] 55% (11/20 plans complete)
 | 01-infrastructure | 3/3 ✓ | ~65 min | ~22 min |
 | 02-test-data | 4/4 ✓ | ~125 min | ~31 min |
 | 03-test-framework | 3/3 ✓ | ~43 min | ~14 min |
-| 04-refactoring | 1/5 | ~4 min | ~4 min |
+| 04-refactoring | 2/5 | ~9 min | ~4.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (25 min), 03-02 (3 min), 03-03 (25 min), 04-01 (4 min)
+- Last 5 plans: 03-02 (3 min), 03-03 (25 min), 04-01 (4 min), 04-02 (5 min)
 - Trend: refactoring plans fast (pure code extraction, no new logic)
 
 *Updated after each plan completion*
@@ -84,22 +84,22 @@ Progress: [███████░░░] 55% (11/20 plans complete)
 - run_cmd uses ${_TMP_DIR:+${_TMP_DIR}/} expansion — falls back to /tmp before set_tmp_dir is called
 - ERR trap kept in hardnormly.sh for transition period (will be removed in 04-04 after all commands wrapped in run_cmd)
 - lib/ modules sourced via _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" for robust path resolution
-- New .sh files added to Makefile SH_FILES needed: lib/logging.sh, lib/cli.sh (blocker for next plans too)
+- SC2310/SC2311 pattern: avoid || for function calls in set -Eeuo pipefail scripts; rely on propagation; use $(set -e; fn) form for command substitutions
+- Makefile SH_FILES now includes all 5 lib/ modules (lib/logging.sh, lib/cli.sh, lib/genome.sh, lib/bed.sh, lib/annotate.sh)
+- create_genome_file uses manual retry loop (not run_cmd_with_retry) because it needs stdout capture; run_cmd_with_retry resolved for genome in 04-02 via retry loop in lib/genome.sh
 
 ### Pending Todos
 
-- Add lib/logging.sh and lib/cli.sh (and future lib/ files) to Makefile SH_FILES and CI lint steps
+- None (Makefile SH_FILES pending todo resolved in 04-02)
 
 ### Blockers/Concerns
 
 - `make help` fails on Windows dev environment (sh.exe @echo issue) — works on Linux CI. Not blocking.
-- New .sh files in future phases must be manually added to Makefile SH_FILES and CI lint steps.
 - Windows dev: BATS setup script uses -c core.autocrlf=false to prevent CRLF corruption on clone
 - TFWK-04 real-data tests require ref/hs37d5.fa — CI must either provide this file or accept that tests skip
-- run_cmd_with_retry not yet wired to UCSC MySQL call in hardnormly.sh — to be handled in 04-02 or 04-03 (genome.sh extraction)
 
 ## Session Continuity
 
-Last session: 2026-02-18T19:27:45Z
-Stopped at: Completed 04-01-PLAN.md — logging and CLI extraction into lib/logging.sh and lib/cli.sh
+Last session: 2026-02-18T19:36:25Z
+Stopped at: Completed 04-02-PLAN.md — genome/BED/annotate extraction into lib/genome.sh, lib/bed.sh, lib/annotate.sh
 Resume file: None
