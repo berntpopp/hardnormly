@@ -6,7 +6,7 @@ include_beds:
 exclude_beds:
   - "ref/exclude_files/dukeExcludeRegions.bed"
   - "ref/exclude_files/consensusBlacklist.bed"
-filters_file: "defaults/filters.txt"
+filters_file: "defaults/gatk_filters.txt"
 genome_file: "defaults/hg19.genome"
 vcf_files: "input/vcfs.txt"
 slop: 100

@@ -1,0 +1,9 @@
+DPu10het e FORMAT/DP<10 && GT!="hom"
+DPu5hom e FORMAT/DP<5 && GT=="hom"
+VAFu02het e FORMAT/VAF<0.2 && GT!="hom"
+VAFo08het e FORMAT/VAF>0.8 && GT!="hom"
+VAFu095hom e FORMAT/VAF<0.95 && GT=="hom"
+lowQUAL e QUAL<20
+QUALperAO e QUAL / INFO/AO < 10
+strandBias e INFO/SAF==0 || INFO/SAR==0
+readPosBias e INFO/RPR<=1 && INFO/RPL<=1
