@@ -32,6 +32,7 @@ nav:
   - Filters: filters.md
   - Examples: examples.md
   - Snakemake: snakemake.md
+  - Config Generator: config-generator.md
   - Architecture: architecture.md
 
 markdown_extensions:

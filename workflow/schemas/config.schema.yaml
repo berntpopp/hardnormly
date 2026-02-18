@@ -64,9 +64,18 @@ properties:
   filtering:
     type: object
     properties:
+      caller:
+        type: string
+        enum:
+          - gatk
+          - freebayes
+        description: Auto-select built-in filter set by caller name (alternative to filters_file)
       filters_file:
         type: string
-        description: Path to filter definitions file
+        description: Path to filter definitions file (overrides caller if both set)
+      strip_annotations:
+        type: string
+        description: Comma-separated INFO fields to remove before filtering (e.g., INFO/CSQ,INFO/ANN)
       only_pass:
         type: boolean
         default: false
@@ -87,3 +96,6 @@ properties:
         type: boolean
         default: false
         description: Generate plots from bcftools stats
+      plot_output_dir:
+        type: string
+        description: Base directory for per-sample stats plots (default: {output_folder}/plots)

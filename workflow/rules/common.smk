@@ -12,7 +12,9 @@ INCLUDE_BEDS = config.get("regions", {}).get("include_beds", [])
 EXCLUDE_BEDS = config.get("regions", {}).get("exclude_beds", [])
 SLOP = config.get("regions", {}).get("slop", 100)
 
+CALLER = config.get("filtering", {}).get("caller", "")
 FILTERS_FILE = config.get("filtering", {}).get("filters_file", "")
+STRIP_ANNOTATIONS = config.get("filtering", {}).get("strip_annotations", "")
 ONLY_PASS = config.get("filtering", {}).get("only_pass", False)
 
 OUTPUT_DIR = config["paths"]["output_folder"]
@@ -21,6 +23,9 @@ LOG_DIR = os.path.join(OUTPUT_DIR, config["paths"].get("log_subdir", "logs"))
 GENERATE_STATS = config.get("processing", {}).get("generate_stats", True)
 AUTO_INDEX = config.get("processing", {}).get("auto_index", True)
 PLOT_STATS = config.get("processing", {}).get("plot_stats", False)
+PLOT_OUTPUT_DIR = config.get("processing", {}).get(
+    "plot_output_dir", os.path.join(OUTPUT_DIR, "plots")
+)
 
 
 # ---------------------------------------------------------------------------
