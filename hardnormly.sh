@@ -39,14 +39,6 @@ plot_stats=false                              # Option to plot the stats
 plot_output_dir=""
 auto_index=false # New option: auto-index output if compressed
 
-# Error handler — fires on any command failure due to set -E (errtrace)
-err_handler() {
-	local exit_code=$?
-	local line_number=$1
-	local failed_command="${BASH_COMMAND}"
-	echo "ERROR: '${failed_command}' failed (exit ${exit_code}) at line ${line_number}" >&2
-}
-
 # Cleanup handler — always runs on EXIT, preserving the original exit code
 cleanup_handler() {
 	local exit_code=$?
@@ -61,7 +53,6 @@ cleanup_handler() {
 	exit "$exit_code"
 }
 
-trap 'err_handler ${LINENO}' ERR
 trap cleanup_handler EXIT
 
 # Parse command-line arguments (delegates to lib/cli.sh)
