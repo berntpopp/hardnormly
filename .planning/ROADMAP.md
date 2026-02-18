@@ -32,19 +32,18 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Goal**: The project enforces consistent code quality automatically — locally and in CI
 **Depends on**: Nothing (first phase)
 **Requirements**: INFR-01, INFR-02, INFR-03, INFR-04, INFR-05, INFR-06
+**Plans:** 3 plans
 **Success Criteria** (what must be TRUE):
   1. Running `shellcheck hardnormly.sh` exits 0 with no warnings
   2. Running `shfmt -d hardnormly.sh` exits 0 (no diffs)
   3. Pushing a commit triggers GitHub Actions and shows green checks for lint and test jobs
   4. Running `git commit` with a ShellCheck violation causes the pre-commit hook to reject it
   5. The script exits non-zero immediately when any piped command fails
-**Plans**: TBD
 
 Plans:
-- [ ] 01-01: Add ShellCheck config, fix existing findings, apply shfmt formatting
-- [ ] 01-02: Add set -euo pipefail with targeted exception handling
-- [ ] 01-03: Create GitHub Actions workflows (lint + test)
-- [ ] 01-04: Add pre-commit hooks config
+- [ ] 01-01-PLAN.md — ShellCheck config, fix findings, apply shfmt formatting (INFR-01, INFR-02)
+- [ ] 01-02-PLAN.md — Strict mode, traps, exception handling, eval replacement (INFR-03)
+- [ ] 01-03-PLAN.md — Pre-commit hooks, GitHub Actions CI, Makefile (INFR-04, INFR-05, INFR-06)
 
 ### Phase 2: Test Data
 
@@ -131,7 +130,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure | 0/4 | Not started | - |
+| 1. Infrastructure | 0/3 | Planned | - |
 | 2. Test Data | 0/4 | Not started | - |
 | 3. Test Framework | 0/4 | Not started | - |
 | 4. Refactoring | 0/5 | Not started | - |
