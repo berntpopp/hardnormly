@@ -65,7 +65,7 @@ When BED files are provided (`--include-bed` / `--exclude-bed`), two region filt
 | Filter Name | Condition | Meaning |
 |-------------|-----------|---------|
 | `NOT_IN_INCLUDE_REGION` | `INFO/INCLUDE_REGION!=1` | Variant is outside all inclusion regions |
-| `IN_EXCLUDE_REGION` | `INFO/EXCLUDE_REGION=1` | Variant is inside an exclusion region |
+| `IN_EXCLUDE_REGION` | `INFO/EXCLUDE_REGION==1` | Variant is inside an exclusion region |
 
 These are applied **before** any user-defined filters.
 

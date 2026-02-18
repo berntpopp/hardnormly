@@ -3,8 +3,8 @@
 
 SHFMT_FLAGS := -i 0 -bn -ci
 
-# Shell scripts to check (excludes Snakemake launcher which is out of scope)
-SH_FILES := hardnormly.sh $(wildcard lib/*.sh) .githooks/pre-commit scripts/setup-hooks.sh scripts/generate_exclusion_bed.sh tests/setup_bats.sh
+# Shell scripts to check
+SH_FILES := hardnormly.sh $(wildcard lib/*.sh) .githooks/pre-commit scripts/setup-hooks.sh scripts/generate_exclusion_bed.sh scripts/generate_config.sh scripts/run_snakemake.sh tests/setup_bats.sh
 
 .PHONY: lint format check-format check-shellcheck setup-hooks test test-debug help
 

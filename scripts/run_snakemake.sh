@@ -8,7 +8,10 @@
 #SBATCH --output=slurm_logs/%x-%j.log
 
 set -euo pipefail
-shopt -s inherit_errexit
+# inherit_errexit requires Bash >= 4.4; guard for portability on older HPC systems
+if [[ "${BASH_VERSINFO[0]}" -gt 4 || ("${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4) ]]; then
+	shopt -s inherit_errexit
+fi
 
 # ── Cluster auto-detection ──────────────────────────────────────────────────
 

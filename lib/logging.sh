@@ -43,9 +43,16 @@ debug_msg() {
 	log_msg "[DEBUG] $1"
 }
 
-# error_msg — write an ERROR-prefixed message to stderr
+# error_msg — write an ERROR-prefixed message to stderr (and log file if set)
 error_msg() {
-	log_msg "ERROR: $1" >&2
+	local timestamp
+	timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+	# Always write to stderr to honor the function contract
+	echo "[$timestamp] ERROR: $1" >&2
+	# Additionally append to log file when configured
+	if [[ -n "$_LOG_FILE" ]]; then
+		echo "[$timestamp] ERROR: $1" >>"$_LOG_FILE"
+	fi
 }
 
 # run_cmd — execute a command and capture stderr; report details on failure
