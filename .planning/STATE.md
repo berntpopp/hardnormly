@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Reliably normalize and filter VCF files for clean variant calls
-**Current focus:** Phase 5 — Features and Documentation (in progress)
+**Current focus:** Phase 5 — Features and Documentation (COMPLETE)
 
 ## Current Position
 
-Phase: 5 of 5 (Features/Docs) — In progress
-Plan: 3 of 4 in phase 05 (05-01, 05-02, 05-03 complete; 05-04 remains)
-Status: In progress
-Last activity: 2026-02-18 — Completed 05-03-PLAN.md (subcommand dispatcher, compact show_help, smoke tests)
+Phase: 5 of 5 (Features/Docs) — COMPLETE
+Plan: 4 of 4 in phase 05 (all complete: 05-01, 05-02, 05-03, 05-04)
+Status: Phase complete
+Last activity: 2026-02-18 — Completed 05-04-PLAN.md (generate-inclusion-bed, generate-exclusion-bed subcommands)
 
-Progress: [██████████████░] 95% (18/19 plans complete)
+Progress: [███████████████] 100% (19/19 plans complete)
 
 ## Performance Metrics
 
@@ -31,11 +31,11 @@ Progress: [██████████████░] 95% (18/19 plans compl
 | 02-test-data | 4/4 ✓ | ~125 min | ~31 min |
 | 03-test-framework | 3/3 ✓ | ~43 min | ~14 min |
 | 04-refactoring | 5/5 ✓ | ~22 min | ~4.4 min |
-| 05-features-docs | 3/4 | ~37 min | ~9 min |
+| 05-features-docs | 4/4 ✓ | ~41 min | ~10 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-05 (6 min), 05-01 (7 min), 05-02 (5 min), 05-03 (15 min), —
-- Trend: features/docs plans fast (~5-15 min); dispatcher/help plan slightly longer due to investigation
+- Last 5 plans: 05-01 (7 min), 05-02 (5 min), 05-03 (15 min), 05-04 (4 min), —
+- Trend: features/docs plans fast (~4-15 min); all complete
 
 *Updated after each plan completion*
 
@@ -109,6 +109,11 @@ Progress: [██████████████░] 95% (18/19 plans compl
 - show_help uses cat <<'HELP' heredoc (single-quoted) — prevents variable expansion, shellcheck-clean
 - cleanup_handler $? exit code quirk: direct shell test shows 0 but BATS correctly captures actual process exit status
 - Dispatcher code was pre-committed in docs(04) from prior session; Task 1 of 05-03 needed no new commit
+- Per-subcommand help exits 0 (informational); main show_help exits 1 (error path) — different semantics
+- Subcommand arg parsers are self-contained (own while/case) rather than reusing parse_args — different flag sets
+- genome_file REQUIRED for generate-inclusion-bed (slop needs it), NOT required for generate-exclusion-bed
+- No bgzip/tabix in generate-*-bed subcommands — plain BED output; users compress separately if needed
+- SC2064 disable inline for trap "rm -rf '$tmp_dir'" EXIT — double quotes capture current tmp_dir value at trap definition time
 
 ### Pending Todos
 
@@ -123,6 +128,6 @@ Progress: [██████████████░] 95% (18/19 plans compl
 
 ## Session Continuity
 
-Last session: 2026-02-18T20:50:00Z
-Stopped at: Completed 05-03-PLAN.md — subcommand dispatcher, compact show_help, 12 smoke tests
+Last session: 2026-02-18T20:49:11Z
+Stopped at: Completed 05-04-PLAN.md — generate-inclusion-bed and generate-exclusion-bed subcommands. ALL PHASES COMPLETE.
 Resume file: None
