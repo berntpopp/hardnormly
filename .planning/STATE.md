@@ -5,34 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Reliably normalize and filter VCF files for clean variant calls
-**Current focus:** Phase 1 — Infrastructure
+**Current focus:** Phase 2 — Test Data
 
 ## Current Position
 
-Phase: 1 of 5 (Infrastructure)
-Plan: 3 of 4 in current phase
+Phase: 2 of 5 (Test Data)
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-18 — Completed 01-03-PLAN.md (pre-commit hook, CI workflow, Makefile)
+Last activity: 2026-02-18 — Completed 02-02-PLAN.md (synthetic GATK and Freebayes VCFs)
 
-Progress: [███░░░░░░░] 20% (4/20 plans complete)
+Progress: [██░░░░░░░░] 25% (5/20 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: ~20 minutes
-- Total execution time: ~80 minutes
+- Total plans completed: 5
+- Average duration: ~25 minutes
+- Total execution time: ~125 minutes
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-infrastructure | 3/4 | ~65 min | ~22 min |
-| 02-test-data | 1/4 | ~25 min | ~25 min |
+| 02-test-data | 2/4 | ~70 min | ~35 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (15 min), 02-01 (25 min), 01-02 (25 min), 01-03 (25 min)
-- Trend: stable ~25 min
+- Last 5 plans: 01-01 (15 min), 02-01 (25 min), 01-02 (25 min), 01-03 (25 min), 02-02 (45 min)
+- Trend: stable ~25-45 min
 
 *Updated after each plan completion*
 
@@ -51,11 +51,13 @@ Progress: [███░░░░░░░] 20% (4/20 plans complete)
 - filter_stages array uses | delimiter (pipe cannot appear in bcftools filter expressions)
 - shfmt requires || { multiline } blocks — inline single-line style rejected by formatter
 - Gitignore negations must come AFTER the pattern they override (git last-match-wins rule)
-- chr22:1-100001 extracted from hs37d5.fa as mini_ref.fa for synthetic VCF testing
-- bioinformatics tools (samtools, bcftools, bedtools) available via WSL on Windows
+- chr22:1-100001 extracted from hs37d5.fa as mini_ref.fa for synthetic VCF testing (all-N telomeric region)
+- bioinformatics tools (samtools, bcftools, bedtools) available via WSL on Windows (/home/bernt/miniforge3/envs/hardnormly/bin)
 - scripts/run_snakemake.sh excluded from CI lint and Makefile SH_FILES (Snakemake out of scope)
 - hooks stored in .githooks/ (tracked in git, activated per-clone via setup-hooks.sh)
 - Makefile omits SHELL := override — Windows GNU Make (Windows32) doesn't resolve /bin/bash
+- Synthetic VCFs use REF=N throughout (mini_ref.fa is all-N telomeric sequence; bcftools TYPE() correctly classifies N>A as SNP, N>NA as INDEL)
+- Freebayes AO/SAF/SAR/RPR/RPL declared as INFO fields (site-level Type=Integer) to match filter expression INFO/SAF==0 syntax
 
 ### Pending Todos
 
@@ -69,5 +71,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 01-03-PLAN.md — pre-commit hook, GitHub Actions CI, Makefile
+Stopped at: Completed 02-02-PLAN.md — synthetic GATK/Freebayes VCFs (43 variants, 4 files)
 Resume file: None
