@@ -348,6 +348,19 @@ if [[ -f "$tmp_dir/merged_exclude_regions.bed.gz" ]]; then
 	create_header_file "EXCLUDE_REGION" "Excluded region" "$tmp_dir/exclude_regions.hdr"
 fi
 
+# Step 3.5: Preprocess VCF FILTER tags for bcftools compatibility
+# Varvis-exported VCFs often contain FILTER values in data (e.g., GATKCutoffSNP,
+# varvisFilter1.0) that are missing from the ##FILTER header section.
+# bcftools annotate requires all FILTER IDs to be defined in the header (it converts
+# them to integers internally via BCF representation). This preprocessing step adds
+# missing ##FILTER header definitions and renames IDs with invalid characters (dots).
+preprocessed_vcf="$tmp_dir/preprocessed.vcf.gz"
+preprocess_vcf_filters "$vcf_file" "$preprocessed_vcf"
+if [[ -f "$preprocessed_vcf" ]]; then
+	vcf_file="$preprocessed_vcf"
+	debug_msg "Using FILTER-preprocessed VCF: $vcf_file"
+fi
+
 # Step 4: Annotate the VCF file with the BED regions
 log_msg "Annotating VCF with BED regions..."
 
