@@ -79,7 +79,7 @@ preprocess_vcf_filters() {
 			MISSING:*) missing_csv="${line#MISSING:}" ;;
 			HAS_DOTS) has_dots=true ;;
 		esac
-	done <<< "$detect_out"
+	done <<<"$detect_out"
 
 	[[ -n "$missing_csv" ]] && log_msg "Warning: FILTER(s) used in VCF data but undefined in header: ${missing_csv} — adding header definitions."
 	[[ "$has_dots" == "true" ]] && log_msg "Warning: FILTER IDs with '.' detected (non-VCF-spec) — renaming '.' to '_' for bcftools compatibility."
@@ -136,7 +136,7 @@ preprocess_vcf_filters() {
 			}
 			print
 		}
-		' | bgzip -c > "$vcf_out"
+		' | bgzip -c >"$vcf_out"
 
 	tabix -p vcf "$vcf_out"
 }

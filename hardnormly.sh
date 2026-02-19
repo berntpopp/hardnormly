@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.7.1"
+version="0.7.2"
 
 set -Eeuo pipefail
 
