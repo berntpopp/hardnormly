@@ -95,6 +95,86 @@ setup() {
 }
 
 # ===========================================================================
+# lib/annotate.sh — preprocess_vcf_filters
+# ===========================================================================
+
+@test "preprocess_vcf_filters: clean VCF returns 0 with no output file" {
+	local output="${BATS_TEST_TMPDIR}/preprocessed.vcf.gz"
+	# minimal.vcf.gz has all FILTER IDs defined and no dots — should be a no-op
+	preprocess_vcf_filters "${SYNTH}/minimal.vcf.gz" "$output"
+	# No issues detected: output file must NOT be created
+	[[ ! -f "$output" ]]
+}
+
+@test "preprocess_vcf_filters: creates output for VCF with missing FILTER header" {
+	local output="${BATS_TEST_TMPDIR}/preprocessed.vcf.gz"
+	preprocess_vcf_filters "${SYNTH}/missing_filter.vcf.gz" "$output"
+	[[ -f "$output" ]]
+}
+
+@test "preprocess_vcf_filters: adds missing FILTER header line for undefined ID" {
+	local output="${BATS_TEST_TMPDIR}/preprocessed.vcf.gz"
+	preprocess_vcf_filters "${SYNTH}/missing_filter.vcf.gz" "$output"
+	# GATKCutoffSNP must now appear in the output header
+	bgzip -c -d "$output" | grep -q "##FILTER=<ID=GATKCutoffSNP"
+}
+
+@test "preprocess_vcf_filters: fixed VCF is readable by bcftools without error" {
+	local output="${BATS_TEST_TMPDIR}/preprocessed.vcf.gz"
+	preprocess_vcf_filters "${SYNTH}/missing_filter.vcf.gz" "$output"
+	# bcftools annotate requires all FILTER IDs to be defined; this must now succeed
+	run bcftools view -h "$output"
+	assert_success
+}
+
+@test "preprocess_vcf_filters: creates output for VCF with dot in FILTER ID" {
+	local output="${BATS_TEST_TMPDIR}/preprocessed.vcf.gz"
+	preprocess_vcf_filters "${SYNTH}/dot_filter.vcf.gz" "$output"
+	[[ -f "$output" ]]
+}
+
+@test "preprocess_vcf_filters: renames dot to underscore in FILTER header ID" {
+	local output="${BATS_TEST_TMPDIR}/preprocessed.vcf.gz"
+	preprocess_vcf_filters "${SYNTH}/dot_filter.vcf.gz" "$output"
+	# Header must use varvisFilter1_0, not varvisFilter1.0
+	bgzip -c -d "$output" | grep -q "##FILTER=<ID=varvisFilter1_0"
+}
+
+@test "preprocess_vcf_filters: renames dot to underscore in FILTER data column" {
+	local output="${BATS_TEST_TMPDIR}/preprocessed.vcf.gz"
+	preprocess_vcf_filters "${SYNTH}/dot_filter.vcf.gz" "$output"
+	# FILTER column in data must use varvisFilter1_0, not varvisFilter1.0
+	local filter
+	filter=$(bgzip -c -d "$output" | awk '!/^#/{print $7}')
+	[[ "$filter" = "varvisFilter1_0" ]]
+}
+
+@test "preprocess_vcf_filters: handles both missing header and dot (Varvis VCF case)" {
+	local output="${BATS_TEST_TMPDIR}/preprocessed.vcf.gz"
+	# missing_dot_filter.vcf.gz: varvisFilter1.0 — dot AND missing from header
+	preprocess_vcf_filters "${SYNTH}/missing_dot_filter.vcf.gz" "$output"
+	[[ -f "$output" ]]
+	bgzip -c -d "$output" | grep -q "##FILTER=<ID=varvisFilter1_0"
+	local filter
+	filter=$(bgzip -c -d "$output" | awk '!/^#/{print $7}')
+	[[ "$filter" = "varvisFilter1_0" ]]
+}
+
+@test "preprocess_vcf_filters: semicolon-delimited FILTER — all missing IDs added to header" {
+	local output="${BATS_TEST_TMPDIR}/preprocessed.vcf.gz"
+	preprocess_vcf_filters "${SYNTH}/multi_missing_filter.vcf.gz" "$output"
+	[[ -f "$output" ]]
+	bgzip -c -d "$output" | grep -q "##FILTER=<ID=GATKCutoffSNP"
+	bgzip -c -d "$output" | grep -q "##FILTER=<ID=varvisFilter1_0"
+}
+
+@test "preprocess_vcf_filters: output is indexed (tbi file exists)" {
+	local output="${BATS_TEST_TMPDIR}/preprocessed.vcf.gz"
+	preprocess_vcf_filters "${SYNTH}/missing_filter.vcf.gz" "$output"
+	[[ -f "${output}.tbi" ]]
+}
+
+# ===========================================================================
 # lib/annotate.sh — annotate_vcf_with_regions
 # ===========================================================================
 

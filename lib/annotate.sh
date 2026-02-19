@@ -136,9 +136,13 @@ preprocess_vcf_filters() {
 			}
 			print
 		}
-		' | bgzip -c >"$vcf_out"
+		' | bgzip -c >"$vcf_out" \
+		|| {
+			error_msg "preprocess_vcf_filters: pass 2 rewrite pipeline failed for $vcf_in"
+			return 1
+		}
 
-	tabix -p vcf "$vcf_out"
+	run_cmd tabix -p vcf "$vcf_out"
 }
 
 # annotate_vcf_with_regions — annotate a VCF file with a BED region INFO field
