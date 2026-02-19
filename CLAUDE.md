@@ -86,7 +86,7 @@ conda activate hardnormly
 conda activate snakemake  # needs snakemake 8+
 ```
 
-Key dependencies: bcftools 1.20, bedtools 2.31, htslib (bgzip/tabix), mysql client, matplotlib, tectonic.
+Key dependencies: bcftools >=1.21 (1.21 required for `--write-index=tbi`), bedtools 2.31, htslib (bgzip/tabix), mysql client, matplotlib, tectonic.
 
 ## Running
 

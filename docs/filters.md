@@ -40,10 +40,11 @@ gatkINDELhard e TYPE=="INDEL" && (AS_FS > 200 || AS_ReadPosRankSum < -20.0 || QU
 
 The `--caller` flag auto-selects a built-in filter file:
 
-| Value | Filter File |
-|-------|-------------|
-| `gatk` | `defaults/gatk_filters.txt` |
-| `freebayes` | `defaults/freebayes_filters.txt` |
+| Value | Filter File | Use When |
+|-------|-------------|----------|
+| `gatk` | `defaults/gatk_filters.txt` | GATK HaplotypeCaller with allele-specific annotations (`AS_FS`, `AS_SOR`, etc.) |
+| `gatk-no-as` | `defaults/gatk_filters_no_as.txt` | GATK output without AS annotations (e.g., Varvis-exported VCFs) |
+| `freebayes` | `defaults/freebayes_filters.txt` | Freebayes variant calls |
 
 If both `--caller` and `--filters-file` are provided, `--filters-file` takes precedence (with a warning).
 

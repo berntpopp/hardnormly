@@ -27,7 +27,7 @@ Options (run-pipeline):
   -g, --genome FILE        Genome file for slop (skips UCSC fetch)
   --genome-build BUILD     Genome build for UCSC fetch (default: hg19)
   --slop N                 Region padding in bp (default: 20)
-  --caller CALLER          Auto-select filter file: gatk, freebayes
+  --caller CALLER          Auto-select filter file: gatk, gatk-no-as, freebayes
   --filters-file FILE      Filter expression file
   --filters EXPR           Inline filter: "name action expression"
   --strip-annotations LIST Remove INFO fields before filtering (e.g. INFO/CSQ,INFO/ANN)

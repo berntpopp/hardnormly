@@ -32,6 +32,8 @@ These filters are common to both GATK and Freebayes filter sets. They operate on
 
 ## GATK HaplotypeCaller Filters (`gatk_filters.txt`)
 
+> Use with `--caller gatk`. Requires allele-specific annotations produced by GATK HaplotypeCaller with `-G AS_StandardAnnotation`.
+
 Caller-specific filters based on [GATK hard filtering recommendations](https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants).
 
 | Filter | Expression | Description |
@@ -46,6 +48,30 @@ Caller-specific filters based on [GATK hard filtering recommendations](https://g
 - **AS_MQ**: Allele-specific root mean square mapping quality
 - **AS_MQRankSum**: Allele-specific rank sum test for mapping qualities (ref vs alt)
 - **AS_ReadPosRankSum**: Allele-specific rank sum test for read position bias (ref vs alt)
+- **QUAL**: Phred-scaled variant quality score
+
+---
+
+---
+
+## GATK Filters (no allele-specific annotations) (`gatk_filters_no_as.txt`)
+
+> Use with `--caller gatk-no-as`. For GATK output that lacks `AS_` prefixed annotations — e.g., VCFs exported from Varvis or produced without `-G AS_StandardAnnotation`.
+
+Uses the same genotype-level filters as `gatk_filters.txt`, but replaces allele-specific site filters with standard (non-AS) INFO fields:
+
+| Filter | Expression | Description |
+|--------|-----------|-------------|
+| gatkSNPhard | `TYPE=="SNP" && (FS > 60 \|\| ReadPosRankSum < -8.0 \|\| QUAL < 30.0 \|\| SOR > 3.0 \|\| MQ < 40.0 \|\| MQRankSum < -12.5)` | SNP hard filters using non-AS INFO fields |
+| gatkINDELhard | `TYPE=="INDEL" && (FS > 200 \|\| ReadPosRankSum < -20.0 \|\| QUAL < 30.0)` | INDEL hard filters using non-AS INFO fields |
+
+### INFO fields used
+
+- **FS**: Fisher strand bias (phred-scaled p-value)
+- **SOR**: Strand odds ratio
+- **MQ**: Root mean square mapping quality
+- **MQRankSum**: Rank sum test for mapping qualities (ref vs alt)
+- **ReadPosRankSum**: Rank sum test for read position bias (ref vs alt)
 - **QUAL**: Phred-scaled variant quality score
 
 ---

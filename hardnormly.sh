@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version
-version="0.7.3"
+version="0.7.4"
 
 set -Eeuo pipefail
 
@@ -253,17 +253,34 @@ esac
 set_log_file "$log_file"
 set_debug "$debug"
 
+# Check bcftools minimum version (>=1.21 required for --write-index=tbi)
+_bcftools_ver=$(bcftools --version 2>/dev/null | awk 'NR==1{print $2}')
+if [[ -z "$_bcftools_ver" ]]; then
+	log_msg "Warning: bcftools not found in PATH — pipeline will fail"
+else
+	_bcftools_major="${_bcftools_ver%%.*}"
+	_bcftools_minor="${_bcftools_ver#*.}"
+	_bcftools_minor="${_bcftools_minor%%.*}"
+	if [[ "$_bcftools_major" -lt 1 ]] \
+		|| { [[ "$_bcftools_major" -eq 1 ]] && [[ "$_bcftools_minor" -lt 21 ]]; }; then
+		log_msg "Warning: bcftools ${_bcftools_ver} detected; >=1.21 required for --write-index=tbi (index may be CSI instead of TBI)"
+	fi
+fi
+
 # Resolve --caller to a filter file path (if set)
 if [[ -n "$caller" ]]; then
 	case "$caller" in
 		gatk)
 			_caller_file="${_SCRIPT_DIR}/defaults/gatk_filters.txt"
 			;;
+		gatk-no-as)
+			_caller_file="${_SCRIPT_DIR}/defaults/gatk_filters_no_as.txt"
+			;;
 		freebayes)
 			_caller_file="${_SCRIPT_DIR}/defaults/freebayes_filters.txt"
 			;;
 		*)
-			echo "Error: Unknown --caller '$caller'. Valid values: gatk, freebayes" >&2
+			echo "Error: Unknown --caller '$caller'. Valid values: gatk, gatk-no-as, freebayes" >&2
 			exit 1
 			;;
 	esac
