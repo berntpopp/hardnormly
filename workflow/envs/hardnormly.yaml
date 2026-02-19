@@ -2,7 +2,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bcftools=1.19
+  - bcftools=1.21
   - bedtools=2.31.1
-  - htslib=1.19
+  - htslib=1.21
   - mysql-client=8.3.0

@@ -61,7 +61,7 @@ write_filtered_output() {
 		if [[ "$output_vcf" == *.vcf.gz ]]; then
 			output_args+=("-Oz")
 			if [[ "$auto_index" == "true" ]]; then
-				output_args+=("--write-index")
+				output_args+=("--write-index=tbi")
 				debug_msg "Auto-index enabled for compressed output."
 			fi
 		elif [[ "$output_vcf" == *.vcf ]]; then

@@ -20,7 +20,7 @@ normalize_vcf() {
 	norm_stderr=$(mktemp "${tmp_dir}/norm-stderr-XXXXXX")
 	norm_stdout=$(mktemp "${tmp_dir}/norm-stdout-XXXXXX")
 
-	bcftools norm -m-any --force -a --atom-overlaps . --write-index \
+	bcftools norm -m-any --force -a --atom-overlaps . --write-index=tbi \
 		-f "$fasta_file" "$vcf_file" \
 		-Oz -o "$output_vcf" \
 		2>"$norm_stderr" 1>"$norm_stdout" \
