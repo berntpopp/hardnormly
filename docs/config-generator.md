@@ -186,7 +186,7 @@ Each row represents one FASTQ pair. Rows sharing the same `project_sample` value
 | Slop | Base pairs to pad include regions | `100` |
 
 !!! tip "Generating exclude BED files"
-    Use `scripts/generate_exclusion_bed.sh` or the `generate-exclusion-bed` subcommand to merge public blacklist databases into a single exclusion file.
+    Use `scripts/generate_exclusion_bed.sh -b hg19 -o ref/exclude_files/hg19_exclusion.bed` or `scripts/generate_exclusion_bed.sh -b hg38 -o ref/exclude_files/hg38_exclusion.bed` to download and merge public exclusion sources for your build. Use `generate-exclusion-bed` only when you already have source BED files to merge.
 
 ### Filtering
 

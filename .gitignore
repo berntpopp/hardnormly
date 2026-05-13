@@ -17,6 +17,13 @@
 /tmp/
 /stats/
 
+# Keep generated reference payloads out of git, but allow lightweight docs.
+!/ref/
+/ref/*
+!/ref/exclude_files/
+/ref/exclude_files/*
+!/ref/exclude_files/README.md
+
 # files with test in the name
 *test*
 

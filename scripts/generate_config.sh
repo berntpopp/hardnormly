@@ -779,7 +779,7 @@ configure_hardnormly() {
 	prompt_array HN_EXCLUDE_BEDS \
 		"Exclude region BED files  (blacklist / low-complexity / segmental duplications)" \
 		"" \
-		"Run 'scripts/generate_exclusion_bed.sh' or 'hardnormly.sh generate-exclusion-bed' to create these"
+		"Run 'scripts/generate_exclusion_bed.sh' to download public exclusions; use 'generate-exclusion-bed' only to merge existing BEDs"
 	for bed in "${HN_EXCLUDE_BEDS[@]}"; do validate_path "exclude_beds" "$bed"; done
 
 	prompt HN_SLOP "Region padding in base pairs (slop)" "100" \

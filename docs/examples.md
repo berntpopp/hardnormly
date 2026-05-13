@@ -25,7 +25,7 @@ Filter Freebayes calls while excluding problematic genomic regions:
   -v sample.freebayes.vcf.gz \
   -f reference.fasta \
   --caller freebayes \
-  -e ref/hg19_exclusion.bed \
+  -e ref/exclude_files/hg19_exclusion.bed \
   -o sample.filtered.vcf.gz
 ```
 
@@ -111,9 +111,11 @@ Creates `sample.filtered.stats.txt` and visual plots in `qc_plots/`.
 Create a comprehensive exclusion BED file from ENCODE blacklist, segmental duplications, low complexity, and centromere/telomere regions:
 
 ```bash
-bash scripts/generate_exclusion_bed.sh -b hg19 -o ref/hg19_exclusion.bed
-bash scripts/generate_exclusion_bed.sh -b hg38 -o ref/hg38_exclusion.bed
+bash scripts/generate_exclusion_bed.sh -b hg19 -o ref/exclude_files/hg19_exclusion.bed -v
+bash scripts/generate_exclusion_bed.sh -b hg38 -o ref/exclude_files/hg38_exclusion.bed -v
 ```
+
+Use the BED matching your reference build. UCSC sources use `chr` contig names; if your VCF/reference uses `1`, `2`, etc., strip the prefix before passing the BED to hardnormly.
 
 ## Merge BED Files (Subcommands)
 

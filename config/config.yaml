@@ -12,9 +12,7 @@ regions:
   include_beds:
     - "ref/target_files/agilent/S07604514/hg19/S07604514_Regions_hg19_valid_nochr.bed"
     - "ref/target_files/idt/hg19/IDT_xGen_Research_Targets_V1_hg19_nochr.bed"
-  exclude_beds:
-    - "ref/exclude_files/dukeExcludeRegions.bed"
-    - "ref/exclude_files/consensusBlacklist.bed"
+  exclude_beds: []  # Generate with scripts/generate_exclusion_bed.sh for your build
   slop: 100
 
 filtering:

@@ -79,6 +79,23 @@ hardnormly.sh generate-exclusion-bed [options]   # Merge exclusion BED files
 
 Run `hardnormly.sh --help` or `hardnormly.sh <subcommand> --help` for details.
 
+## Exclusion BEDs
+
+Exclusion BEDs are not committed as defaults. Generate one for the same genome build and contig naming style as your VCF/reference:
+
+```bash
+bash scripts/generate_exclusion_bed.sh -b hg19 -o ref/exclude_files/hg19_exclusion.bed -v
+bash scripts/generate_exclusion_bed.sh -b hg38 -o ref/exclude_files/hg38_exclusion.bed -v
+```
+
+The generator combines ENCODE/Boyle-Lab blacklist regions, UCSC segmental duplications, UCSC RepeatMasker low-complexity regions, and UCSC centromere/telomere intervals.
+
+UCSC sources use `chr` contig names. If your VCF uses `1` instead of `chr1`, create a matching copy:
+
+```bash
+sed 's/^chr//' ref/exclude_files/hg38_exclusion.bed > ref/exclude_files/hg38_exclusion_nochr.bed
+```
+
 ## License
 
 This project is licensed under the MIT License.

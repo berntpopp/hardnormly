@@ -9,7 +9,7 @@
 #   3. Low Complexity Regions (UCSC RepeatMasker, Low_complexity class)
 #   4. Centromeres/Telomeres (UCSC gap table; cytoBandIdeo fallback for hg38)
 #
-# Usage: bash scripts/generate_exclusion_bed.sh -b hg19 -o ref/hg19_exclusion.bed
+# Usage: bash scripts/generate_exclusion_bed.sh -b hg19 -o ref/exclude_files/hg19_exclusion.bed
 
 set -Eeuo pipefail
 
@@ -37,8 +37,8 @@ Sources merged into the output BED:
   4. Centromeres/Telomeres (UCSC gap table; cytoBandIdeo fallback for hg38)
 
 Example:
-  bash scripts/generate_exclusion_bed.sh -b hg19 -o ref/hg19_exclusion.bed
-  bash scripts/generate_exclusion_bed.sh -b hg38 -o ref/hg38_exclusion.bed
+  bash scripts/generate_exclusion_bed.sh -b hg19 -o ref/exclude_files/hg19_exclusion.bed
+  bash scripts/generate_exclusion_bed.sh -b hg38 -o ref/exclude_files/hg38_exclusion.bed
 EOF
 }
 
