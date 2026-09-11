@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**hardnormly** is a bioinformatics toolkit (v0.6.0) for VCF normalization and hard filtering. It uses `bcftools` for variant filtering/normalization and `bedtools` for region-based operations on genomic intervals. Designed for whole-exome sequencing (WES) variant processing pipelines.
+**hardnormly** is a bioinformatics toolkit for VCF normalization and hard filtering. It uses `bcftools` for variant filtering/normalization and `bedtools` for region-based operations on genomic intervals. Designed for whole-exome sequencing (WES) variant processing pipelines.
 
 ## Architecture
 
