@@ -1,0 +1,40 @@
+{
+  "title": "hardnormly",
+  "description": "hardnormly is a VCF normalization and hard filtering toolkit for whole-exome sequencing variant processing. It normalizes variants through multiallelic splitting and left-alignment, annotates genomic regions, and applies caller-specific hard filters through a standalone command-line tool and a Snakemake workflow.",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Popp, Bernt",
+      "orcid": "0000-0002-3679-1081",
+      "affiliation": "Berlin Institute of Health at Charité – Universitätsmedizin Berlin, Center of Functional Genomics, Berlin, Germany; Labor Berlin – Charité Vivantes GmbH, Berlin, Germany"
+    }
+  ],
+  "license": "MIT",
+  "access_right": "open",
+  "version": "0.7.4",
+  "publication_date": "2026-02-19",
+  "keywords": [
+    "bioinformatics",
+    "genomics",
+    "whole-exome sequencing",
+    "VCF normalization",
+    "variant filtering"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/berntpopp/hardnormly",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://github.com/berntpopp/hardnormly/releases/tag/v0.7.4",
+      "relation": "isIdenticalTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://berntpopp.github.io/hardnormly/",
+      "relation": "isDocumentedBy",
+      "scheme": "url"
+    }
+  ]
+}

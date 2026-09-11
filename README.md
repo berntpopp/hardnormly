@@ -96,6 +96,32 @@ UCSC sources use `chr` contig names. If your VCF uses `1` instead of `chr1`, cre
 sed 's/^chr//' ref/exclude_files/hg38_exclusion.bed > ref/exclude_files/hg38_exclusion_nochr.bed
 ```
 
+## How to cite
+
+If you use hardnormly, cite the software version used in your analysis. Citation
+metadata is available in [CITATION.cff](CITATION.cff), which also enables GitHub's
+**Cite this repository** button:
+
+> Popp, Bernt. hardnormly (version 0.7.4). 2026.
+> https://github.com/berntpopp/hardnormly/releases/tag/v0.7.4
+
+These metadata describe the latest published release, v0.7.4 (19 February 2026).
+A Zenodo DOI has not yet been minted; the release URL is the current citation
+target. [.zenodo.json](.zenodo.json) provides matching software metadata for a
+future archive.
+
+For future releases, maintainers should:
+
+1. Update the version, release date, and release URL in both metadata files, and
+   update the example citation above before creating the corresponding tag.
+2. Confirm the authors, affiliations, and ORCIDs, then validate `CITATION.cff`
+   with `cffconvert --validate` and check that `.zenodo.json` parses as JSON.
+3. Enable the repository in the Zenodo GitHub integration and publish a release
+   containing the updated metadata to create an archive.
+4. Verify the archive metadata and add the minted DOI and DOI badge to this
+   README and the appropriate DOI identifiers to the citation metadata. Use the
+   version-specific DOI when citing a particular analysis version.
+
 ## License
 
 This project is licensed under the MIT License.
