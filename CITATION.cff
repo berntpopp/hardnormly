@@ -7,15 +7,15 @@ abstract: >-
   sequencing variant processing. It normalizes variants through multiallelic
   splitting and left-alignment, annotates genomic regions, and applies caller-specific
   hard filters through a standalone command-line tool and a Snakemake workflow.
-version: 0.7.4
-date-released: '2026-02-19'
+version: 0.7.5
+date-released: '2026-10-21'
 url: 'https://berntpopp.github.io/hardnormly/'
 repository-code: 'https://github.com/berntpopp/hardnormly'
 license: MIT
 identifiers:
   - type: url
-    value: 'https://github.com/berntpopp/hardnormly/releases/tag/v0.7.4'
-    description: 'hardnormly v0.7.4 software release'
+    value: 'https://github.com/berntpopp/hardnormly/releases/tag/v0.7.5'
+    description: 'hardnormly v0.7.5 software release'
 keywords:
   - bioinformatics
   - genomics
