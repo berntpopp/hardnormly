@@ -20,7 +20,7 @@ The project has two execution modes:
 2. Normalize and merge include/exclude BED files (bedtools intersect, slop, multiinter)
 3. Compress and index merged BED files (bgzip + tabix)
 4. Annotate VCF with INCLUDE_REGION/EXCLUDE_REGION INFO fields (bcftools annotate)
-5. Normalize VCF (bcftools norm with multiallelic splitting)
+5. Normalize VCF (drop records on contigs absent from the FASTA, then bcftools norm with multiallelic splitting)
 6. Apply filters: region-based → inline/file-based → optional PASS-only (bcftools filter pipeline built via eval)
 7. Optional: generate stats (bcftools stats) and plots (plot-vcfstats)
 

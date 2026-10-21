@@ -276,6 +276,22 @@ setup() {
 	[[ "$count" -gt 1 ]]
 }
 
+@test "normalize_vcf drops records on contigs absent from the FASTA (issue #27)" {
+	local input="${BATS_TEST_TMPDIR}/decoy.vcf.gz"
+	local output="${BATS_TEST_TMPDIR}/normalized.vcf.gz"
+	# minimal.vcf.gz plus one record on a decoy contig not in mini_ref.fa
+	{
+		zcat "${SYNTH}/minimal.vcf.gz"
+		printf 'chrUn_JTFH01000001v1_decoy\t100\t.\tA\tG\t100\t.\t.\tGT:DP:AD\t0/1:20:10,10\n'
+	} | bgzip >"$input"
+	normalize_vcf "$input" "${SYNTH}/mini_ref.fa" "$output" "${BATS_TEST_TMPDIR}"
+	run bcftools view -H "$output"
+	assert_success
+	assert_output --partial $'22\t10001'
+	refute_output --partial "decoy"
+	[[ "${#lines[@]}" -eq 1 ]]
+}
+
 # ===========================================================================
 # lib/filter.sh — init_filter_pipeline, apply_filter_stages, write_filtered_output
 # ===========================================================================

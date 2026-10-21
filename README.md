@@ -102,10 +102,10 @@ If you use hardnormly, cite the software version used in your analysis. Citation
 metadata is available in [CITATION.cff](CITATION.cff), which also enables GitHub's
 **Cite this repository** button:
 
-> Popp, Bernt. hardnormly (version 0.7.4). 2026.
-> https://github.com/berntpopp/hardnormly/releases/tag/v0.7.4
+> Popp, Bernt. hardnormly (version 0.7.5). 2026.
+> https://github.com/berntpopp/hardnormly/releases/tag/v0.7.5
 
-These metadata describe the latest published release, v0.7.4 (19 February 2026).
+These metadata describe the latest published release, v0.7.5 (21 October 2026).
 A Zenodo DOI has not yet been minted; the release URL is the current citation
 target. [.zenodo.json](.zenodo.json) provides matching software metadata for a
 future archive.
